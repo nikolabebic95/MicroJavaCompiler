@@ -1,0 +1,2 @@
+INDEX VERSION 1.129+C:\Users\nemanja\Desktop\HDD\PP1\2017-2018\Projekat\pp1lab_templateAST\pp1lab.templateAST\workspace\.metadata\.plugins\org.eclipse.jdt.core
+267254768.index
