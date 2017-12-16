@@ -12,5 +12,6 @@ program MJProgram
 		x = y+3;
 		k();
 		print(2);
+		print(x);
 	}
 }
