@@ -88,20 +88,21 @@ public class sym {
   public static int PRINT = 41;
   public static int READ = 42;
   public static int VOID = 43;
+  public static int CONST = 44;
   // endregion
 
   // region Constants
-  public static int INT_VALUE = 44;
-  public static int CHAR_VALUE = 45;
-  public static int BOOL_VALUE = 46;
+  public static int INT_VALUE = 45;
+  public static int CHAR_VALUE = 46;
+  public static int BOOL_VALUE = 47;
   // endregion
 
   // region Identifier
-  public static int IDENTIFIER = 47;
+  public static int IDENTIFIER = 48;
   // endregion
 
   // region Error
-  public static int ERROR = 48;
+  public static int ERROR = 49;
   // endregion
 
 }

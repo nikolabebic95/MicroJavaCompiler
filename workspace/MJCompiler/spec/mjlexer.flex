@@ -97,6 +97,7 @@ import java_cup.runtime.Symbol;
 "print"     { return createSymbol(sym.PRINT, yytext()); }
 "read"      { return createSymbol(sym.READ, yytext()); }
 "void"      { return createSymbol(sym.VOID, yytext()); }
+"const"     { return createSymbol(sym.CONST, yytext()); }
 
 // Constants
 [0-9]+                  { return createSymbol(sym.INT_VALUE, new Integer (yytext())); }
