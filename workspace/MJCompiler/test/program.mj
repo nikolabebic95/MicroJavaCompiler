@@ -6,7 +6,7 @@ program MJProgram
 		c = 0;
 		return c+3;
 	}
-	
+
 	int main() {
 		print(1);
 		x = y+3;

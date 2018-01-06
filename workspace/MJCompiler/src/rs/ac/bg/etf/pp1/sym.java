@@ -8,24 +8,101 @@ package rs.ac.bg.etf.pp1;
 
 /** CUP generated class containing symbol constants. */
 public class sym {
-  /* terminals */
-  public static final int ELSE = 17;
-  public static final int IDENT = 15;
-  public static final int PLUS = 11;
-  public static final int RBRACE = 4;
-  public static final int RPAREN = 7;
-  public static final int EQUAL = 12;
-  public static final int SEMI = 5;
-  public static final int RETURN = 10;
-  public static final int IF = 16;
-  public static final int LPAREN = 6;
-  public static final int LBRACE = 3;
-  public static final int COMMA = 8;
-  public static final int EOF = 0;
-  public static final int NUMBER = 14;
-  public static final int PROG = 2;
-  public static final int PRINT = 9;
-  public static final int error = 1;
-  public static final int VOID = 13;
+
+  // region EOF
+  public static int EOF = 0;
+  // endregion
+
+  // region Types
+  public static int INT = 1;
+  public static int BOOL = 2;
+  public static int CHAR = 3;
+  // endregion
+
+  // region Null
+  public static int NULL = 4;
+  // endregion
+
+  // region Operators
+
+  // region Arithmetic
+  public static int ADD = 5;
+  public static int SUBTRACT = 6;
+  public static int MULTIPLY = 7;
+  public static int DIVIDE = 8;
+  public static int MODULO = 9;
+  // endregion
+
+  // region Relational
+  public static int EQUAL = 10;
+  public static int NOT_EQUAL = 11;
+  public static int GREATER = 12;
+  public static int GREATER_EQUAL = 13;
+  public static int LESS = 14;
+  public static int LESS_EQUAL = 15;
+  // endregion
+
+  // region Logical
+  public static int AND = 16;
+  public static int OR = 17;
+  // endregion
+
+  // region Assignment
+  public static int ASSIGN = 18;
+  // endregion
+
+  // region Increment and decrement
+  public static int INCREMENT = 19;
+  public static int DECREMENT = 20;
+  // endregion
+
+  // region Separators
+  public static int SEPARATOR = 21;
+  public static int COMMA = 22;
+  public static int POINT = 23;
+  // endregion
+
+  // region Encolsures
+  public static int LEFT_PARENTHESIS = 24;
+  public static int RIGHT_PARENTHESIS = 25;
+  public static int LEFT_BRACKET = 26;
+  public static int RIGHT_BRACKET = 27;
+  public static int LEFT_BRACE = 28;
+  public static int RIGHT_BRACE = 29;
+  // endregion
+
+  // endregion
+
+  // region Keywords
+  public static int PROGRAM = 30;
+  public static int CLASS = 31;
+  public static int EXTENDS = 32;
+  public static int IF = 33;
+  public static int ELSE = 34;
+  public static int NEW = 35;
+  public static int DO = 36;
+  public static int WHILE = 37;
+  public static int RETURN = 38;
+  public static int BREAK = 39;
+  public static int CONTINUE = 40;
+  public static int PRINT = 41;
+  public static int READ = 42;
+  public static int VOID = 43;
+  // endregion
+
+  // region Constants
+  public static int INT_VALUE = 44;
+  public static int CHAR_VALUE = 45;
+  public static int BOOL_VALUE = 46;
+  // endregion
+
+  // region Identifier
+  public static int IDENTIFIER = 47;
+  // endregion
+
+  // region Error
+  public static int ERROR = 48;
+  // endregion
+
 }
 
