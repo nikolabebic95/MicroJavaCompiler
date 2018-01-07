@@ -1,36 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/0/2018 20:30:47
+// 7/0/2018 16:31:32
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class FactorDerived3 extends Factor {
 
-    private Designator Designator;
-    private ActualPars ActualPars;
+    private LeftValue LeftValue;
 
-    public FactorDerived3 (Designator Designator, ActualPars ActualPars) {
-        this.Designator=Designator;
-        if(Designator!=null) Designator.setParent(this);
-        this.ActualPars=ActualPars;
-        if(ActualPars!=null) ActualPars.setParent(this);
+    public FactorDerived3 (LeftValue LeftValue) {
+        this.LeftValue=LeftValue;
+        if(LeftValue!=null) LeftValue.setParent(this);
     }
 
-    public Designator getDesignator() {
-        return Designator;
+    public LeftValue getLeftValue() {
+        return LeftValue;
     }
 
-    public void setDesignator(Designator Designator) {
-        this.Designator=Designator;
-    }
-
-    public ActualPars getActualPars() {
-        return ActualPars;
-    }
-
-    public void setActualPars(ActualPars ActualPars) {
-        this.ActualPars=ActualPars;
+    public void setLeftValue(LeftValue LeftValue) {
+        this.LeftValue=LeftValue;
     }
 
     public void accept(Visitor visitor) {
@@ -38,19 +27,16 @@ public class FactorDerived3 extends Factor {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Designator!=null) Designator.accept(visitor);
-        if(ActualPars!=null) ActualPars.accept(visitor);
+        if(LeftValue!=null) LeftValue.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Designator!=null) Designator.traverseTopDown(visitor);
-        if(ActualPars!=null) ActualPars.traverseTopDown(visitor);
+        if(LeftValue!=null) LeftValue.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Designator!=null) Designator.traverseBottomUp(visitor);
-        if(ActualPars!=null) ActualPars.traverseBottomUp(visitor);
+        if(LeftValue!=null) LeftValue.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -59,14 +45,8 @@ public class FactorDerived3 extends Factor {
         buffer.append(tab);
         buffer.append("FactorDerived3(\n");
 
-        if(Designator!=null)
-            buffer.append(Designator.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        if(ActualPars!=null)
-            buffer.append(ActualPars.toString("  "+tab));
+        if(LeftValue!=null)
+            buffer.append(LeftValue.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

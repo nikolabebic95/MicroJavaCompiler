@@ -1,25 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/0/2018 20:30:47
+// 7/0/2018 16:31:30
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class StatementDerived1 extends Statement {
 
-    private Matched Matched;
-
-    public StatementDerived1 (Matched Matched) {
-        this.Matched=Matched;
-        if(Matched!=null) Matched.setParent(this);
-    }
-
-    public Matched getMatched() {
-        return Matched;
-    }
-
-    public void setMatched(Matched Matched) {
-        this.Matched=Matched;
+    public StatementDerived1 () {
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +15,13 @@ public class StatementDerived1 extends Statement {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Matched!=null) Matched.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Matched!=null) Matched.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Matched!=null) Matched.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -44,12 +29,6 @@ public class StatementDerived1 extends Statement {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("StatementDerived1(\n");
-
-        if(Matched!=null)
-            buffer.append(Matched.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
 
         buffer.append(tab);
         buffer.append(") [StatementDerived1]");

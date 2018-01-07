@@ -1,24 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/0/2018 20:30:47
+// 7/0/2018 16:31:32
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class FactorDerived1 extends Factor {
 
-    private Integer N1;
+    private ArithmeticExpression ArithmeticExpression;
 
-    public FactorDerived1 (Integer N1) {
-        this.N1=N1;
+    public FactorDerived1 (ArithmeticExpression ArithmeticExpression) {
+        this.ArithmeticExpression=ArithmeticExpression;
+        if(ArithmeticExpression!=null) ArithmeticExpression.setParent(this);
     }
 
-    public Integer getN1() {
-        return N1;
+    public ArithmeticExpression getArithmeticExpression() {
+        return ArithmeticExpression;
     }
 
-    public void setN1(Integer N1) {
-        this.N1=N1;
+    public void setArithmeticExpression(ArithmeticExpression ArithmeticExpression) {
+        this.ArithmeticExpression=ArithmeticExpression;
     }
 
     public void accept(Visitor visitor) {
@@ -26,13 +27,16 @@ public class FactorDerived1 extends Factor {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(ArithmeticExpression!=null) ArithmeticExpression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(ArithmeticExpression!=null) ArithmeticExpression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(ArithmeticExpression!=null) ArithmeticExpression.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -41,7 +45,10 @@ public class FactorDerived1 extends Factor {
         buffer.append(tab);
         buffer.append("FactorDerived1(\n");
 
-        buffer.append(" "+tab+N1);
+        if(ArithmeticExpression!=null)
+            buffer.append(ArithmeticExpression.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);

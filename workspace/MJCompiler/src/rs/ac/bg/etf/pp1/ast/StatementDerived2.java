@@ -1,25 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/0/2018 20:30:47
+// 7/0/2018 16:31:30
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class StatementDerived2 extends Statement {
 
-    private Unmatched Unmatched;
+    private Expression Expression;
 
-    public StatementDerived2 (Unmatched Unmatched) {
-        this.Unmatched=Unmatched;
-        if(Unmatched!=null) Unmatched.setParent(this);
+    public StatementDerived2 (Expression Expression) {
+        this.Expression=Expression;
+        if(Expression!=null) Expression.setParent(this);
     }
 
-    public Unmatched getUnmatched() {
-        return Unmatched;
+    public Expression getExpression() {
+        return Expression;
     }
 
-    public void setUnmatched(Unmatched Unmatched) {
-        this.Unmatched=Unmatched;
+    public void setExpression(Expression Expression) {
+        this.Expression=Expression;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +27,16 @@ public class StatementDerived2 extends Statement {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Unmatched!=null) Unmatched.accept(visitor);
+        if(Expression!=null) Expression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Unmatched!=null) Unmatched.traverseTopDown(visitor);
+        if(Expression!=null) Expression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Unmatched!=null) Unmatched.traverseBottomUp(visitor);
+        if(Expression!=null) Expression.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +45,8 @@ public class StatementDerived2 extends Statement {
         buffer.append(tab);
         buffer.append("StatementDerived2(\n");
 
-        if(Unmatched!=null)
-            buffer.append(Unmatched.toString("  "+tab));
+        if(Expression!=null)
+            buffer.append(Expression.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

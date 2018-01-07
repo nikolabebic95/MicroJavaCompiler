@@ -2,9 +2,7 @@ package rs.ac.bg.etf.pp1;
 
 import java_cup.runtime.*;
 import org.apache.log4j.*;
-
-// import java.io.*;
-
+import rs.ac.bg.etf.pp1.ast.*;
 
 parser code {:
 
@@ -12,28 +10,28 @@ parser code {:
 
 	Logger log = Logger.getLogger(getClass());
 
-
-    // slede redefinisani metodi za prijavu gresaka radi izmene teksta poruke
-
-    public void report_fatal_error(String message, Object info) throws java.lang.Exception {
-      done_parsing();
-      report_error(message, info);
-    }
+	// Redefined methods for error reporting
 
     public void syntax_error(Symbol cur_token) {
-        report_error("\nSintaksna greska", cur_token);
+        report_error("\nSyntax error: ", cur_token);
     }
 
     public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
-        report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+        report_fatal_error("\nFatal error, parsing can't continue: ", cur_token);
     }
 
     public void report_error(String message, Object info) {
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append (" na liniji ").append(((Symbol)info).left);
+            msg.append (" at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
+
+	public void report_fatal_error(String message, Object info) throws java.lang.Exception {
+      done_parsing();
+      report_error(message, info);
+    }
+
 :}
 
 scan with {:
@@ -43,94 +41,449 @@ scan with {:
 	return s;
 :}
 
-terminal PROG, LBRACE, RBRACE, SEMI, LPAREN, RPAREN, COMMA, PRINT, RETURN, PLUS, EQUAL, VOID;
-terminal Integer NUMBER ;
-terminal String IDENT ;
-terminal IF, ELSE;
 
-non terminal Program, VarDeclList, MethodDeclList, VarDecl, Type, MethodDecl;
-non terminal FormalParamList, FormalParamDecl, FormPars, ActualPars, ActualParamList;
-non terminal StatementList, Statement, Designator, Expr, Term, Addop, Factor;
-non terminal Unmatched, Matched;
+// Terminals
 
+terminal INT, BOOL, CHAR;
+terminal NULL;
+terminal ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO;
+terminal EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
+terminal AND, OR;
+terminal ASSIGN;
+terminal INCREMENT, DECREMENT;
+terminal SEPARATOR, COMMA, POINT;
+terminal LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE;
+terminal PROGRAM, CLASS, EXTENDS, IF, ELSE, NEW, DO, WHILE, RETURN, BREAK, CONTINUE, PRINT, READ, VOID, CONST;
+terminal Integer INT_VALUE;
+terminal Character CHAR_VALUE;
+terminal Boolean BOOL_VALUE;
+terminal String IDENTIFIER;
+terminal ERROR;
 
-Program ::= PROG IDENT VarDeclList LBRACE MethodDeclList RBRACE ;
+// Non terminals
 
-VarDeclList ::= VarDeclList VarDecl
+non terminal Program;
+non terminal DeclarationsList;
+non terminal MethodsList;
+non terminal OptionalMethodsList;
+non terminal Declaration;
+non terminal ClassName;
+non terminal Type;
+non terminal ReturnType;
+non terminal Method;
+non terminal BaseClassDeclaration;
+non terminal ClassDeclaration;
+non terminal ConstantDeclaration;
+non terminal VariableDeclaration;
+non terminal FormalParametersList;
+non terminal LocalVariablesList;
+non terminal Block;
+non terminal ConstantsList;
+non terminal VariablesList;
+non terminal FormalParameter;
+non terminal Statement;
+non terminal ConstantDefinition;
+non terminal VariableDefinition;
+non terminal OptionalArrayDeclaration;
+non terminal Expression;
+non terminal Conditional;
+non terminal Loop;
+non terminal LoopExit;
+non terminal Return;
+non terminal BuiltInFunction;
+non terminal Constant;
+non terminal LeftValue;
+non terminal RightValue;
+non terminal Condition;
+non terminal OptionalElse;
+non terminal OptionalPrintParameter;
+non terminal LeftValueStart;
+non terminal OptionalIndirections;
+non terminal ArithmeticExpression;
+non terminal PureArithmeticExpression;
+non terminal LogicalExpression;
+non terminal Allocation;
+non terminal IncrementDecrement;
+non terminal ConditionTerm;
+non terminal OptionalConditionTerms;
+non terminal FunctionCall;
+non terminal Indirection;
+non terminal Term;
+non terminal OptionalTerms;
+non terminal OptionalArrayDefinition;
+non terminal ConditionFactor;
+non terminal OptionalConditionFactors;
+non terminal ActualParametersList;
+non terminal ActualParametersListAtLeastOne;
+non terminal Factor;
+non terminal OptionalFactors;
+non terminal AddOperator;
+non terminal ConditionFactorToken;
+non terminal OptionalConditionFactorTokens;
+non terminal ActualParameter;
+non terminal OptionalActualParameters;
+non terminal MultiplyOperator;
+non terminal RelationalOperator;
+
+// Precedences:
+precedence left ELSE;
+
+// Productions:
+
+Program ::= PROGRAM IDENTIFIER DeclarationsList LEFT_PARENTHESIS MethodsList RIGHT_PARENTHESIS ;
+
+DeclarationsList ::= DeclarationsList Declaration
+					 |
+					 /* epsilon */
+					 ;
+
+MethodsList ::= MethodsList Method
 				|
 				/* epsilon */
 				;
 
-VarDecl ::= Type IDENT SEMI ;
+OptionalMethodsList ::= LEFT_PARENTHESIS MethodsList RIGHT_PARENTHESIS
+						|
+						/* epsilon */
+						;
 
-Type ::= IDENT ;
+Declaration ::= ClassDeclaration
+				|
+				ConstantDeclaration
+				|
+				VariableDeclaration
+				;
 
-MethodDeclList ::= MethodDeclList MethodDecl
-					|
-					/* epsilon */
-					;
+ClassName ::= IDENTIFIER ;
 
-MethodDecl ::= Type IDENT LPAREN FormPars RPAREN VarDeclList LBRACE StatementList RBRACE ;
-
-FormPars ::= FormalParamList | /* epsilon */ ;
-
-FormalParamList ::= FormalParamList COMMA FormalParamDecl
-					|
-					FormalParamDecl
-					;
-
-FormalParamDecl ::= Type IDENT ;
-
-StatementList ::= StatementList Statement
-					|
-				  /* epsilon */
-				  ;
-
-Statement ::= Matched | Unmatched ;
-
-Unmatched ::= IF Expr Statement | IF Expr Matched ELSE Unmatched;
-
-
-Matched ::= Designator EQUAL Expr SEMI
-			  |
-			  Designator EQUAL error SEMI
-			  {: parser.log.debug("Uspesan oporavak od greske pri dodeli vrednosti."); :}
-			  |
-			  PRINT LPAREN Expr RPAREN SEMI
-			  {: parser.printCallCount++; :}
-			  |
-			  RETURN Expr SEMI
-			  |
-			  RETURN SEMI
-			  |
-			  IF Expr Matched ELSE Matched
-			  ;
-
-Expr ::= Expr Addop Term
+Type ::= INT
 		 |
-		 Term
+		 BOOL
+		 |
+		 CHAR
+		 |
+		 ClassName
 		 ;
 
-Term ::= Factor ;
-
-Factor ::= NUMBER
-			|
-		   Designator
-		    |
-		   Designator LPAREN ActualPars RPAREN
-		   ;
-
-ActualPars ::= ActualParamList
-				|
-			   /* epsilon */
+ReturnType ::= VOID
+			   |
+			   Type
 			   ;
 
-ActualParamList ::= ActualParamList COMMA Expr
+Method ::= ReturnType IDENTIFIER LEFT_BRACE FormalParametersList RIGHT_BRACE LocalVariablesList LEFT_PARENTHESIS Block RIGHT_PARENTHESIS ;
+
+BaseClassDeclaration ::= EXTENDS ClassName
+						 |
+						 /* epsilon */
+						 ;
+
+ClassDeclaration ::= CLASS IDENTIFIER BaseClassDeclaration LEFT_PARENTHESIS LocalVariablesList OptionalMethodsList RIGHT_PARENTHESIS ;
+
+ConstantDeclaration ::= CONST Type ConstantsList SEPARATOR ;
+
+VariableDeclaration ::= Type VariablesList SEPARATOR ;
+
+FormalParametersList ::= FormalParametersList COMMA FormalParameter
+						 |
+						 FormalParameter
+						 ;
+
+LocalVariablesList ::= LocalVariablesList VariableDeclaration
+					   |
+					   /* epsilon */
+					   ;
+
+Block ::= Block Statement
+		  |
+		  Statement
+		  ;
+
+ConstantsList ::= ConstantsList COMMA ConstantDefinition
+				  |
+				  ConstantDefinition
+				  ;
+
+VariablesList ::= VariablesList COMMA VariableDefinition
+				  |
+				  VariableDefinition
+				  ;
+
+FormalParameter ::= Type IDENTIFIER OptionalArrayDeclaration ;
+
+Statement ::= SEPARATOR
+			  |
+			  Expression
+			  |
+			  LEFT_PARENTHESIS Block RIGHT_PARENTHESIS
+			  |
+			  Conditional
+			  |
+			  Loop
+			  |
+			  LoopExit
+			  |
+			  Return
+			  |
+			  BuiltInFunction
+			  ;
+
+ConstantDefinition ::= IDENTIFIER ASSIGN Constant ;
+
+VariableDefinition ::= IDENTIFIER
+					   |
+					   ConstantDefinition
+					   ;
+
+OptionalArrayDeclaration ::= LEFT_BRACKET RIGHT_BRACKET
+							 |
+							 /* epsilon */
+							 ;
+
+Expression ::= LeftValue SEPARATOR
+			   |
+			   LeftValue ASSIGN RightValue SEPARATOR
+			   ;
+
+Conditional ::= IF LEFT_BRACE Condition RIGHT_BRACE Statement OptionalElse ;
+
+Loop ::= DO Statement WHILE LEFT_BRACE Condition RIGHT_BRACE SEPARATOR ;
+
+LoopExit ::= BREAK SEPARATOR
+			 |
+			 CONTINUE SEPARATOR
+			 ;
+
+Return ::= RETURN RightValue SEPARATOR ;
+
+BuiltInFunction ::= READ LEFT_BRACE LeftValue RIGHT_BRACE SEPARATOR
 					|
-					Expr
+					PRINT LEFT_BRACE RightValue OptionalPrintParameter RIGHT_BRACE SEPARATOR
 					;
 
-Designator ::= IDENT ;
+Constant ::= INT_VALUE
+			 |
+			 CHAR_VALUE
+			 |
+			 BOOL_VALUE
+			 ;
 
-Addop ::= PLUS ;
+LeftValue ::= LeftValueStart OptionalIndirections ;
 
+RightValue ::= LeftValue
+			   |
+			   ArithmeticExpression
+			   |
+			   LogicalExpression
+			   |
+			   CHAR_VALUE
+			   |
+			   Allocation
+			   |
+			   IncrementDecrement
+			   |
+			   NULL
+			   ;
+
+Condition ::= ConditionTerm OptionalConditionTerms ;
+
+OptionalElse ::= ELSE Statement
+				 |
+				 /* epsilon */
+				 ;
+
+OptionalPrintParameter ::= COMMA INT_VALUE
+						   |
+						   /* epsilon */
+						   ;
+
+LeftValueStart ::= IDENTIFIER
+				   |
+				   FunctionCall
+				   ;
+
+OptionalIndirections ::= OptionalIndirections Indirection
+						 |
+						 /* epsilon */
+						 ;
+
+ArithmeticExpression ::= PureArithmeticExpression
+						 |
+						 SUBTRACT PureArithmeticExpression
+						 ;
+
+PureArithmeticExpression ::= Term OptionalTerms ;
+
+LogicalExpression ::= Condition ;
+
+Allocation ::= NEW Type OptionalArrayDefinition ;
+
+IncrementDecrement ::= LeftValue INCREMENT
+					   |
+					   LeftValue DECREMENT
+					   ;
+
+ConditionTerm ::= ConditionFactor OptionalConditionFactors ;
+
+OptionalConditionTerms ::= OR Condition ;
+
+FunctionCall ::= IDENTIFIER LEFT_BRACE ActualParametersList RIGHT_BRACE ;
+
+Indirection ::= POINT IDENTIFIER
+				|
+				POINT FunctionCall
+				|
+				LEFT_BRACKET ArithmeticExpression RIGHT_BRACKET
+				;
+
+Term ::= Factor OptionalFactors ;
+
+OptionalTerms ::= AddOperator PureArithmeticExpression ;
+
+OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression RIGHT_BRACKET
+							|
+							/* epsilon */
+							;
+
+ConditionFactor ::= ConditionFactorToken OptionalConditionFactorTokens ;
+
+OptionalConditionFactors ::= AND ConditionTerm ;
+
+ActualParametersList ::= ActualParametersListAtLeastOne
+						 |
+						 /* epsilon */
+						 ;
+
+ActualParametersListAtLeastOne ::= ActualParameter OptionalActualParameters ;
+
+Factor ::= LEFT_BRACE ArithmeticExpression RIGHT_BRACE
+				|
+				Constant
+				|
+				LeftValue
+				;
+
+OptionalFactors ::= MultiplyOperator Term ;
+
+AddOperator ::= ADD
+				|
+				SUBTRACT
+				;
+
+ConditionFactorToken ::= ArithmeticExpression ;
+
+OptionalConditionFactorTokens ::= RelationalOperator ConditionFactor ;
+
+ActualParameter ::= RightValue ;
+
+OptionalActualParameters ::= COMMA ActualParametersListAtLeastOne
+							 |
+							 /* epsilon */
+							 ;
+
+MultiplyOperator ::= MULTIPLY
+					 |
+					 DIVIDE
+					 |
+					 MODULO
+					 ;
+
+RelationalOperator ::= EQUAL
+					   |
+					   NOT_EQUAL
+					   |
+					   GREATER
+					   |
+					   GREATER_EQUAL
+					   |
+					   LESS
+					   |
+					   LESS_EQUAL
+					   ;
+
+
+// non terminal Program, VarDeclList, MethodDeclList, VarDecl, Type, MethodDecl;
+// non terminal FormalParamList, FormalParamDecl, FormPars, ActualPars, ActualParamList;
+// non terminal StatementList, Statement, Designator, Expr, Term, Addop, Factor;
+// non terminal Unmatched, Matched;
+//
+//
+// Program ::= PROG IDENT VarDeclList LBRACE MethodDeclList RBRACE ;
+//
+// VarDeclList ::= VarDeclList VarDecl
+// 				|
+// 				/* epsilon */
+// 				;
+//
+// VarDecl ::= Type IDENT SEMI ;
+//
+// Type ::= IDENT ;
+//
+// MethodDeclList ::= MethodDeclList MethodDecl
+// 					|
+// 					/* epsilon */
+// 					;
+//
+// MethodDecl ::= Type IDENT LPAREN FormPars RPAREN VarDeclList LBRACE StatementList RBRACE ;
+//
+// FormPars ::= FormalParamList | /* epsilon */ ;
+//
+// FormalParamList ::= FormalParamList COMMA FormalParamDecl
+// 					|
+// 					FormalParamDecl
+// 					;
+//
+// FormalParamDecl ::= Type IDENT ;
+//
+// StatementList ::= StatementList Statement
+// 					|
+// 				  /* epsilon */
+// 				  ;
+//
+// Statement ::= Matched | Unmatched ;
+//
+// Unmatched ::= IF Expr Statement | IF Expr Matched ELSE Unmatched;
+//
+//
+// Matched ::= Designator EQUAL Expr SEMI
+// 			  |
+// 			  Designator EQUAL error SEMI
+// 			  {: parser.log.debug("Uspesan oporavak od greske pri dodeli vrednosti."); :}
+// 			  |
+// 			  PRINT LPAREN Expr RPAREN SEMI
+// 			  {: parser.printCallCount++; :}
+// 			  |
+// 			  RETURN Expr SEMI
+// 			  |
+// 			  RETURN SEMI
+// 			  |
+// 			  IF Expr Matched ELSE Matched
+// 			  ;
+//
+// Expr ::= Expr Addop Term
+// 		 |
+// 		 Term
+// 		 ;
+//
+// Term ::= Factor ;
+//
+// Factor ::= NUMBER
+// 			|
+// 		   Designator
+// 		    |
+// 		   Designator LPAREN ActualPars RPAREN
+// 		   ;
+//
+// ActualPars ::= ActualParamList
+// 				|
+// 			   /* epsilon */
+// 			   ;
+//
+// ActualParamList ::= ActualParamList COMMA Expr
+// 					|
+// 					Expr
+// 					;
+//
+// Designator ::= IDENT ;
+//
+// Addop ::= PLUS ;
+//

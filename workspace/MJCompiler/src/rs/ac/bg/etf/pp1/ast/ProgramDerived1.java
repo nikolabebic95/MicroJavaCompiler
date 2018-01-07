@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/0/2018 20:30:46
+// 7/0/2018 16:31:29
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,15 +8,15 @@ package rs.ac.bg.etf.pp1.ast;
 public class ProgramDerived1 extends Program {
 
     private String I1;
-    private VarDeclList VarDeclList;
-    private MethodDeclList MethodDeclList;
+    private DeclarationsList DeclarationsList;
+    private MethodsList MethodsList;
 
-    public ProgramDerived1 (String I1, VarDeclList VarDeclList, MethodDeclList MethodDeclList) {
+    public ProgramDerived1 (String I1, DeclarationsList DeclarationsList, MethodsList MethodsList) {
         this.I1=I1;
-        this.VarDeclList=VarDeclList;
-        if(VarDeclList!=null) VarDeclList.setParent(this);
-        this.MethodDeclList=MethodDeclList;
-        if(MethodDeclList!=null) MethodDeclList.setParent(this);
+        this.DeclarationsList=DeclarationsList;
+        if(DeclarationsList!=null) DeclarationsList.setParent(this);
+        this.MethodsList=MethodsList;
+        if(MethodsList!=null) MethodsList.setParent(this);
     }
 
     public String getI1() {
@@ -27,20 +27,20 @@ public class ProgramDerived1 extends Program {
         this.I1=I1;
     }
 
-    public VarDeclList getVarDeclList() {
-        return VarDeclList;
+    public DeclarationsList getDeclarationsList() {
+        return DeclarationsList;
     }
 
-    public void setVarDeclList(VarDeclList VarDeclList) {
-        this.VarDeclList=VarDeclList;
+    public void setDeclarationsList(DeclarationsList DeclarationsList) {
+        this.DeclarationsList=DeclarationsList;
     }
 
-    public MethodDeclList getMethodDeclList() {
-        return MethodDeclList;
+    public MethodsList getMethodsList() {
+        return MethodsList;
     }
 
-    public void setMethodDeclList(MethodDeclList MethodDeclList) {
-        this.MethodDeclList=MethodDeclList;
+    public void setMethodsList(MethodsList MethodsList) {
+        this.MethodsList=MethodsList;
     }
 
     public void accept(Visitor visitor) {
@@ -48,19 +48,19 @@ public class ProgramDerived1 extends Program {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(VarDeclList!=null) VarDeclList.accept(visitor);
-        if(MethodDeclList!=null) MethodDeclList.accept(visitor);
+        if(DeclarationsList!=null) DeclarationsList.accept(visitor);
+        if(MethodsList!=null) MethodsList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(VarDeclList!=null) VarDeclList.traverseTopDown(visitor);
-        if(MethodDeclList!=null) MethodDeclList.traverseTopDown(visitor);
+        if(DeclarationsList!=null) DeclarationsList.traverseTopDown(visitor);
+        if(MethodsList!=null) MethodsList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(VarDeclList!=null) VarDeclList.traverseBottomUp(visitor);
-        if(MethodDeclList!=null) MethodDeclList.traverseBottomUp(visitor);
+        if(DeclarationsList!=null) DeclarationsList.traverseBottomUp(visitor);
+        if(MethodsList!=null) MethodsList.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -72,14 +72,14 @@ public class ProgramDerived1 extends Program {
         buffer.append(" "+tab+I1);
         buffer.append("\n");
 
-        if(VarDeclList!=null)
-            buffer.append(VarDeclList.toString("  "+tab));
+        if(DeclarationsList!=null)
+            buffer.append(DeclarationsList.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(MethodDeclList!=null)
-            buffer.append(MethodDeclList.toString("  "+tab));
+        if(MethodsList!=null)
+            buffer.append(MethodsList.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

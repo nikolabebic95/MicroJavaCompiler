@@ -1,25 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/0/2018 20:30:47
+// 7/0/2018 16:31:32
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class FactorDerived2 extends Factor {
 
-    private Designator Designator;
+    private Constant Constant;
 
-    public FactorDerived2 (Designator Designator) {
-        this.Designator=Designator;
-        if(Designator!=null) Designator.setParent(this);
+    public FactorDerived2 (Constant Constant) {
+        this.Constant=Constant;
+        if(Constant!=null) Constant.setParent(this);
     }
 
-    public Designator getDesignator() {
-        return Designator;
+    public Constant getConstant() {
+        return Constant;
     }
 
-    public void setDesignator(Designator Designator) {
-        this.Designator=Designator;
+    public void setConstant(Constant Constant) {
+        this.Constant=Constant;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +27,16 @@ public class FactorDerived2 extends Factor {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Designator!=null) Designator.accept(visitor);
+        if(Constant!=null) Constant.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Designator!=null) Designator.traverseTopDown(visitor);
+        if(Constant!=null) Constant.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Designator!=null) Designator.traverseBottomUp(visitor);
+        if(Constant!=null) Constant.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +45,8 @@ public class FactorDerived2 extends Factor {
         buffer.append(tab);
         buffer.append("FactorDerived2(\n");
 
-        if(Designator!=null)
-            buffer.append(Designator.toString("  "+tab));
+        if(Constant!=null)
+            buffer.append(Constant.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

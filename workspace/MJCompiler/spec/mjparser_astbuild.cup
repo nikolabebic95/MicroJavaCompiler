@@ -2,9 +2,7 @@ package rs.ac.bg.etf.pp1;
 
 import java_cup.runtime.*;
 import org.apache.log4j.*;
-
-// import java.io.*;
-
+import rs.ac.bg.etf.pp1.ast.*;
 
 parser code {:
 
@@ -12,28 +10,28 @@ parser code {:
 
 	Logger log = Logger.getLogger(getClass());
 
-
-    // slede redefinisani metodi za prijavu gresaka radi izmene teksta poruke
-
-    public void report_fatal_error(String message, Object info) throws java.lang.Exception {
-      done_parsing();
-      report_error(message, info);
-    }
+	// Redefined methods for error reporting
 
     public void syntax_error(Symbol cur_token) {
-        report_error("\nSintaksna greska", cur_token);
+        report_error("\nSyntax error: ", cur_token);
     }
 
     public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
-        report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+        report_fatal_error("\nFatal error, parsing can't continue: ", cur_token);
     }
 
     public void report_error(String message, Object info) {
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append (" na liniji ").append(((Symbol)info).left);
+            msg.append (" at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
+
+	public void report_fatal_error(String message, Object info) throws java.lang.Exception {
+      done_parsing();
+      report_error(message, info);
+    }
+
 :}
 
 scan with {:
@@ -43,110 +41,449 @@ scan with {:
 	return s;
 :}
 
-terminal PROG, LBRACE, RBRACE, SEMI, LPAREN, RPAREN, COMMA, PRINT, RETURN, PLUS, EQUAL, VOID;
-terminal Integer NUMBER ;
-terminal String IDENT ;
-terminal IF, ELSE;
+
+// Terminals
+
+terminal INT, BOOL, CHAR;
+terminal NULL;
+terminal ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO;
+terminal EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
+terminal AND, OR;
+terminal ASSIGN;
+terminal INCREMENT, DECREMENT;
+terminal SEPARATOR, COMMA, POINT;
+terminal LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE;
+terminal PROGRAM, CLASS, EXTENDS, IF, ELSE, NEW, DO, WHILE, RETURN, BREAK, CONTINUE, PRINT, READ, VOID, CONST;
+terminal Integer INT_VALUE;
+terminal Character CHAR_VALUE;
+terminal Boolean BOOL_VALUE;
+terminal String IDENTIFIER;
+terminal ERROR;
+
+// Non terminals
 
 non terminal Program Program;
-nonterminal VarDeclList VarDeclList;
-nonterminal MethodDeclList MethodDeclList;
-nonterminal VarDecl VarDecl;
-nonterminal Type Type;
-nonterminal MethodDecl MethodDecl;
-non terminal FormalParamList FormalParamList;
-nonterminal FormalParamDecl FormalParamDecl;
-nonterminal FormPars FormPars;
-nonterminal ActualPars ActualPars;
-nonterminal ActualParamList ActualParamList;
-non terminal StatementList StatementList;
-nonterminal Statement Statement;
-nonterminal Designator Designator;
-nonterminal Expr Expr;
-nonterminal Term Term;
-nonterminal Addop Addop;
-nonterminal Factor Factor;
-non terminal Unmatched Unmatched;
-nonterminal Matched Matched;
+non terminal DeclarationsList DeclarationsList;
+non terminal MethodsList MethodsList;
+non terminal OptionalMethodsList OptionalMethodsList;
+non terminal Declaration Declaration;
+non terminal ClassName ClassName;
+non terminal Type Type;
+non terminal ReturnType ReturnType;
+non terminal Method Method;
+non terminal BaseClassDeclaration BaseClassDeclaration;
+non terminal ClassDeclaration ClassDeclaration;
+non terminal ConstantDeclaration ConstantDeclaration;
+non terminal VariableDeclaration VariableDeclaration;
+non terminal FormalParametersList FormalParametersList;
+non terminal LocalVariablesList LocalVariablesList;
+non terminal Block Block;
+non terminal ConstantsList ConstantsList;
+non terminal VariablesList VariablesList;
+non terminal FormalParameter FormalParameter;
+non terminal Statement Statement;
+non terminal ConstantDefinition ConstantDefinition;
+non terminal VariableDefinition VariableDefinition;
+non terminal OptionalArrayDeclaration OptionalArrayDeclaration;
+non terminal Expression Expression;
+non terminal Conditional Conditional;
+non terminal Loop Loop;
+non terminal LoopExit LoopExit;
+non terminal Return Return;
+non terminal BuiltInFunction BuiltInFunction;
+non terminal Constant Constant;
+non terminal LeftValue LeftValue;
+non terminal RightValue RightValue;
+non terminal Condition Condition;
+non terminal OptionalElse OptionalElse;
+non terminal OptionalPrintParameter OptionalPrintParameter;
+non terminal LeftValueStart LeftValueStart;
+non terminal OptionalIndirections OptionalIndirections;
+non terminal ArithmeticExpression ArithmeticExpression;
+non terminal PureArithmeticExpression PureArithmeticExpression;
+non terminal LogicalExpression LogicalExpression;
+non terminal Allocation Allocation;
+non terminal IncrementDecrement IncrementDecrement;
+non terminal ConditionTerm ConditionTerm;
+non terminal OptionalConditionTerms OptionalConditionTerms;
+non terminal FunctionCall FunctionCall;
+non terminal Indirection Indirection;
+non terminal Term Term;
+non terminal OptionalTerms OptionalTerms;
+non terminal OptionalArrayDefinition OptionalArrayDefinition;
+non terminal ConditionFactor ConditionFactor;
+non terminal OptionalConditionFactors OptionalConditionFactors;
+non terminal ActualParametersList ActualParametersList;
+non terminal ActualParametersListAtLeastOne ActualParametersListAtLeastOne;
+non terminal Factor Factor;
+non terminal OptionalFactors OptionalFactors;
+non terminal AddOperator AddOperator;
+non terminal ConditionFactorToken ConditionFactorToken;
+non terminal OptionalConditionFactorTokens OptionalConditionFactorTokens;
+non terminal ActualParameter ActualParameter;
+non terminal OptionalActualParameters OptionalActualParameters;
+non terminal MultiplyOperator MultiplyOperator;
+non terminal RelationalOperator RelationalOperator;
 
+// Precedences:
+precedence left ELSE;
 
-Program ::= PROG IDENT:I1 VarDeclList:V2 LBRACE MethodDeclList:M3 RBRACE {: RESULT=new ProgramDerived1(I1, V2, M3); RESULT.setLine(I1left); :} ;
+// Productions:
 
-VarDeclList ::= VarDeclList:V1 VarDecl:V2 {: RESULT=new VarDeclListDerived1(V1, V2); RESULT.setLine(V1left); :}
-				| {: RESULT=new VarDeclListDerived2(); :}
+Program ::= PROGRAM IDENTIFIER:I1 DeclarationsList:D2 LEFT_PARENTHESIS MethodsList:M3 RIGHT_PARENTHESIS {: RESULT=new ProgramDerived1(I1, D2, M3); RESULT.setLine(I1left); :} ;
+
+DeclarationsList ::= DeclarationsList:D1 Declaration:D2 {: RESULT=new DeclarationsListDerived1(D1, D2); RESULT.setLine(D1left); :}
+					 | {: RESULT=new DeclarationsListDerived2(); :}
+					 /* epsilon */
+					 ;
+
+MethodsList ::= MethodsList:M1 Method:M2 {: RESULT=new MethodsListDerived1(M1, M2); RESULT.setLine(M1left); :}
+				| {: RESULT=new MethodsListDerived2(); :}
 				/* epsilon */
 				;
 
-VarDecl ::= Type:T1 IDENT:I2 SEMI {: RESULT=new VarDeclDerived1(T1, I2); RESULT.setLine(T1left); :} ;
+OptionalMethodsList ::= LEFT_PARENTHESIS MethodsList:M1 RIGHT_PARENTHESIS {: RESULT=new OptionalMethodsListDerived1(M1); RESULT.setLine(M1left); :}
+						| {: RESULT=new OptionalMethodsListDerived2(); :}
+						/* epsilon */
+						;
 
-Type ::= IDENT:I1 {: RESULT=new TypeDerived1(I1); RESULT.setLine(I1left); :} ;
+Declaration ::= ClassDeclaration:C1 {: RESULT=new DeclarationDerived1(C1); RESULT.setLine(C1left); :}
+				|
+				ConstantDeclaration:C1 {: RESULT=new DeclarationDerived2(C1); RESULT.setLine(C1left); :}
+				|
+				VariableDeclaration:V1 {: RESULT=new DeclarationDerived3(V1); RESULT.setLine(V1left); :}
+				;
 
-MethodDeclList ::= MethodDeclList:M1 MethodDecl:M2 {: RESULT=new MethodDeclListDerived1(M1, M2); RESULT.setLine(M1left); :}
-					| {: RESULT=new MethodDeclListDerived2(); :}
-					/* epsilon */
-					;
+ClassName ::= IDENTIFIER:I1 {: RESULT=new ClassNameDerived1(I1); RESULT.setLine(I1left); :} ;
 
-MethodDecl ::= Type:T1 IDENT:I2 LPAREN FormPars:F3 RPAREN VarDeclList:V4 LBRACE StatementList:S5 RBRACE {: RESULT=new MethodDeclDerived1(T1, I2, F3, V4, S5); RESULT.setLine(T1left); :} ;
-
-FormPars ::= FormalParamList:F1 {: RESULT=new FormParsDerived1(F1); RESULT.setLine(F1left); :} | {: RESULT=new FormParsDerived2(); :} /* epsilon */ ;
-
-FormalParamList ::= FormalParamList:F1 COMMA FormalParamDecl:F2 {: RESULT=new FormalParamListDerived1(F1, F2); RESULT.setLine(F1left); :}
-					|
-					FormalParamDecl:F1 {: RESULT=new FormalParamListDerived2(F1); RESULT.setLine(F1left); :}
-					;
-
-FormalParamDecl ::= Type:T1 IDENT:I2 {: RESULT=new FormalParamDeclDerived1(T1, I2); RESULT.setLine(T1left); :} ;
-
-StatementList ::= StatementList:S1 Statement:S2 {: RESULT=new StatementListDerived1(S1, S2); RESULT.setLine(S1left); :}
-					| {: RESULT=new StatementListDerived2(); :}
-				  /* epsilon */
-				  ;
-
-Statement ::= Matched:M1 {: RESULT=new StatementDerived1(M1); RESULT.setLine(M1left); :} | Unmatched:U1 {: RESULT=new StatementDerived2(U1); RESULT.setLine(U1left); :} ;
-
-Unmatched ::= IF Expr:E1 Statement:S2 {: RESULT=new UnmatchedDerived1(E1, S2); RESULT.setLine(E1left); :} | IF Expr:E1 Matched:M2 ELSE Unmatched:U3 {: RESULT=new UnmatchedDerived2(E1, M2, U3); RESULT.setLine(E1left); :};
-
-
-Matched ::= Designator:D1 EQUAL Expr:E2 SEMI {: RESULT=new MatchedDerived1(D1, E2); RESULT.setLine(D1left); :}
-			  |
-			  Designator:D1 EQUAL error SEMI
-			  {: parser.log.debug("Uspesan oporavak od greske pri dodeli vrednosti."); :} {: RESULT=new MatchedDerived2(D1); RESULT.setLine(D1left); :}
-			  |
-			  PRINT LPAREN Expr:E1 RPAREN SEMI
-			  {: parser.printCallCount++; :} {: RESULT=new MatchedDerived3(E1); RESULT.setLine(E1left); :}
-			  |
-			  RETURN Expr:E1 SEMI {: RESULT=new MatchedDerived4(E1); RESULT.setLine(E1left); :}
-			  |
-			  RETURN SEMI {: RESULT=new MatchedDerived5(); :}
-			  |
-			  IF Expr:E1 Matched:M2 ELSE Matched:M3 {: RESULT=new MatchedDerived6(E1, M2, M3); RESULT.setLine(E1left); :}
-			  ;
-
-Expr ::= Expr:E1 Addop:A2 Term:T3 {: RESULT=new ExprDerived1(E1, A2, T3); RESULT.setLine(E1left); :}
+Type ::= INT {: RESULT=new TypeDerived1(); :}
 		 |
-		 Term:T1 {: RESULT=new ExprDerived2(T1); RESULT.setLine(T1left); :}
+		 BOOL {: RESULT=new TypeDerived2(); :}
+		 |
+		 CHAR {: RESULT=new TypeDerived3(); :}
+		 |
+		 ClassName:C1 {: RESULT=new TypeDerived4(C1); RESULT.setLine(C1left); :}
 		 ;
 
-Term ::= Factor:F1 {: RESULT=new TermDerived1(F1); RESULT.setLine(F1left); :} ;
-
-Factor ::= NUMBER:N1 {: RESULT=new FactorDerived1(N1); RESULT.setLine(N1left); :}
-			|
-		   Designator:D1 {: RESULT=new FactorDerived2(D1); RESULT.setLine(D1left); :}
-		    |
-		   Designator:D1 LPAREN ActualPars:A2 RPAREN {: RESULT=new FactorDerived3(D1, A2); RESULT.setLine(D1left); :}
-		   ;
-
-ActualPars ::= ActualParamList:A1 {: RESULT=new ActualParsDerived1(A1); RESULT.setLine(A1left); :}
-				| {: RESULT=new ActualParsDerived2(); :}
-			   /* epsilon */
+ReturnType ::= VOID {: RESULT=new ReturnTypeDerived1(); :}
+			   |
+			   Type:T1 {: RESULT=new ReturnTypeDerived2(T1); RESULT.setLine(T1left); :}
 			   ;
 
-ActualParamList ::= ActualParamList:A1 COMMA Expr:E2 {: RESULT=new ActualParamListDerived1(A1, E2); RESULT.setLine(A1left); :}
+Method ::= ReturnType:R1 IDENTIFIER:I2 LEFT_BRACE FormalParametersList:F3 RIGHT_BRACE LocalVariablesList:L4 LEFT_PARENTHESIS Block:B5 RIGHT_PARENTHESIS {: RESULT=new MethodDerived1(R1, I2, F3, L4, B5); RESULT.setLine(R1left); :} ;
+
+BaseClassDeclaration ::= EXTENDS ClassName:C1 {: RESULT=new BaseClassDeclarationDerived1(C1); RESULT.setLine(C1left); :}
+						 | {: RESULT=new BaseClassDeclarationDerived2(); :}
+						 /* epsilon */
+						 ;
+
+ClassDeclaration ::= CLASS IDENTIFIER:I1 BaseClassDeclaration:B2 LEFT_PARENTHESIS LocalVariablesList:L3 OptionalMethodsList:O4 RIGHT_PARENTHESIS {: RESULT=new ClassDeclarationDerived1(I1, B2, L3, O4); RESULT.setLine(I1left); :} ;
+
+ConstantDeclaration ::= CONST Type:T1 ConstantsList:C2 SEPARATOR {: RESULT=new ConstantDeclarationDerived1(T1, C2); RESULT.setLine(T1left); :} ;
+
+VariableDeclaration ::= Type:T1 VariablesList:V2 SEPARATOR {: RESULT=new VariableDeclarationDerived1(T1, V2); RESULT.setLine(T1left); :} ;
+
+FormalParametersList ::= FormalParametersList:F1 COMMA FormalParameter:F2 {: RESULT=new FormalParametersListDerived1(F1, F2); RESULT.setLine(F1left); :}
+						 |
+						 FormalParameter:F1 {: RESULT=new FormalParametersListDerived2(F1); RESULT.setLine(F1left); :}
+						 ;
+
+LocalVariablesList ::= LocalVariablesList:L1 VariableDeclaration:V2 {: RESULT=new LocalVariablesListDerived1(L1, V2); RESULT.setLine(L1left); :}
+					   | {: RESULT=new LocalVariablesListDerived2(); :}
+					   /* epsilon */
+					   ;
+
+Block ::= Block:B1 Statement:S2 {: RESULT=new BlockDerived1(B1, S2); RESULT.setLine(B1left); :}
+		  |
+		  Statement:S1 {: RESULT=new BlockDerived2(S1); RESULT.setLine(S1left); :}
+		  ;
+
+ConstantsList ::= ConstantsList:C1 COMMA ConstantDefinition:C2 {: RESULT=new ConstantsListDerived1(C1, C2); RESULT.setLine(C1left); :}
+				  |
+				  ConstantDefinition:C1 {: RESULT=new ConstantsListDerived2(C1); RESULT.setLine(C1left); :}
+				  ;
+
+VariablesList ::= VariablesList:V1 COMMA VariableDefinition:V2 {: RESULT=new VariablesListDerived1(V1, V2); RESULT.setLine(V1left); :}
+				  |
+				  VariableDefinition:V1 {: RESULT=new VariablesListDerived2(V1); RESULT.setLine(V1left); :}
+				  ;
+
+FormalParameter ::= Type:T1 IDENTIFIER:I2 OptionalArrayDeclaration:O3 {: RESULT=new FormalParameterDerived1(T1, I2, O3); RESULT.setLine(T1left); :} ;
+
+Statement ::= SEPARATOR {: RESULT=new StatementDerived1(); :}
+			  |
+			  Expression:E1 {: RESULT=new StatementDerived2(E1); RESULT.setLine(E1left); :}
+			  |
+			  LEFT_PARENTHESIS Block:B1 RIGHT_PARENTHESIS {: RESULT=new StatementDerived3(B1); RESULT.setLine(B1left); :}
+			  |
+			  Conditional:C1 {: RESULT=new StatementDerived4(C1); RESULT.setLine(C1left); :}
+			  |
+			  Loop:L1 {: RESULT=new StatementDerived5(L1); RESULT.setLine(L1left); :}
+			  |
+			  LoopExit:L1 {: RESULT=new StatementDerived6(L1); RESULT.setLine(L1left); :}
+			  |
+			  Return:R1 {: RESULT=new StatementDerived7(R1); RESULT.setLine(R1left); :}
+			  |
+			  BuiltInFunction:B1 {: RESULT=new StatementDerived8(B1); RESULT.setLine(B1left); :}
+			  ;
+
+ConstantDefinition ::= IDENTIFIER:I1 ASSIGN Constant:C2 {: RESULT=new ConstantDefinitionDerived1(I1, C2); RESULT.setLine(I1left); :} ;
+
+VariableDefinition ::= IDENTIFIER:I1 {: RESULT=new VariableDefinitionDerived1(I1); RESULT.setLine(I1left); :}
+					   |
+					   ConstantDefinition:C1 {: RESULT=new VariableDefinitionDerived2(C1); RESULT.setLine(C1left); :}
+					   ;
+
+OptionalArrayDeclaration ::= LEFT_BRACKET RIGHT_BRACKET {: RESULT=new OptionalArrayDeclarationDerived1(); :}
+							 | {: RESULT=new OptionalArrayDeclarationDerived2(); :}
+							 /* epsilon */
+							 ;
+
+Expression ::= LeftValue:L1 SEPARATOR {: RESULT=new ExpressionDerived1(L1); RESULT.setLine(L1left); :}
+			   |
+			   LeftValue:L1 ASSIGN RightValue:R2 SEPARATOR {: RESULT=new ExpressionDerived2(L1, R2); RESULT.setLine(L1left); :}
+			   ;
+
+Conditional ::= IF LEFT_BRACE Condition:C1 RIGHT_BRACE Statement:S2 OptionalElse:O3 {: RESULT=new ConditionalDerived1(C1, S2, O3); RESULT.setLine(C1left); :} ;
+
+Loop ::= DO Statement:S1 WHILE LEFT_BRACE Condition:C2 RIGHT_BRACE SEPARATOR {: RESULT=new LoopDerived1(S1, C2); RESULT.setLine(S1left); :} ;
+
+LoopExit ::= BREAK SEPARATOR {: RESULT=new LoopExitDerived1(); :}
+			 |
+			 CONTINUE SEPARATOR {: RESULT=new LoopExitDerived2(); :}
+			 ;
+
+Return ::= RETURN RightValue:R1 SEPARATOR {: RESULT=new ReturnDerived1(R1); RESULT.setLine(R1left); :} ;
+
+BuiltInFunction ::= READ LEFT_BRACE LeftValue:L1 RIGHT_BRACE SEPARATOR {: RESULT=new BuiltInFunctionDerived1(L1); RESULT.setLine(L1left); :}
 					|
-					Expr:E1 {: RESULT=new ActualParamListDerived2(E1); RESULT.setLine(E1left); :}
+					PRINT LEFT_BRACE RightValue:R1 OptionalPrintParameter:O2 RIGHT_BRACE SEPARATOR {: RESULT=new BuiltInFunctionDerived2(R1, O2); RESULT.setLine(R1left); :}
 					;
 
-Designator ::= IDENT:I1 {: RESULT=new DesignatorDerived1(I1); RESULT.setLine(I1left); :} ;
+Constant ::= INT_VALUE:I1 {: RESULT=new ConstantDerived1(I1); RESULT.setLine(I1left); :}
+			 |
+			 CHAR_VALUE:C1 {: RESULT=new ConstantDerived2(C1); RESULT.setLine(C1left); :}
+			 |
+			 BOOL_VALUE:B1 {: RESULT=new ConstantDerived3(B1); RESULT.setLine(B1left); :}
+			 ;
 
-Addop ::= PLUS {: RESULT=new AddopDerived1(); :} ;
+LeftValue ::= LeftValueStart:L1 OptionalIndirections:O2 {: RESULT=new LeftValueDerived1(L1, O2); RESULT.setLine(L1left); :} ;
 
+RightValue ::= LeftValue:L1 {: RESULT=new RightValueDerived1(L1); RESULT.setLine(L1left); :}
+			   |
+			   ArithmeticExpression:A1 {: RESULT=new RightValueDerived2(A1); RESULT.setLine(A1left); :}
+			   |
+			   LogicalExpression:L1 {: RESULT=new RightValueDerived3(L1); RESULT.setLine(L1left); :}
+			   |
+			   CHAR_VALUE:C1 {: RESULT=new RightValueDerived4(C1); RESULT.setLine(C1left); :}
+			   |
+			   Allocation:A1 {: RESULT=new RightValueDerived5(A1); RESULT.setLine(A1left); :}
+			   |
+			   IncrementDecrement:I1 {: RESULT=new RightValueDerived6(I1); RESULT.setLine(I1left); :}
+			   |
+			   NULL {: RESULT=new RightValueDerived7(); :}
+			   ;
+
+Condition ::= ConditionTerm:C1 OptionalConditionTerms:O2 {: RESULT=new ConditionDerived1(C1, O2); RESULT.setLine(C1left); :} ;
+
+OptionalElse ::= ELSE Statement:S1 {: RESULT=new OptionalElseDerived1(S1); RESULT.setLine(S1left); :}
+				 | {: RESULT=new OptionalElseDerived2(); :}
+				 /* epsilon */
+				 ;
+
+OptionalPrintParameter ::= COMMA INT_VALUE:I1 {: RESULT=new OptionalPrintParameterDerived1(I1); RESULT.setLine(I1left); :}
+						   | {: RESULT=new OptionalPrintParameterDerived2(); :}
+						   /* epsilon */
+						   ;
+
+LeftValueStart ::= IDENTIFIER:I1 {: RESULT=new LeftValueStartDerived1(I1); RESULT.setLine(I1left); :}
+				   |
+				   FunctionCall:F1 {: RESULT=new LeftValueStartDerived2(F1); RESULT.setLine(F1left); :}
+				   ;
+
+OptionalIndirections ::= OptionalIndirections:O1 Indirection:I2 {: RESULT=new OptionalIndirectionsDerived1(O1, I2); RESULT.setLine(O1left); :}
+						 | {: RESULT=new OptionalIndirectionsDerived2(); :}
+						 /* epsilon */
+						 ;
+
+ArithmeticExpression ::= PureArithmeticExpression:P1 {: RESULT=new ArithmeticExpressionDerived1(P1); RESULT.setLine(P1left); :}
+						 |
+						 SUBTRACT PureArithmeticExpression:P1 {: RESULT=new ArithmeticExpressionDerived2(P1); RESULT.setLine(P1left); :}
+						 ;
+
+PureArithmeticExpression ::= Term:T1 OptionalTerms:O2 {: RESULT=new PureArithmeticExpressionDerived1(T1, O2); RESULT.setLine(T1left); :} ;
+
+LogicalExpression ::= Condition:C1 {: RESULT=new LogicalExpressionDerived1(C1); RESULT.setLine(C1left); :} ;
+
+Allocation ::= NEW Type:T1 OptionalArrayDefinition:O2 {: RESULT=new AllocationDerived1(T1, O2); RESULT.setLine(T1left); :} ;
+
+IncrementDecrement ::= LeftValue:L1 INCREMENT {: RESULT=new IncrementDecrementDerived1(L1); RESULT.setLine(L1left); :}
+					   |
+					   LeftValue:L1 DECREMENT {: RESULT=new IncrementDecrementDerived2(L1); RESULT.setLine(L1left); :}
+					   ;
+
+ConditionTerm ::= ConditionFactor:C1 OptionalConditionFactors:O2 {: RESULT=new ConditionTermDerived1(C1, O2); RESULT.setLine(C1left); :} ;
+
+OptionalConditionTerms ::= OR Condition:C1 {: RESULT=new OptionalConditionTermsDerived1(C1); RESULT.setLine(C1left); :} ;
+
+FunctionCall ::= IDENTIFIER:I1 LEFT_BRACE ActualParametersList:A2 RIGHT_BRACE {: RESULT=new FunctionCallDerived1(I1, A2); RESULT.setLine(I1left); :} ;
+
+Indirection ::= POINT IDENTIFIER:I1 {: RESULT=new IndirectionDerived1(I1); RESULT.setLine(I1left); :}
+				|
+				POINT FunctionCall:F1 {: RESULT=new IndirectionDerived2(F1); RESULT.setLine(F1left); :}
+				|
+				LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {: RESULT=new IndirectionDerived3(A1); RESULT.setLine(A1left); :}
+				;
+
+Term ::= Factor:F1 OptionalFactors:O2 {: RESULT=new TermDerived1(F1, O2); RESULT.setLine(F1left); :} ;
+
+OptionalTerms ::= AddOperator:A1 PureArithmeticExpression:P2 {: RESULT=new OptionalTermsDerived1(A1, P2); RESULT.setLine(A1left); :} ;
+
+OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {: RESULT=new OptionalArrayDefinitionDerived1(A1); RESULT.setLine(A1left); :}
+							| {: RESULT=new OptionalArrayDefinitionDerived2(); :}
+							/* epsilon */
+							;
+
+ConditionFactor ::= ConditionFactorToken:C1 OptionalConditionFactorTokens:O2 {: RESULT=new ConditionFactorDerived1(C1, O2); RESULT.setLine(C1left); :} ;
+
+OptionalConditionFactors ::= AND ConditionTerm:C1 {: RESULT=new OptionalConditionFactorsDerived1(C1); RESULT.setLine(C1left); :} ;
+
+ActualParametersList ::= ActualParametersListAtLeastOne:A1 {: RESULT=new ActualParametersListDerived1(A1); RESULT.setLine(A1left); :}
+						 | {: RESULT=new ActualParametersListDerived2(); :}
+						 /* epsilon */
+						 ;
+
+ActualParametersListAtLeastOne ::= ActualParameter:A1 OptionalActualParameters:O2 {: RESULT=new ActualParametersListAtLeastOneDerived1(A1, O2); RESULT.setLine(A1left); :} ;
+
+Factor ::= LEFT_BRACE ArithmeticExpression:A1 RIGHT_BRACE {: RESULT=new FactorDerived1(A1); RESULT.setLine(A1left); :}
+				|
+				Constant:C1 {: RESULT=new FactorDerived2(C1); RESULT.setLine(C1left); :}
+				|
+				LeftValue:L1 {: RESULT=new FactorDerived3(L1); RESULT.setLine(L1left); :}
+				;
+
+OptionalFactors ::= MultiplyOperator:M1 Term:T2 {: RESULT=new OptionalFactorsDerived1(M1, T2); RESULT.setLine(M1left); :} ;
+
+AddOperator ::= ADD {: RESULT=new AddOperatorDerived1(); :}
+				|
+				SUBTRACT {: RESULT=new AddOperatorDerived2(); :}
+				;
+
+ConditionFactorToken ::= ArithmeticExpression:A1 {: RESULT=new ConditionFactorTokenDerived1(A1); RESULT.setLine(A1left); :} ;
+
+OptionalConditionFactorTokens ::= RelationalOperator:R1 ConditionFactor:C2 {: RESULT=new OptionalConditionFactorTokensDerived1(R1, C2); RESULT.setLine(R1left); :} ;
+
+ActualParameter ::= RightValue:R1 {: RESULT=new ActualParameterDerived1(R1); RESULT.setLine(R1left); :} ;
+
+OptionalActualParameters ::= COMMA ActualParametersListAtLeastOne:A1 {: RESULT=new OptionalActualParametersDerived1(A1); RESULT.setLine(A1left); :}
+							 | {: RESULT=new OptionalActualParametersDerived2(); :}
+							 /* epsilon */
+							 ;
+
+MultiplyOperator ::= MULTIPLY {: RESULT=new MultiplyOperatorDerived1(); :}
+					 |
+					 DIVIDE {: RESULT=new MultiplyOperatorDerived2(); :}
+					 |
+					 MODULO {: RESULT=new MultiplyOperatorDerived3(); :}
+					 ;
+
+RelationalOperator ::= EQUAL {: RESULT=new RelationalOperatorDerived1(); :}
+					   |
+					   NOT_EQUAL {: RESULT=new RelationalOperatorDerived2(); :}
+					   |
+					   GREATER {: RESULT=new RelationalOperatorDerived3(); :}
+					   |
+					   GREATER_EQUAL {: RESULT=new RelationalOperatorDerived4(); :}
+					   |
+					   LESS {: RESULT=new RelationalOperatorDerived5(); :}
+					   |
+					   LESS_EQUAL {: RESULT=new RelationalOperatorDerived6(); :}
+					   ;
+
+
+// non terminal Program, VarDeclList, MethodDeclList, VarDecl, Type, MethodDecl;
+// non terminal FormalParamList, FormalParamDecl, FormPars, ActualPars, ActualParamList;
+// non terminal StatementList, Statement, Designator, Expr, Term, Addop, Factor;
+// non terminal Unmatched, Matched;
+//
+//
+// Program ::= PROG IDENT VarDeclList LBRACE MethodDeclList RBRACE ;
+//
+// VarDeclList ::= VarDeclList VarDecl
+// 				|
+// 				/* epsilon */
+// 				;
+//
+// VarDecl ::= Type IDENT SEMI ;
+//
+// Type ::= IDENT ;
+//
+// MethodDeclList ::= MethodDeclList MethodDecl
+// 					|
+// 					/* epsilon */
+// 					;
+//
+// MethodDecl ::= Type IDENT LPAREN FormPars RPAREN VarDeclList LBRACE StatementList RBRACE ;
+//
+// FormPars ::= FormalParamList | /* epsilon */ ;
+//
+// FormalParamList ::= FormalParamList COMMA FormalParamDecl
+// 					|
+// 					FormalParamDecl
+// 					;
+//
+// FormalParamDecl ::= Type IDENT ;
+//
+// StatementList ::= StatementList Statement
+// 					|
+// 				  /* epsilon */
+// 				  ;
+//
+// Statement ::= Matched | Unmatched ;
+//
+// Unmatched ::= IF Expr Statement | IF Expr Matched ELSE Unmatched;
+//
+//
+// Matched ::= Designator EQUAL Expr SEMI
+// 			  |
+// 			  Designator EQUAL error SEMI
+// 			  {: parser.log.debug("Uspesan oporavak od greske pri dodeli vrednosti."); :}
+// 			  |
+// 			  PRINT LPAREN Expr RPAREN SEMI
+// 			  {: parser.printCallCount++; :}
+// 			  |
+// 			  RETURN Expr SEMI
+// 			  |
+// 			  RETURN SEMI
+// 			  |
+// 			  IF Expr Matched ELSE Matched
+// 			  ;
+//
+// Expr ::= Expr Addop Term
+// 		 |
+// 		 Term
+// 		 ;
+//
+// Term ::= Factor ;
+//
+// Factor ::= NUMBER
+// 			|
+// 		   Designator
+// 		    |
+// 		   Designator LPAREN ActualPars RPAREN
+// 		   ;
+//
+// ActualPars ::= ActualParamList
+// 				|
+// 			   /* epsilon */
+// 			   ;
+//
+// ActualParamList ::= ActualParamList COMMA Expr
+// 					|
+// 					Expr
+// 					;
+//
+// Designator ::= IDENT ;
+//
+// Addop ::= PLUS ;
+//
