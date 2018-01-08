@@ -1,36 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:29
+// 8/0/2018 2:11:43
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class FormalParametersListDerived1 extends FormalParametersList {
 
-    private FormalParametersList FormalParametersList;
-    private FormalParameter FormalParameter;
+    private FormalParametersListNonEmpty FormalParametersListNonEmpty;
 
-    public FormalParametersListDerived1 (FormalParametersList FormalParametersList, FormalParameter FormalParameter) {
-        this.FormalParametersList=FormalParametersList;
-        if(FormalParametersList!=null) FormalParametersList.setParent(this);
-        this.FormalParameter=FormalParameter;
-        if(FormalParameter!=null) FormalParameter.setParent(this);
+    public FormalParametersListDerived1 (FormalParametersListNonEmpty FormalParametersListNonEmpty) {
+        this.FormalParametersListNonEmpty=FormalParametersListNonEmpty;
+        if(FormalParametersListNonEmpty!=null) FormalParametersListNonEmpty.setParent(this);
     }
 
-    public FormalParametersList getFormalParametersList() {
-        return FormalParametersList;
+    public FormalParametersListNonEmpty getFormalParametersListNonEmpty() {
+        return FormalParametersListNonEmpty;
     }
 
-    public void setFormalParametersList(FormalParametersList FormalParametersList) {
-        this.FormalParametersList=FormalParametersList;
-    }
-
-    public FormalParameter getFormalParameter() {
-        return FormalParameter;
-    }
-
-    public void setFormalParameter(FormalParameter FormalParameter) {
-        this.FormalParameter=FormalParameter;
+    public void setFormalParametersListNonEmpty(FormalParametersListNonEmpty FormalParametersListNonEmpty) {
+        this.FormalParametersListNonEmpty=FormalParametersListNonEmpty;
     }
 
     public void accept(Visitor visitor) {
@@ -38,19 +27,16 @@ public class FormalParametersListDerived1 extends FormalParametersList {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(FormalParametersList!=null) FormalParametersList.accept(visitor);
-        if(FormalParameter!=null) FormalParameter.accept(visitor);
+        if(FormalParametersListNonEmpty!=null) FormalParametersListNonEmpty.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(FormalParametersList!=null) FormalParametersList.traverseTopDown(visitor);
-        if(FormalParameter!=null) FormalParameter.traverseTopDown(visitor);
+        if(FormalParametersListNonEmpty!=null) FormalParametersListNonEmpty.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(FormalParametersList!=null) FormalParametersList.traverseBottomUp(visitor);
-        if(FormalParameter!=null) FormalParameter.traverseBottomUp(visitor);
+        if(FormalParametersListNonEmpty!=null) FormalParametersListNonEmpty.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -59,14 +45,8 @@ public class FormalParametersListDerived1 extends FormalParametersList {
         buffer.append(tab);
         buffer.append("FormalParametersListDerived1(\n");
 
-        if(FormalParametersList!=null)
-            buffer.append(FormalParametersList.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        if(FormalParameter!=null)
-            buffer.append(FormalParameter.toString("  "+tab));
+        if(FormalParametersListNonEmpty!=null)
+            buffer.append(FormalParametersListNonEmpty.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

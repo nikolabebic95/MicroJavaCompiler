@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:34
+// 8/0/2018 2:11:44
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -27,6 +27,7 @@ public interface Visitor {
     public void visit(ConditionTerm ConditionTerm);
     public void visit(BaseClassDeclaration BaseClassDeclaration);
     public void visit(OptionalIndirections OptionalIndirections);
+    public void visit(FormalParametersListNonEmpty FormalParametersListNonEmpty);
     public void visit(Factor Factor);
     public void visit(LocalVariablesList LocalVariablesList);
     public void visit(VariablesList VariablesList);
@@ -81,10 +82,12 @@ public interface Visitor {
     public void visit(OptionalActualParametersDerived2 OptionalActualParametersDerived2);
     public void visit(OptionalActualParametersDerived1 OptionalActualParametersDerived1);
     public void visit(ActualParameterDerived1 ActualParameterDerived1);
+    public void visit(OptionalConditionFactorTokensDerived2 OptionalConditionFactorTokensDerived2);
     public void visit(OptionalConditionFactorTokensDerived1 OptionalConditionFactorTokensDerived1);
     public void visit(ConditionFactorTokenDerived1 ConditionFactorTokenDerived1);
     public void visit(AddOperatorDerived2 AddOperatorDerived2);
     public void visit(AddOperatorDerived1 AddOperatorDerived1);
+    public void visit(OptionalFactorsDerived2 OptionalFactorsDerived2);
     public void visit(OptionalFactorsDerived1 OptionalFactorsDerived1);
     public void visit(FactorDerived3 FactorDerived3);
     public void visit(FactorDerived2 FactorDerived2);
@@ -92,10 +95,12 @@ public interface Visitor {
     public void visit(ActualParametersListAtLeastOneDerived1 ActualParametersListAtLeastOneDerived1);
     public void visit(ActualParametersListDerived2 ActualParametersListDerived2);
     public void visit(ActualParametersListDerived1 ActualParametersListDerived1);
+    public void visit(OptionalConditionFactorsDerived2 OptionalConditionFactorsDerived2);
     public void visit(OptionalConditionFactorsDerived1 OptionalConditionFactorsDerived1);
     public void visit(ConditionFactorDerived1 ConditionFactorDerived1);
     public void visit(OptionalArrayDefinitionDerived2 OptionalArrayDefinitionDerived2);
     public void visit(OptionalArrayDefinitionDerived1 OptionalArrayDefinitionDerived1);
+    public void visit(OptionalTermsDerived2 OptionalTermsDerived2);
     public void visit(OptionalTermsDerived1 OptionalTermsDerived1);
     public void visit(TermDerived1 TermDerived1);
     public void visit(IndirectionDerived3 IndirectionDerived3);
@@ -120,8 +125,6 @@ public interface Visitor {
     public void visit(OptionalElseDerived2 OptionalElseDerived2);
     public void visit(OptionalElseDerived1 OptionalElseDerived1);
     public void visit(ConditionDerived1 ConditionDerived1);
-    public void visit(RightValueDerived7 RightValueDerived7);
-    public void visit(RightValueDerived6 RightValueDerived6);
     public void visit(RightValueDerived5 RightValueDerived5);
     public void visit(RightValueDerived4 RightValueDerived4);
     public void visit(RightValueDerived3 RightValueDerived3);
@@ -162,6 +165,8 @@ public interface Visitor {
     public void visit(BlockDerived1 BlockDerived1);
     public void visit(LocalVariablesListDerived2 LocalVariablesListDerived2);
     public void visit(LocalVariablesListDerived1 LocalVariablesListDerived1);
+    public void visit(FormalParametersListNonEmptyDerived2 FormalParametersListNonEmptyDerived2);
+    public void visit(FormalParametersListNonEmptyDerived1 FormalParametersListNonEmptyDerived1);
     public void visit(FormalParametersListDerived2 FormalParametersListDerived2);
     public void visit(FormalParametersListDerived1 FormalParametersListDerived1);
     public void visit(VariableDeclarationDerived1 VariableDeclarationDerived1);

@@ -1,25 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:30
+// 8/0/2018 2:11:43
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class RightValueDerived3 extends RightValue {
 
-    private LogicalExpression LogicalExpression;
+    private Allocation Allocation;
 
-    public RightValueDerived3 (LogicalExpression LogicalExpression) {
-        this.LogicalExpression=LogicalExpression;
-        if(LogicalExpression!=null) LogicalExpression.setParent(this);
+    public RightValueDerived3 (Allocation Allocation) {
+        this.Allocation=Allocation;
+        if(Allocation!=null) Allocation.setParent(this);
     }
 
-    public LogicalExpression getLogicalExpression() {
-        return LogicalExpression;
+    public Allocation getAllocation() {
+        return Allocation;
     }
 
-    public void setLogicalExpression(LogicalExpression LogicalExpression) {
-        this.LogicalExpression=LogicalExpression;
+    public void setAllocation(Allocation Allocation) {
+        this.Allocation=Allocation;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +27,16 @@ public class RightValueDerived3 extends RightValue {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(LogicalExpression!=null) LogicalExpression.accept(visitor);
+        if(Allocation!=null) Allocation.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(LogicalExpression!=null) LogicalExpression.traverseTopDown(visitor);
+        if(Allocation!=null) Allocation.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(LogicalExpression!=null) LogicalExpression.traverseBottomUp(visitor);
+        if(Allocation!=null) Allocation.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +45,8 @@ public class RightValueDerived3 extends RightValue {
         buffer.append(tab);
         buffer.append("RightValueDerived3(\n");
 
-        if(LogicalExpression!=null)
-            buffer.append(LogicalExpression.toString("  "+tab));
+        if(Allocation!=null)
+            buffer.append(Allocation.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

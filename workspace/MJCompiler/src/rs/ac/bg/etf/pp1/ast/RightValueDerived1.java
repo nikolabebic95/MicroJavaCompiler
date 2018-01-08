@@ -1,25 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:30
+// 8/0/2018 2:11:43
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class RightValueDerived1 extends RightValue {
 
-    private LeftValue LeftValue;
+    private ArithmeticExpression ArithmeticExpression;
 
-    public RightValueDerived1 (LeftValue LeftValue) {
-        this.LeftValue=LeftValue;
-        if(LeftValue!=null) LeftValue.setParent(this);
+    public RightValueDerived1 (ArithmeticExpression ArithmeticExpression) {
+        this.ArithmeticExpression=ArithmeticExpression;
+        if(ArithmeticExpression!=null) ArithmeticExpression.setParent(this);
     }
 
-    public LeftValue getLeftValue() {
-        return LeftValue;
+    public ArithmeticExpression getArithmeticExpression() {
+        return ArithmeticExpression;
     }
 
-    public void setLeftValue(LeftValue LeftValue) {
-        this.LeftValue=LeftValue;
+    public void setArithmeticExpression(ArithmeticExpression ArithmeticExpression) {
+        this.ArithmeticExpression=ArithmeticExpression;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +27,16 @@ public class RightValueDerived1 extends RightValue {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(LeftValue!=null) LeftValue.accept(visitor);
+        if(ArithmeticExpression!=null) ArithmeticExpression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(LeftValue!=null) LeftValue.traverseTopDown(visitor);
+        if(ArithmeticExpression!=null) ArithmeticExpression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(LeftValue!=null) LeftValue.traverseBottomUp(visitor);
+        if(ArithmeticExpression!=null) ArithmeticExpression.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +45,8 @@ public class RightValueDerived1 extends RightValue {
         buffer.append(tab);
         buffer.append("RightValueDerived1(\n");
 
-        if(LeftValue!=null)
-            buffer.append(LeftValue.toString("  "+tab));
+        if(ArithmeticExpression!=null)
+            buffer.append(ArithmeticExpression.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

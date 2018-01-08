@@ -23,7 +23,7 @@ parser code {:
     public void report_error(String message, Object info) {
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append (" at line ").append(((Symbol)info).left);
+            msg.append(info.toString()).append(" at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
 
@@ -52,7 +52,7 @@ terminal AND, OR;
 terminal ASSIGN;
 terminal INCREMENT, DECREMENT;
 terminal SEPARATOR, COMMA, POINT;
-terminal LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE;
+terminal LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET, LEFT_PARENTHESIS, RIGHT_PARENTHESIS;
 terminal PROGRAM, CLASS, EXTENDS, IF, ELSE, NEW, DO, WHILE, RETURN, BREAK, CONTINUE, PRINT, READ, VOID, CONST;
 terminal Integer INT_VALUE;
 terminal Character CHAR_VALUE;
@@ -76,6 +76,7 @@ non terminal ClassDeclaration;
 non terminal ConstantDeclaration;
 non terminal VariableDeclaration;
 non terminal FormalParametersList;
+non terminal FormalParametersListNonEmpty;
 non terminal LocalVariablesList;
 non terminal Block;
 non terminal ConstantsList;
@@ -130,7 +131,7 @@ precedence left ELSE;
 
 // Productions:
 
-Program ::= PROGRAM IDENTIFIER DeclarationsList LEFT_PARENTHESIS MethodsList RIGHT_PARENTHESIS ;
+Program ::= PROGRAM IDENTIFIER DeclarationsList LEFT_BRACE MethodsList RIGHT_BRACE ;
 
 DeclarationsList ::= DeclarationsList Declaration
 					 |
@@ -142,7 +143,7 @@ MethodsList ::= MethodsList Method
 				/* epsilon */
 				;
 
-OptionalMethodsList ::= LEFT_PARENTHESIS MethodsList RIGHT_PARENTHESIS
+OptionalMethodsList ::= LEFT_BRACE MethodsList RIGHT_BRACE
 						|
 						/* epsilon */
 						;
@@ -170,23 +171,28 @@ ReturnType ::= VOID
 			   Type
 			   ;
 
-Method ::= ReturnType IDENTIFIER LEFT_BRACE FormalParametersList RIGHT_BRACE LocalVariablesList LEFT_PARENTHESIS Block RIGHT_PARENTHESIS ;
+Method ::= ReturnType IDENTIFIER LEFT_PARENTHESIS FormalParametersList RIGHT_PARENTHESIS LocalVariablesList LEFT_BRACE Block RIGHT_BRACE ;
 
 BaseClassDeclaration ::= EXTENDS ClassName
 						 |
 						 /* epsilon */
 						 ;
 
-ClassDeclaration ::= CLASS IDENTIFIER BaseClassDeclaration LEFT_PARENTHESIS LocalVariablesList OptionalMethodsList RIGHT_PARENTHESIS ;
+ClassDeclaration ::= CLASS IDENTIFIER BaseClassDeclaration LEFT_BRACE LocalVariablesList OptionalMethodsList RIGHT_BRACE ;
 
 ConstantDeclaration ::= CONST Type ConstantsList SEPARATOR ;
 
 VariableDeclaration ::= Type VariablesList SEPARATOR ;
 
-FormalParametersList ::= FormalParametersList COMMA FormalParameter
+FormalParametersList ::= FormalParametersListNonEmpty
 						 |
-						 FormalParameter
+						 /* epsilon */
 						 ;
+
+FormalParametersListNonEmpty ::= FormalParametersListNonEmpty COMMA FormalParameter
+								 |
+								 FormalParameter
+								 ;
 
 LocalVariablesList ::= LocalVariablesList VariableDeclaration
 					   |
@@ -214,7 +220,7 @@ Statement ::= SEPARATOR
 			  |
 			  Expression
 			  |
-			  LEFT_PARENTHESIS Block RIGHT_PARENTHESIS
+			  LEFT_BRACE Block RIGHT_BRACE
 			  |
 			  Conditional
 			  |
@@ -244,9 +250,9 @@ Expression ::= LeftValue SEPARATOR
 			   LeftValue ASSIGN RightValue SEPARATOR
 			   ;
 
-Conditional ::= IF LEFT_BRACE Condition RIGHT_BRACE Statement OptionalElse ;
+Conditional ::= IF LEFT_PARENTHESIS Condition RIGHT_PARENTHESIS Statement OptionalElse ;
 
-Loop ::= DO Statement WHILE LEFT_BRACE Condition RIGHT_BRACE SEPARATOR ;
+Loop ::= DO Statement WHILE LEFT_PARENTHESIS Condition RIGHT_PARENTHESIS SEPARATOR ;
 
 LoopExit ::= BREAK SEPARATOR
 			 |
@@ -255,9 +261,9 @@ LoopExit ::= BREAK SEPARATOR
 
 Return ::= RETURN RightValue SEPARATOR ;
 
-BuiltInFunction ::= READ LEFT_BRACE LeftValue RIGHT_BRACE SEPARATOR
+BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue RIGHT_PARENTHESIS SEPARATOR
 					|
-					PRINT LEFT_BRACE RightValue OptionalPrintParameter RIGHT_BRACE SEPARATOR
+					PRINT LEFT_PARENTHESIS RightValue OptionalPrintParameter RIGHT_PARENTHESIS SEPARATOR
 					;
 
 Constant ::= INT_VALUE
@@ -269,13 +275,9 @@ Constant ::= INT_VALUE
 
 LeftValue ::= LeftValueStart OptionalIndirections ;
 
-RightValue ::= LeftValue
-			   |
-			   ArithmeticExpression
+RightValue ::= ArithmeticExpression
 			   |
 			   LogicalExpression
-			   |
-			   CHAR_VALUE
 			   |
 			   Allocation
 			   |
@@ -326,7 +328,7 @@ ConditionTerm ::= ConditionFactor OptionalConditionFactors ;
 
 OptionalConditionTerms ::= OR Condition ;
 
-FunctionCall ::= IDENTIFIER LEFT_BRACE ActualParametersList RIGHT_BRACE ;
+FunctionCall ::= IDENTIFIER LEFT_PARENTHESIS ActualParametersList RIGHT_PARENTHESIS ;
 
 Indirection ::= POINT IDENTIFIER
 				|
@@ -337,7 +339,10 @@ Indirection ::= POINT IDENTIFIER
 
 Term ::= Factor OptionalFactors ;
 
-OptionalTerms ::= AddOperator PureArithmeticExpression ;
+OptionalTerms ::= AddOperator PureArithmeticExpression 
+				  |
+				  /* epsilon */
+				  ;
 
 OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression RIGHT_BRACKET
 							|
@@ -346,7 +351,10 @@ OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression RIGHT_BRACKET
 
 ConditionFactor ::= ConditionFactorToken OptionalConditionFactorTokens ;
 
-OptionalConditionFactors ::= AND ConditionTerm ;
+OptionalConditionFactors ::= AND ConditionTerm 
+							 |
+							 /* epsilon */
+							 ;
 
 ActualParametersList ::= ActualParametersListAtLeastOne
 						 |
@@ -355,14 +363,17 @@ ActualParametersList ::= ActualParametersListAtLeastOne
 
 ActualParametersListAtLeastOne ::= ActualParameter OptionalActualParameters ;
 
-Factor ::= LEFT_BRACE ArithmeticExpression RIGHT_BRACE
-				|
-				Constant
-				|
-				LeftValue
-				;
+Factor ::= LEFT_PARENTHESIS RightValue RIGHT_PARENTHESIS
+		   |
+		   Constant
+		   |
+		   LeftValue
+		   ;
 
-OptionalFactors ::= MultiplyOperator Term ;
+OptionalFactors ::= MultiplyOperator Term
+					|
+					/* epsilon */
+					;
 
 AddOperator ::= ADD
 				|
@@ -371,7 +382,10 @@ AddOperator ::= ADD
 
 ConditionFactorToken ::= ArithmeticExpression ;
 
-OptionalConditionFactorTokens ::= RelationalOperator ConditionFactor ;
+OptionalConditionFactorTokens ::= RelationalOperator ConditionFactor 
+							  	  |
+								  /* epsilon */
+								  ;
 
 ActualParameter ::= RightValue ;
 

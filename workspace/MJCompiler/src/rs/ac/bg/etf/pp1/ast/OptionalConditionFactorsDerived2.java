@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:9:24
+// 8/0/2018 2:11:44
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class OptionalUnaryMinusDerived1 extends OptionalUnaryMinus {
+public class OptionalConditionFactorsDerived2 extends OptionalConditionFactors {
 
-    public OptionalUnaryMinusDerived1 () {
+    public OptionalConditionFactorsDerived2 () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class OptionalUnaryMinusDerived1 extends OptionalUnaryMinus {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("OptionalUnaryMinusDerived1(\n");
+        buffer.append("OptionalConditionFactorsDerived2(\n");
 
         buffer.append(tab);
-        buffer.append(") [OptionalUnaryMinusDerived1]");
+        buffer.append(") [OptionalConditionFactorsDerived2]");
         return buffer.toString();
     }
 }

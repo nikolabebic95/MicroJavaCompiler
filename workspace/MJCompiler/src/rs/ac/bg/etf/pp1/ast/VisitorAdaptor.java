@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:34
+// 8/0/2018 2:11:44
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -27,6 +27,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ConditionTerm ConditionTerm) { }
     public void visit(BaseClassDeclaration BaseClassDeclaration) { }
     public void visit(OptionalIndirections OptionalIndirections) { }
+    public void visit(FormalParametersListNonEmpty FormalParametersListNonEmpty) { }
     public void visit(Factor Factor) { }
     public void visit(LocalVariablesList LocalVariablesList) { }
     public void visit(VariablesList VariablesList) { }
@@ -81,10 +82,12 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(OptionalActualParametersDerived2 OptionalActualParametersDerived2) { visit(); }
     public void visit(OptionalActualParametersDerived1 OptionalActualParametersDerived1) { visit(); }
     public void visit(ActualParameterDerived1 ActualParameterDerived1) { visit(); }
+    public void visit(OptionalConditionFactorTokensDerived2 OptionalConditionFactorTokensDerived2) { visit(); }
     public void visit(OptionalConditionFactorTokensDerived1 OptionalConditionFactorTokensDerived1) { visit(); }
     public void visit(ConditionFactorTokenDerived1 ConditionFactorTokenDerived1) { visit(); }
     public void visit(AddOperatorDerived2 AddOperatorDerived2) { visit(); }
     public void visit(AddOperatorDerived1 AddOperatorDerived1) { visit(); }
+    public void visit(OptionalFactorsDerived2 OptionalFactorsDerived2) { visit(); }
     public void visit(OptionalFactorsDerived1 OptionalFactorsDerived1) { visit(); }
     public void visit(FactorDerived3 FactorDerived3) { visit(); }
     public void visit(FactorDerived2 FactorDerived2) { visit(); }
@@ -92,10 +95,12 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ActualParametersListAtLeastOneDerived1 ActualParametersListAtLeastOneDerived1) { visit(); }
     public void visit(ActualParametersListDerived2 ActualParametersListDerived2) { visit(); }
     public void visit(ActualParametersListDerived1 ActualParametersListDerived1) { visit(); }
+    public void visit(OptionalConditionFactorsDerived2 OptionalConditionFactorsDerived2) { visit(); }
     public void visit(OptionalConditionFactorsDerived1 OptionalConditionFactorsDerived1) { visit(); }
     public void visit(ConditionFactorDerived1 ConditionFactorDerived1) { visit(); }
     public void visit(OptionalArrayDefinitionDerived2 OptionalArrayDefinitionDerived2) { visit(); }
     public void visit(OptionalArrayDefinitionDerived1 OptionalArrayDefinitionDerived1) { visit(); }
+    public void visit(OptionalTermsDerived2 OptionalTermsDerived2) { visit(); }
     public void visit(OptionalTermsDerived1 OptionalTermsDerived1) { visit(); }
     public void visit(TermDerived1 TermDerived1) { visit(); }
     public void visit(IndirectionDerived3 IndirectionDerived3) { visit(); }
@@ -120,8 +125,6 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(OptionalElseDerived2 OptionalElseDerived2) { visit(); }
     public void visit(OptionalElseDerived1 OptionalElseDerived1) { visit(); }
     public void visit(ConditionDerived1 ConditionDerived1) { visit(); }
-    public void visit(RightValueDerived7 RightValueDerived7) { visit(); }
-    public void visit(RightValueDerived6 RightValueDerived6) { visit(); }
     public void visit(RightValueDerived5 RightValueDerived5) { visit(); }
     public void visit(RightValueDerived4 RightValueDerived4) { visit(); }
     public void visit(RightValueDerived3 RightValueDerived3) { visit(); }
@@ -162,6 +165,8 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(BlockDerived1 BlockDerived1) { visit(); }
     public void visit(LocalVariablesListDerived2 LocalVariablesListDerived2) { visit(); }
     public void visit(LocalVariablesListDerived1 LocalVariablesListDerived1) { visit(); }
+    public void visit(FormalParametersListNonEmptyDerived2 FormalParametersListNonEmptyDerived2) { visit(); }
+    public void visit(FormalParametersListNonEmptyDerived1 FormalParametersListNonEmptyDerived1) { visit(); }
     public void visit(FormalParametersListDerived2 FormalParametersListDerived2) { visit(); }
     public void visit(FormalParametersListDerived1 FormalParametersListDerived1) { visit(); }
     public void visit(VariableDeclarationDerived1 VariableDeclarationDerived1) { visit(); }

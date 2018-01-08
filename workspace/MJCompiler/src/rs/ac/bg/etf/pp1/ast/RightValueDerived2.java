@@ -1,25 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:30
+// 8/0/2018 2:11:43
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class RightValueDerived2 extends RightValue {
 
-    private ArithmeticExpression ArithmeticExpression;
+    private LogicalExpression LogicalExpression;
 
-    public RightValueDerived2 (ArithmeticExpression ArithmeticExpression) {
-        this.ArithmeticExpression=ArithmeticExpression;
-        if(ArithmeticExpression!=null) ArithmeticExpression.setParent(this);
+    public RightValueDerived2 (LogicalExpression LogicalExpression) {
+        this.LogicalExpression=LogicalExpression;
+        if(LogicalExpression!=null) LogicalExpression.setParent(this);
     }
 
-    public ArithmeticExpression getArithmeticExpression() {
-        return ArithmeticExpression;
+    public LogicalExpression getLogicalExpression() {
+        return LogicalExpression;
     }
 
-    public void setArithmeticExpression(ArithmeticExpression ArithmeticExpression) {
-        this.ArithmeticExpression=ArithmeticExpression;
+    public void setLogicalExpression(LogicalExpression LogicalExpression) {
+        this.LogicalExpression=LogicalExpression;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +27,16 @@ public class RightValueDerived2 extends RightValue {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(ArithmeticExpression!=null) ArithmeticExpression.accept(visitor);
+        if(LogicalExpression!=null) LogicalExpression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(ArithmeticExpression!=null) ArithmeticExpression.traverseTopDown(visitor);
+        if(LogicalExpression!=null) LogicalExpression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(ArithmeticExpression!=null) ArithmeticExpression.traverseBottomUp(visitor);
+        if(LogicalExpression!=null) LogicalExpression.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +45,8 @@ public class RightValueDerived2 extends RightValue {
         buffer.append(tab);
         buffer.append("RightValueDerived2(\n");
 
-        if(ArithmeticExpression!=null)
-            buffer.append(ArithmeticExpression.toString("  "+tab));
+        if(LogicalExpression!=null)
+            buffer.append(LogicalExpression.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

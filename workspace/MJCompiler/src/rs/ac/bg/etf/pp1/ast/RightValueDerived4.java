@@ -1,24 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:30
+// 8/0/2018 2:11:43
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class RightValueDerived4 extends RightValue {
 
-    private Character C1;
+    private IncrementDecrement IncrementDecrement;
 
-    public RightValueDerived4 (Character C1) {
-        this.C1=C1;
+    public RightValueDerived4 (IncrementDecrement IncrementDecrement) {
+        this.IncrementDecrement=IncrementDecrement;
+        if(IncrementDecrement!=null) IncrementDecrement.setParent(this);
     }
 
-    public Character getC1() {
-        return C1;
+    public IncrementDecrement getIncrementDecrement() {
+        return IncrementDecrement;
     }
 
-    public void setC1(Character C1) {
-        this.C1=C1;
+    public void setIncrementDecrement(IncrementDecrement IncrementDecrement) {
+        this.IncrementDecrement=IncrementDecrement;
     }
 
     public void accept(Visitor visitor) {
@@ -26,13 +27,16 @@ public class RightValueDerived4 extends RightValue {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(IncrementDecrement!=null) IncrementDecrement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(IncrementDecrement!=null) IncrementDecrement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(IncrementDecrement!=null) IncrementDecrement.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -41,7 +45,10 @@ public class RightValueDerived4 extends RightValue {
         buffer.append(tab);
         buffer.append("RightValueDerived4(\n");
 
-        buffer.append(" "+tab+C1);
+        if(IncrementDecrement!=null)
+            buffer.append(IncrementDecrement.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);

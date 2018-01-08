@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 7/0/2018 16:31:30
+// 8/0/2018 1:27:13
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -11,7 +11,7 @@ public class ConstantDerived3 extends Constant {
 
     public ConstantDerived3 (Boolean B1) {
         this.B1=B1;
-        if(B1!=null) B1.setParent(this);
+        //if(B1!=null) B1.setParent(this);
     }
 
     public Boolean getB1() {
@@ -27,16 +27,16 @@ public class ConstantDerived3 extends Constant {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(B1!=null) B1.accept(visitor);
+        //if(B1!=null) B1.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(B1!=null) B1.traverseTopDown(visitor);
+        //if(B1!=null) B1.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(B1!=null) B1.traverseBottomUp(visitor);
+        //if(B1!=null) B1.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -46,7 +46,7 @@ public class ConstantDerived3 extends Constant {
         buffer.append("ConstantDerived3(\n");
 
         if(B1!=null)
-            buffer.append(B1.toString("  "+tab));
+            buffer.append(/*B1.toString("  "+tab)*/" "+tab+B1);
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

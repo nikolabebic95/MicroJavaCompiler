@@ -23,7 +23,7 @@ parser code {:
     public void report_error(String message, Object info) {
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append (" at line ").append(((Symbol)info).left);
+            msg.append(info.toString()).append(" at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
 
@@ -52,7 +52,7 @@ terminal AND, OR;
 terminal ASSIGN;
 terminal INCREMENT, DECREMENT;
 terminal SEPARATOR, COMMA, POINT;
-terminal LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE;
+terminal LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET, LEFT_PARENTHESIS, RIGHT_PARENTHESIS;
 terminal PROGRAM, CLASS, EXTENDS, IF, ELSE, NEW, DO, WHILE, RETURN, BREAK, CONTINUE, PRINT, READ, VOID, CONST;
 terminal Integer INT_VALUE;
 terminal Character CHAR_VALUE;
@@ -76,6 +76,7 @@ non terminal ClassDeclaration ClassDeclaration;
 non terminal ConstantDeclaration ConstantDeclaration;
 non terminal VariableDeclaration VariableDeclaration;
 non terminal FormalParametersList FormalParametersList;
+non terminal FormalParametersListNonEmpty FormalParametersListNonEmpty;
 non terminal LocalVariablesList LocalVariablesList;
 non terminal Block Block;
 non terminal ConstantsList ConstantsList;
@@ -108,7 +109,6 @@ non terminal ConditionTerm ConditionTerm;
 non terminal OptionalConditionTerms OptionalConditionTerms;
 non terminal FunctionCall FunctionCall;
 non terminal Indirection Indirection;
-non terminal OptionalUnaryMinus OptionalUnaryMinus;
 non terminal Term Term;
 non terminal OptionalTerms OptionalTerms;
 non terminal OptionalArrayDefinition OptionalArrayDefinition;
@@ -126,9 +126,12 @@ non terminal OptionalActualParameters OptionalActualParameters;
 non terminal MultiplyOperator MultiplyOperator;
 non terminal RelationalOperator RelationalOperator;
 
-// BNF:
+// Precedences:
+precedence left ELSE;
 
-Program ::= PROGRAM IDENTIFIER:I1 DeclarationsList:D2 LEFT_PARENTHESIS MethodsList:M3 RIGHT_PARENTHESIS {: RESULT=new ProgramDerived1(I1, D2, M3); RESULT.setLine(I1left); :} ;
+// Productions:
+
+Program ::= PROGRAM IDENTIFIER:I1 DeclarationsList:D2 LEFT_BRACE MethodsList:M3 RIGHT_BRACE {: RESULT=new ProgramDerived1(I1, D2, M3); RESULT.setLine(I1left); :} ;
 
 DeclarationsList ::= DeclarationsList:D1 Declaration:D2 {: RESULT=new DeclarationsListDerived1(D1, D2); RESULT.setLine(D1left); :}
 					 | {: RESULT=new DeclarationsListDerived2(); :}
@@ -140,7 +143,7 @@ MethodsList ::= MethodsList:M1 Method:M2 {: RESULT=new MethodsListDerived1(M1, M
 				/* epsilon */
 				;
 
-OptionalMethodsList ::= LEFT_PARENTHESIS MethodsList:M1 RIGHT_PARENTHESIS {: RESULT=new OptionalMethodsListDerived1(M1); RESULT.setLine(M1left); :}
+OptionalMethodsList ::= LEFT_BRACE MethodsList:M1 RIGHT_BRACE {: RESULT=new OptionalMethodsListDerived1(M1); RESULT.setLine(M1left); :}
 						| {: RESULT=new OptionalMethodsListDerived2(); :}
 						/* epsilon */
 						;
@@ -168,23 +171,28 @@ ReturnType ::= VOID {: RESULT=new ReturnTypeDerived1(); :}
 			   Type:T1 {: RESULT=new ReturnTypeDerived2(T1); RESULT.setLine(T1left); :}
 			   ;
 
-Method ::= ReturnType:R1 IDENTIFIER:I2 LEFT_BRACE FormalParametersList:F3 RIGHT_BRACE LocalVariablesList:L4 LEFT_PARENTHESIS Block:B5 RIGHT_PARENTHESIS {: RESULT=new MethodDerived1(R1, I2, F3, L4, B5); RESULT.setLine(R1left); :} ;
+Method ::= ReturnType:R1 IDENTIFIER:I2 LEFT_PARENTHESIS FormalParametersList:F3 RIGHT_PARENTHESIS LocalVariablesList:L4 LEFT_BRACE Block:B5 RIGHT_BRACE {: RESULT=new MethodDerived1(R1, I2, F3, L4, B5); RESULT.setLine(R1left); :} ;
 
 BaseClassDeclaration ::= EXTENDS ClassName:C1 {: RESULT=new BaseClassDeclarationDerived1(C1); RESULT.setLine(C1left); :}
 						 | {: RESULT=new BaseClassDeclarationDerived2(); :}
 						 /* epsilon */
 						 ;
 
-ClassDeclaration ::= CLASS IDENTIFIER:I1 BaseClassDeclaration:B2 LEFT_PARENTHESIS LocalVariablesList:L3 OptionalMethodsList:O4 RIGHT_PARENTHESIS {: RESULT=new ClassDeclarationDerived1(I1, B2, L3, O4); RESULT.setLine(I1left); :} ;
+ClassDeclaration ::= CLASS IDENTIFIER:I1 BaseClassDeclaration:B2 LEFT_BRACE LocalVariablesList:L3 OptionalMethodsList:O4 RIGHT_BRACE {: RESULT=new ClassDeclarationDerived1(I1, B2, L3, O4); RESULT.setLine(I1left); :} ;
 
 ConstantDeclaration ::= CONST Type:T1 ConstantsList:C2 SEPARATOR {: RESULT=new ConstantDeclarationDerived1(T1, C2); RESULT.setLine(T1left); :} ;
 
 VariableDeclaration ::= Type:T1 VariablesList:V2 SEPARATOR {: RESULT=new VariableDeclarationDerived1(T1, V2); RESULT.setLine(T1left); :} ;
 
-FormalParametersList ::= FormalParametersList:F1 COMMA FormalParameter:F2 {: RESULT=new FormalParametersListDerived1(F1, F2); RESULT.setLine(F1left); :}
-						 |
-						 FormalParameter:F1 {: RESULT=new FormalParametersListDerived2(F1); RESULT.setLine(F1left); :}
+FormalParametersList ::= FormalParametersListNonEmpty:F1 {: RESULT=new FormalParametersListDerived1(F1); RESULT.setLine(F1left); :}
+						 | {: RESULT=new FormalParametersListDerived2(); :}
+						 /* epsilon */
 						 ;
+
+FormalParametersListNonEmpty ::= FormalParametersListNonEmpty:F1 COMMA FormalParameter:F2 {: RESULT=new FormalParametersListNonEmptyDerived1(F1, F2); RESULT.setLine(F1left); :}
+								 |
+								 FormalParameter:F1 {: RESULT=new FormalParametersListNonEmptyDerived2(F1); RESULT.setLine(F1left); :}
+								 ;
 
 LocalVariablesList ::= LocalVariablesList:L1 VariableDeclaration:V2 {: RESULT=new LocalVariablesListDerived1(L1, V2); RESULT.setLine(L1left); :}
 					   | {: RESULT=new LocalVariablesListDerived2(); :}
@@ -212,7 +220,7 @@ Statement ::= SEPARATOR {: RESULT=new StatementDerived1(); :}
 			  |
 			  Expression:E1 {: RESULT=new StatementDerived2(E1); RESULT.setLine(E1left); :}
 			  |
-			  LEFT_PARENTHESIS Block:B1 RIGHT_PARENTHESIS {: RESULT=new StatementDerived3(B1); RESULT.setLine(B1left); :}
+			  LEFT_BRACE Block:B1 RIGHT_BRACE {: RESULT=new StatementDerived3(B1); RESULT.setLine(B1left); :}
 			  |
 			  Conditional:C1 {: RESULT=new StatementDerived4(C1); RESULT.setLine(C1left); :}
 			  |
@@ -242,9 +250,9 @@ Expression ::= LeftValue:L1 SEPARATOR {: RESULT=new ExpressionDerived1(L1); RESU
 			   LeftValue:L1 ASSIGN RightValue:R2 SEPARATOR {: RESULT=new ExpressionDerived2(L1, R2); RESULT.setLine(L1left); :}
 			   ;
 
-Conditional ::= IF LEFT_BRACE Condition:C1 RIGHT_BRACE Statement:S2 OptionalElse:O3 {: RESULT=new ConditionalDerived1(C1, S2, O3); RESULT.setLine(C1left); :} ;
+Conditional ::= IF LEFT_PARENTHESIS Condition:C1 RIGHT_PARENTHESIS Statement:S2 OptionalElse:O3 {: RESULT=new ConditionalDerived1(C1, S2, O3); RESULT.setLine(C1left); :} ;
 
-Loop ::= DO Statement:S1 WHILE LEFT_BRACE Condition:C2 RIGHT_BRACE SEPARATOR {: RESULT=new LoopDerived1(S1, C2); RESULT.setLine(S1left); :} ;
+Loop ::= DO Statement:S1 WHILE LEFT_PARENTHESIS Condition:C2 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new LoopDerived1(S1, C2); RESULT.setLine(S1left); :} ;
 
 LoopExit ::= BREAK SEPARATOR {: RESULT=new LoopExitDerived1(); :}
 			 |
@@ -253,9 +261,9 @@ LoopExit ::= BREAK SEPARATOR {: RESULT=new LoopExitDerived1(); :}
 
 Return ::= RETURN RightValue:R1 SEPARATOR {: RESULT=new ReturnDerived1(R1); RESULT.setLine(R1left); :} ;
 
-BuiltInFunction ::= READ LEFT_BRACE LeftValue:L1 RIGHT_BRACE SEPARATOR {: RESULT=new BuiltInFunctionDerived1(L1); RESULT.setLine(L1left); :}
+BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue:L1 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new BuiltInFunctionDerived1(L1); RESULT.setLine(L1left); :}
 					|
-					PRINT LEFT_BRACE RightValue:R1 OptionalPrintParameter:O2 RIGHT_BRACE SEPARATOR {: RESULT=new BuiltInFunctionDerived2(R1, O2); RESULT.setLine(R1left); :}
+					PRINT LEFT_PARENTHESIS RightValue:R1 OptionalPrintParameter:O2 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new BuiltInFunctionDerived2(R1, O2); RESULT.setLine(R1left); :}
 					;
 
 Constant ::= INT_VALUE:I1 {: RESULT=new ConstantDerived1(I1); RESULT.setLine(I1left); :}
@@ -267,19 +275,15 @@ Constant ::= INT_VALUE:I1 {: RESULT=new ConstantDerived1(I1); RESULT.setLine(I1l
 
 LeftValue ::= LeftValueStart:L1 OptionalIndirections:O2 {: RESULT=new LeftValueDerived1(L1, O2); RESULT.setLine(L1left); :} ;
 
-RightValue ::= LeftValue:L1 {: RESULT=new RightValueDerived1(L1); RESULT.setLine(L1left); :}
+RightValue ::= ArithmeticExpression:A1 {: RESULT=new RightValueDerived1(A1); RESULT.setLine(A1left); :}
 			   |
-			   ArithmeticExpression:A1 {: RESULT=new RightValueDerived2(A1); RESULT.setLine(A1left); :}
+			   LogicalExpression:L1 {: RESULT=new RightValueDerived2(L1); RESULT.setLine(L1left); :}
 			   |
-			   LogicalExpression:L1 {: RESULT=new RightValueDerived3(L1); RESULT.setLine(L1left); :}
+			   Allocation:A1 {: RESULT=new RightValueDerived3(A1); RESULT.setLine(A1left); :}
 			   |
-			   CHAR_VALUE:C1 {: RESULT=new RightValueDerived4(C1); RESULT.setLine(C1left); :}
+			   IncrementDecrement:I1 {: RESULT=new RightValueDerived4(I1); RESULT.setLine(I1left); :}
 			   |
-			   Allocation:A1 {: RESULT=new RightValueDerived5(A1); RESULT.setLine(A1left); :}
-			   |
-			   IncrementDecrement:I1 {: RESULT=new RightValueDerived6(I1); RESULT.setLine(I1left); :}
-			   |
-			   NULL {: RESULT=new RightValueDerived7(); :}
+			   NULL {: RESULT=new RightValueDerived5(); :}
 			   ;
 
 Condition ::= ConditionTerm:C1 OptionalConditionTerms:O2 {: RESULT=new ConditionDerived1(C1, O2); RESULT.setLine(C1left); :} ;
@@ -304,7 +308,10 @@ OptionalIndirections ::= OptionalIndirections:O1 Indirection:I2 {: RESULT=new Op
 						 /* epsilon */
 						 ;
 
-ArithmeticExpression ::= OptionalUnaryMinus:O1 PureArithmeticExpression:P2 {: RESULT=new ArithmeticExpressionDerived1(O1, P2); RESULT.setLine(O1left); :} ;
+ArithmeticExpression ::= PureArithmeticExpression:P1 {: RESULT=new ArithmeticExpressionDerived1(P1); RESULT.setLine(P1left); :}
+						 |
+						 SUBTRACT PureArithmeticExpression:P1 {: RESULT=new ArithmeticExpressionDerived2(P1); RESULT.setLine(P1left); :}
+						 ;
 
 PureArithmeticExpression ::= Term:T1 OptionalTerms:O2 {: RESULT=new PureArithmeticExpressionDerived1(T1, O2); RESULT.setLine(T1left); :} ;
 
@@ -321,7 +328,7 @@ ConditionTerm ::= ConditionFactor:C1 OptionalConditionFactors:O2 {: RESULT=new C
 
 OptionalConditionTerms ::= OR Condition:C1 {: RESULT=new OptionalConditionTermsDerived1(C1); RESULT.setLine(C1left); :} ;
 
-FunctionCall ::= IDENTIFIER:I1 LEFT_BRACE ActualParametersList:A2 RIGHT_BRACE {: RESULT=new FunctionCallDerived1(I1, A2); RESULT.setLine(I1left); :} ;
+FunctionCall ::= IDENTIFIER:I1 LEFT_PARENTHESIS ActualParametersList:A2 RIGHT_PARENTHESIS {: RESULT=new FunctionCallDerived1(I1, A2); RESULT.setLine(I1left); :} ;
 
 Indirection ::= POINT IDENTIFIER:I1 {: RESULT=new IndirectionDerived1(I1); RESULT.setLine(I1left); :}
 				|
@@ -330,14 +337,12 @@ Indirection ::= POINT IDENTIFIER:I1 {: RESULT=new IndirectionDerived1(I1); RESUL
 				LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {: RESULT=new IndirectionDerived3(A1); RESULT.setLine(A1left); :}
 				;
 
-OptionalUnaryMinus ::= SUBTRACT {: RESULT=new OptionalUnaryMinusDerived1(); :}
-					   | {: RESULT=new OptionalUnaryMinusDerived2(); :}
-					   /* epsilon */
-					   ;
-
 Term ::= Factor:F1 OptionalFactors:O2 {: RESULT=new TermDerived1(F1, O2); RESULT.setLine(F1left); :} ;
 
-OptionalTerms ::= AddOperator:A1 PureArithmeticExpression:P2 {: RESULT=new OptionalTermsDerived1(A1, P2); RESULT.setLine(A1left); :} ;
+OptionalTerms ::= AddOperator:A1 PureArithmeticExpression:P2 {: RESULT=new OptionalTermsDerived1(A1, P2); RESULT.setLine(A1left); :} 
+				  | {: RESULT=new OptionalTermsDerived2(); :}
+				  /* epsilon */
+				  ;
 
 OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {: RESULT=new OptionalArrayDefinitionDerived1(A1); RESULT.setLine(A1left); :}
 							| {: RESULT=new OptionalArrayDefinitionDerived2(); :}
@@ -346,7 +351,10 @@ OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {
 
 ConditionFactor ::= ConditionFactorToken:C1 OptionalConditionFactorTokens:O2 {: RESULT=new ConditionFactorDerived1(C1, O2); RESULT.setLine(C1left); :} ;
 
-OptionalConditionFactors ::= AND ConditionTerm:C1 {: RESULT=new OptionalConditionFactorsDerived1(C1); RESULT.setLine(C1left); :} ;
+OptionalConditionFactors ::= AND ConditionTerm:C1 {: RESULT=new OptionalConditionFactorsDerived1(C1); RESULT.setLine(C1left); :} 
+							 | {: RESULT=new OptionalConditionFactorsDerived2(); :}
+							 /* epsilon */
+							 ;
 
 ActualParametersList ::= ActualParametersListAtLeastOne:A1 {: RESULT=new ActualParametersListDerived1(A1); RESULT.setLine(A1left); :}
 						 | {: RESULT=new ActualParametersListDerived2(); :}
@@ -355,14 +363,17 @@ ActualParametersList ::= ActualParametersListAtLeastOne:A1 {: RESULT=new ActualP
 
 ActualParametersListAtLeastOne ::= ActualParameter:A1 OptionalActualParameters:O2 {: RESULT=new ActualParametersListAtLeastOneDerived1(A1, O2); RESULT.setLine(A1left); :} ;
 
-Factor ::= LEFT_BRACE ArithmeticExpression:A1 RIGHT_BRACE {: RESULT=new FactorDerived1(A1); RESULT.setLine(A1left); :}
-				|
-				Constant:C1 {: RESULT=new FactorDerived2(C1); RESULT.setLine(C1left); :}
-				|
-				LeftValue:L1 {: RESULT=new FactorDerived3(L1); RESULT.setLine(L1left); :}
-				;
+Factor ::= LEFT_PARENTHESIS RightValue:R1 RIGHT_PARENTHESIS {: RESULT=new FactorDerived1(R1); RESULT.setLine(R1left); :}
+		   |
+		   Constant:C1 {: RESULT=new FactorDerived2(C1); RESULT.setLine(C1left); :}
+		   |
+		   LeftValue:L1 {: RESULT=new FactorDerived3(L1); RESULT.setLine(L1left); :}
+		   ;
 
-OptionalFactors ::= MultiplyOperator:M1 Term:T2 {: RESULT=new OptionalFactorsDerived1(M1, T2); RESULT.setLine(M1left); :} ;
+OptionalFactors ::= MultiplyOperator:M1 Term:T2 {: RESULT=new OptionalFactorsDerived1(M1, T2); RESULT.setLine(M1left); :}
+					| {: RESULT=new OptionalFactorsDerived2(); :}
+					/* epsilon */
+					;
 
 AddOperator ::= ADD {: RESULT=new AddOperatorDerived1(); :}
 				|
@@ -371,7 +382,10 @@ AddOperator ::= ADD {: RESULT=new AddOperatorDerived1(); :}
 
 ConditionFactorToken ::= ArithmeticExpression:A1 {: RESULT=new ConditionFactorTokenDerived1(A1); RESULT.setLine(A1left); :} ;
 
-OptionalConditionFactorTokens ::= RelationalOperator:R1 ConditionFactor:C2 {: RESULT=new OptionalConditionFactorTokensDerived1(R1, C2); RESULT.setLine(R1left); :} ;
+OptionalConditionFactorTokens ::= RelationalOperator:R1 ConditionFactor:C2 {: RESULT=new OptionalConditionFactorTokensDerived1(R1, C2); RESULT.setLine(R1left); :} 
+							  	  | {: RESULT=new OptionalConditionFactorTokensDerived2(); :}
+								  /* epsilon */
+								  ;
 
 ActualParameter ::= RightValue:R1 {: RESULT=new ActualParameterDerived1(R1); RESULT.setLine(R1left); :} ;
 
@@ -399,3 +413,91 @@ RelationalOperator ::= EQUAL {: RESULT=new RelationalOperatorDerived1(); :}
 					   |
 					   LESS_EQUAL {: RESULT=new RelationalOperatorDerived6(); :}
 					   ;
+
+
+// non terminal Program, VarDeclList, MethodDeclList, VarDecl, Type, MethodDecl;
+// non terminal FormalParamList, FormalParamDecl, FormPars, ActualPars, ActualParamList;
+// non terminal StatementList, Statement, Designator, Expr, Term, Addop, Factor;
+// non terminal Unmatched, Matched;
+//
+//
+// Program ::= PROG IDENT VarDeclList LBRACE MethodDeclList RBRACE ;
+//
+// VarDeclList ::= VarDeclList VarDecl
+// 				|
+// 				/* epsilon */
+// 				;
+//
+// VarDecl ::= Type IDENT SEMI ;
+//
+// Type ::= IDENT ;
+//
+// MethodDeclList ::= MethodDeclList MethodDecl
+// 					|
+// 					/* epsilon */
+// 					;
+//
+// MethodDecl ::= Type IDENT LPAREN FormPars RPAREN VarDeclList LBRACE StatementList RBRACE ;
+//
+// FormPars ::= FormalParamList | /* epsilon */ ;
+//
+// FormalParamList ::= FormalParamList COMMA FormalParamDecl
+// 					|
+// 					FormalParamDecl
+// 					;
+//
+// FormalParamDecl ::= Type IDENT ;
+//
+// StatementList ::= StatementList Statement
+// 					|
+// 				  /* epsilon */
+// 				  ;
+//
+// Statement ::= Matched | Unmatched ;
+//
+// Unmatched ::= IF Expr Statement | IF Expr Matched ELSE Unmatched;
+//
+//
+// Matched ::= Designator EQUAL Expr SEMI
+// 			  |
+// 			  Designator EQUAL error SEMI
+// 			  {: parser.log.debug("Uspesan oporavak od greske pri dodeli vrednosti."); :}
+// 			  |
+// 			  PRINT LPAREN Expr RPAREN SEMI
+// 			  {: parser.printCallCount++; :}
+// 			  |
+// 			  RETURN Expr SEMI
+// 			  |
+// 			  RETURN SEMI
+// 			  |
+// 			  IF Expr Matched ELSE Matched
+// 			  ;
+//
+// Expr ::= Expr Addop Term
+// 		 |
+// 		 Term
+// 		 ;
+//
+// Term ::= Factor ;
+//
+// Factor ::= NUMBER
+// 			|
+// 		   Designator
+// 		    |
+// 		   Designator LPAREN ActualPars RPAREN
+// 		   ;
+//
+// ActualPars ::= ActualParamList
+// 				|
+// 			   /* epsilon */
+// 			   ;
+//
+// ActualParamList ::= ActualParamList COMMA Expr
+// 					|
+// 					Expr
+// 					;
+//
+// Designator ::= IDENT ;
+//
+// Addop ::= PLUS ;
+//
