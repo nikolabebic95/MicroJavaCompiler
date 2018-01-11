@@ -102,7 +102,7 @@ import java_cup.runtime.Symbol;
 // Constants
 [0-9]+                  { return createSymbol(sym.INT_VALUE, new Integer (yytext())); }
 0x[0-9a-fA-F]+          { return createSymbol(sym.INT_VALUE, Integer.decode(yytext())); }
-\"\"\".\"\"\"           { return createSymbol(sym.CHAR_VALUE, yytext().charAt(4)); }
+'.'                     { return createSymbol(sym.CHAR_VALUE, yytext().charAt(1)); }
 "true"                  { return createSymbol(sym.BOOL_VALUE, true); }
 "false"                 { return createSymbol(sym.BOOL_VALUE, false); }
 

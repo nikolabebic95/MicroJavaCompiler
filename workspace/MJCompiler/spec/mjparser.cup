@@ -23,7 +23,7 @@ parser code {:
     public void report_error(String message, Object info) {
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append(info.toString()).append(" at line ").append(((Symbol)info).left);
+            msg.append(((Symbol)info).value).append(" at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
 
@@ -96,6 +96,7 @@ non terminal Constant;
 non terminal LeftValue;
 non terminal RightValue;
 non terminal Condition;
+non terminal PureCondition;
 non terminal OptionalElse;
 non terminal OptionalPrintParameter;
 non terminal LeftValueStart;
@@ -231,11 +232,13 @@ Statement ::= SEPARATOR
 			  Return
 			  |
 			  BuiltInFunction
+			  |
+			  IncrementDecrement
 			  ;
 
 ConstantDefinition ::= IDENTIFIER ASSIGN Constant ;
 
-VariableDefinition ::= IDENTIFIER
+VariableDefinition ::= IDENTIFIER OptionalArrayDeclaration
 					   |
 					   ConstantDefinition
 					   ;
@@ -281,12 +284,17 @@ RightValue ::= ArithmeticExpression
 			   |
 			   Allocation
 			   |
-			   IncrementDecrement
-			   |
 			   NULL
 			   ;
 
-Condition ::= ConditionTerm OptionalConditionTerms ;
+Condition ::= PureCondition
+			  |
+			  IDENTIFIER
+			  |
+			  BOOL_VALUE
+			  ;
+
+PureCondition ::= ConditionTerm OptionalConditionTerms ;
 
 OptionalElse ::= ELSE Statement
 				 |
@@ -315,7 +323,7 @@ ArithmeticExpression ::= PureArithmeticExpression
 
 PureArithmeticExpression ::= Term OptionalTerms ;
 
-LogicalExpression ::= Condition ;
+LogicalExpression ::= PureCondition ;
 
 Allocation ::= NEW Type OptionalArrayDefinition ;
 
@@ -326,7 +334,10 @@ IncrementDecrement ::= LeftValue INCREMENT
 
 ConditionTerm ::= ConditionFactor OptionalConditionFactors ;
 
-OptionalConditionTerms ::= OR Condition ;
+OptionalConditionTerms ::= OR Condition
+						   |
+						   /* epsilon */
+						   ;
 
 FunctionCall ::= IDENTIFIER LEFT_PARENTHESIS ActualParametersList RIGHT_PARENTHESIS ;
 
@@ -349,7 +360,7 @@ OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression RIGHT_BRACKET
 							/* epsilon */
 							;
 
-ConditionFactor ::= ConditionFactorToken OptionalConditionFactorTokens ;
+ConditionFactor ::= ConditionFactorToken RelationalOperator ConditionFactorToken OptionalConditionFactorTokens ;
 
 OptionalConditionFactors ::= AND ConditionTerm 
 							 |

@@ -1,25 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 10/0/2018 16:2:30
+// 11/0/2018 22:8:2
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class LogicalExpressionDerived1 extends LogicalExpression {
 
-    private Condition Condition;
+    private PureCondition PureCondition;
 
-    public LogicalExpressionDerived1 (Condition Condition) {
-        this.Condition=Condition;
-        if(Condition!=null) Condition.setParent(this);
+    public LogicalExpressionDerived1 (PureCondition PureCondition) {
+        this.PureCondition=PureCondition;
+        if(PureCondition!=null) PureCondition.setParent(this);
     }
 
-    public Condition getCondition() {
-        return Condition;
+    public PureCondition getPureCondition() {
+        return PureCondition;
     }
 
-    public void setCondition(Condition Condition) {
-        this.Condition=Condition;
+    public void setPureCondition(PureCondition PureCondition) {
+        this.PureCondition=PureCondition;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +27,16 @@ public class LogicalExpressionDerived1 extends LogicalExpression {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Condition!=null) Condition.accept(visitor);
+        if(PureCondition!=null) PureCondition.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Condition!=null) Condition.traverseTopDown(visitor);
+        if(PureCondition!=null) PureCondition.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Condition!=null) Condition.traverseBottomUp(visitor);
+        if(PureCondition!=null) PureCondition.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +45,8 @@ public class LogicalExpressionDerived1 extends LogicalExpression {
         buffer.append(tab);
         buffer.append("LogicalExpressionDerived1(\n");
 
-        if(Condition!=null)
-            buffer.append(Condition.toString("  "+tab));
+        if(PureCondition!=null)
+            buffer.append(PureCondition.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

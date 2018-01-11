@@ -23,7 +23,7 @@ parser code {:
     public void report_error(String message, Object info) {
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append(info.toString()).append(" at line ").append(((Symbol)info).left);
+            msg.append(((Symbol)info).value).append(" at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
 
@@ -96,6 +96,7 @@ non terminal Constant Constant;
 non terminal LeftValue LeftValue;
 non terminal RightValue RightValue;
 non terminal Condition Condition;
+non terminal PureCondition PureCondition;
 non terminal OptionalElse OptionalElse;
 non terminal OptionalPrintParameter OptionalPrintParameter;
 non terminal LeftValueStart LeftValueStart;
@@ -231,11 +232,13 @@ Statement ::= SEPARATOR {: RESULT=new StatementDerived1(); :}
 			  Return:R1 {: RESULT=new StatementDerived7(R1); RESULT.setLine(R1left); :}
 			  |
 			  BuiltInFunction:B1 {: RESULT=new StatementDerived8(B1); RESULT.setLine(B1left); :}
+			  |
+			  IncrementDecrement:I1 {: RESULT=new StatementDerived9(I1); RESULT.setLine(I1left); :}
 			  ;
 
 ConstantDefinition ::= IDENTIFIER:I1 ASSIGN Constant:C2 {: RESULT=new ConstantDefinitionDerived1(I1, C2); RESULT.setLine(I1left); :} ;
 
-VariableDefinition ::= IDENTIFIER:I1 {: RESULT=new VariableDefinitionDerived1(I1); RESULT.setLine(I1left); :}
+VariableDefinition ::= IDENTIFIER:I1 OptionalArrayDeclaration:O2 {: RESULT=new VariableDefinitionDerived1(I1, O2); RESULT.setLine(I1left); :}
 					   |
 					   ConstantDefinition:C1 {: RESULT=new VariableDefinitionDerived2(C1); RESULT.setLine(C1left); :}
 					   ;
@@ -281,12 +284,17 @@ RightValue ::= ArithmeticExpression:A1 {: RESULT=new RightValueDerived1(A1); RES
 			   |
 			   Allocation:A1 {: RESULT=new RightValueDerived3(A1); RESULT.setLine(A1left); :}
 			   |
-			   IncrementDecrement:I1 {: RESULT=new RightValueDerived4(I1); RESULT.setLine(I1left); :}
-			   |
-			   NULL {: RESULT=new RightValueDerived5(); :}
+			   NULL {: RESULT=new RightValueDerived4(); :}
 			   ;
 
-Condition ::= ConditionTerm:C1 OptionalConditionTerms:O2 {: RESULT=new ConditionDerived1(C1, O2); RESULT.setLine(C1left); :} ;
+Condition ::= PureCondition:P1 {: RESULT=new ConditionDerived1(P1); RESULT.setLine(P1left); :}
+			  |
+			  IDENTIFIER:I1 {: RESULT=new ConditionDerived2(I1); RESULT.setLine(I1left); :}
+			  |
+			  BOOL_VALUE:B1 {: RESULT=new ConditionDerived3(B1); RESULT.setLine(B1left); :}
+			  ;
+
+PureCondition ::= ConditionTerm:C1 OptionalConditionTerms:O2 {: RESULT=new PureConditionDerived1(C1, O2); RESULT.setLine(C1left); :} ;
 
 OptionalElse ::= ELSE Statement:S1 {: RESULT=new OptionalElseDerived1(S1); RESULT.setLine(S1left); :}
 				 | {: RESULT=new OptionalElseDerived2(); :}
@@ -315,7 +323,7 @@ ArithmeticExpression ::= PureArithmeticExpression:P1 {: RESULT=new ArithmeticExp
 
 PureArithmeticExpression ::= Term:T1 OptionalTerms:O2 {: RESULT=new PureArithmeticExpressionDerived1(T1, O2); RESULT.setLine(T1left); :} ;
 
-LogicalExpression ::= Condition:C1 {: RESULT=new LogicalExpressionDerived1(C1); RESULT.setLine(C1left); :} ;
+LogicalExpression ::= PureCondition:P1 {: RESULT=new LogicalExpressionDerived1(P1); RESULT.setLine(P1left); :} ;
 
 Allocation ::= NEW Type:T1 OptionalArrayDefinition:O2 {: RESULT=new AllocationDerived1(T1, O2); RESULT.setLine(T1left); :} ;
 
@@ -326,7 +334,10 @@ IncrementDecrement ::= LeftValue:L1 INCREMENT {: RESULT=new IncrementDecrementDe
 
 ConditionTerm ::= ConditionFactor:C1 OptionalConditionFactors:O2 {: RESULT=new ConditionTermDerived1(C1, O2); RESULT.setLine(C1left); :} ;
 
-OptionalConditionTerms ::= OR Condition:C1 {: RESULT=new OptionalConditionTermsDerived1(C1); RESULT.setLine(C1left); :} ;
+OptionalConditionTerms ::= OR Condition:C1 {: RESULT=new OptionalConditionTermsDerived1(C1); RESULT.setLine(C1left); :}
+						   | {: RESULT=new OptionalConditionTermsDerived2(); :}
+						   /* epsilon */
+						   ;
 
 FunctionCall ::= IDENTIFIER:I1 LEFT_PARENTHESIS ActualParametersList:A2 RIGHT_PARENTHESIS {: RESULT=new FunctionCallDerived1(I1, A2); RESULT.setLine(I1left); :} ;
 
@@ -349,7 +360,7 @@ OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {
 							/* epsilon */
 							;
 
-ConditionFactor ::= ConditionFactorToken:C1 OptionalConditionFactorTokens:O2 {: RESULT=new ConditionFactorDerived1(C1, O2); RESULT.setLine(C1left); :} ;
+ConditionFactor ::= ConditionFactorToken:C1 RelationalOperator:R2 ConditionFactorToken:C3 OptionalConditionFactorTokens:O4 {: RESULT=new ConditionFactorDerived1(C1, R2, C3, O4); RESULT.setLine(C1left); :} ;
 
 OptionalConditionFactors ::= AND ConditionTerm:C1 {: RESULT=new OptionalConditionFactorsDerived1(C1); RESULT.setLine(C1left); :} 
 							 | {: RESULT=new OptionalConditionFactorsDerived2(); :}

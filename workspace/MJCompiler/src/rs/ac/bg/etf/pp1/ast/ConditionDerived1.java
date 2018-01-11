@@ -1,36 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 10/0/2018 16:2:30
+// 11/0/2018 22:8:2
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class ConditionDerived1 extends Condition {
 
-    private ConditionTerm ConditionTerm;
-    private OptionalConditionTerms OptionalConditionTerms;
+    private PureCondition PureCondition;
 
-    public ConditionDerived1 (ConditionTerm ConditionTerm, OptionalConditionTerms OptionalConditionTerms) {
-        this.ConditionTerm=ConditionTerm;
-        if(ConditionTerm!=null) ConditionTerm.setParent(this);
-        this.OptionalConditionTerms=OptionalConditionTerms;
-        if(OptionalConditionTerms!=null) OptionalConditionTerms.setParent(this);
+    public ConditionDerived1 (PureCondition PureCondition) {
+        this.PureCondition=PureCondition;
+        if(PureCondition!=null) PureCondition.setParent(this);
     }
 
-    public ConditionTerm getConditionTerm() {
-        return ConditionTerm;
+    public PureCondition getPureCondition() {
+        return PureCondition;
     }
 
-    public void setConditionTerm(ConditionTerm ConditionTerm) {
-        this.ConditionTerm=ConditionTerm;
-    }
-
-    public OptionalConditionTerms getOptionalConditionTerms() {
-        return OptionalConditionTerms;
-    }
-
-    public void setOptionalConditionTerms(OptionalConditionTerms OptionalConditionTerms) {
-        this.OptionalConditionTerms=OptionalConditionTerms;
+    public void setPureCondition(PureCondition PureCondition) {
+        this.PureCondition=PureCondition;
     }
 
     public void accept(Visitor visitor) {
@@ -38,19 +27,16 @@ public class ConditionDerived1 extends Condition {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(ConditionTerm!=null) ConditionTerm.accept(visitor);
-        if(OptionalConditionTerms!=null) OptionalConditionTerms.accept(visitor);
+        if(PureCondition!=null) PureCondition.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(ConditionTerm!=null) ConditionTerm.traverseTopDown(visitor);
-        if(OptionalConditionTerms!=null) OptionalConditionTerms.traverseTopDown(visitor);
+        if(PureCondition!=null) PureCondition.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(ConditionTerm!=null) ConditionTerm.traverseBottomUp(visitor);
-        if(OptionalConditionTerms!=null) OptionalConditionTerms.traverseBottomUp(visitor);
+        if(PureCondition!=null) PureCondition.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -59,14 +45,8 @@ public class ConditionDerived1 extends Condition {
         buffer.append(tab);
         buffer.append("ConditionDerived1(\n");
 
-        if(ConditionTerm!=null)
-            buffer.append(ConditionTerm.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        if(OptionalConditionTerms!=null)
-            buffer.append(OptionalConditionTerms.toString("  "+tab));
+        if(PureCondition!=null)
+            buffer.append(PureCondition.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
