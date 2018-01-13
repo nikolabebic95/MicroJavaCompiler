@@ -75,6 +75,7 @@ non terminal BaseClassDeclaration;
 non terminal ClassDeclaration;
 non terminal ConstantDeclaration;
 non terminal VariableDeclaration;
+non terminal LocalVariableDeclaration;
 non terminal FormalParametersList;
 non terminal FormalParametersListNonEmpty;
 non terminal LocalVariablesList;
@@ -185,6 +186,8 @@ ConstantDeclaration ::= CONST Type ConstantsList SEPARATOR ;
 
 VariableDeclaration ::= Type VariablesList SEPARATOR ;
 
+LocalVariableDeclaration ::= Type VariablesList SEPARATOR ;
+
 FormalParametersList ::= FormalParametersListNonEmpty
 						 |
 						 /* epsilon */
@@ -195,7 +198,7 @@ FormalParametersListNonEmpty ::= FormalParametersListNonEmpty COMMA FormalParame
 								 FormalParameter
 								 ;
 
-LocalVariablesList ::= LocalVariablesList VariableDeclaration
+LocalVariablesList ::= LocalVariablesList LocalVariableDeclaration
 					   |
 					   /* epsilon */
 					   ;
@@ -238,10 +241,7 @@ Statement ::= SEPARATOR
 
 ConstantDefinition ::= IDENTIFIER ASSIGN Constant ;
 
-VariableDefinition ::= IDENTIFIER OptionalArrayDeclaration
-					   |
-					   ConstantDefinition
-					   ;
+VariableDefinition ::= IDENTIFIER OptionalArrayDeclaration ;
 
 OptionalArrayDeclaration ::= LEFT_BRACKET RIGHT_BRACKET
 							 |
@@ -274,6 +274,8 @@ Constant ::= INT_VALUE
 			 CHAR_VALUE
 			 |
 			 BOOL_VALUE
+			 |
+			 NULL
 			 ;
 
 LeftValue ::= LeftValueStart OptionalIndirections ;
@@ -283,8 +285,6 @@ RightValue ::= ArithmeticExpression
 			   LogicalExpression
 			   |
 			   Allocation
-			   |
-			   NULL
 			   ;
 
 Condition ::= PureCondition

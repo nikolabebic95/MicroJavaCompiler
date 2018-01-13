@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/0/2018 14:8:6
+// 13/0/2018 22:49:33
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -49,6 +49,7 @@ public interface Visitor {
     public void visit(OptionalConditionTerms OptionalConditionTerms);
     public void visit(ConstantsList ConstantsList);
     public void visit(ClassDeclaration ClassDeclaration);
+    public void visit(LocalVariableDeclaration LocalVariableDeclaration);
     public void visit(BuiltInFunction BuiltInFunction);
     public void visit(ConstantDeclaration ConstantDeclaration);
     public void visit(VariableDeclaration VariableDeclaration);
@@ -130,11 +131,11 @@ public interface Visitor {
     public void visit(ConditionDerived3 ConditionDerived3);
     public void visit(ConditionDerived2 ConditionDerived2);
     public void visit(ConditionDerived1 ConditionDerived1);
-    public void visit(RightValueDerived4 RightValueDerived4);
     public void visit(RightValueDerived3 RightValueDerived3);
     public void visit(RightValueDerived2 RightValueDerived2);
     public void visit(RightValueDerived1 RightValueDerived1);
     public void visit(LeftValueDerived1 LeftValueDerived1);
+    public void visit(ConstantDerived4 ConstantDerived4);
     public void visit(ConstantDerived3 ConstantDerived3);
     public void visit(ConstantDerived2 ConstantDerived2);
     public void visit(ConstantDerived1 ConstantDerived1);
@@ -149,7 +150,6 @@ public interface Visitor {
     public void visit(ExpressionDerived1 ExpressionDerived1);
     public void visit(OptionalArrayDeclarationDerived2 OptionalArrayDeclarationDerived2);
     public void visit(OptionalArrayDeclarationDerived1 OptionalArrayDeclarationDerived1);
-    public void visit(VariableDefinitionDerived2 VariableDefinitionDerived2);
     public void visit(VariableDefinitionDerived1 VariableDefinitionDerived1);
     public void visit(ConstantDefinitionDerived1 ConstantDefinitionDerived1);
     public void visit(StatementDerived9 StatementDerived9);
@@ -174,6 +174,7 @@ public interface Visitor {
     public void visit(FormalParametersListNonEmptyDerived1 FormalParametersListNonEmptyDerived1);
     public void visit(FormalParametersListDerived2 FormalParametersListDerived2);
     public void visit(FormalParametersListDerived1 FormalParametersListDerived1);
+    public void visit(LocalVariableDeclarationDerived1 LocalVariableDeclarationDerived1);
     public void visit(VariableDeclarationDerived1 VariableDeclarationDerived1);
     public void visit(ConstantDeclarationDerived1 ConstantDeclarationDerived1);
     public void visit(ClassDeclarationDerived1 ClassDeclarationDerived1);

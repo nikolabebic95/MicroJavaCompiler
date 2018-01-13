@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/0/2018 14:8:4
+// 13/0/2018 22:49:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class RightValueDerived4 extends RightValue {
+public class ConstantDerived4 extends Constant {
 
-    public RightValueDerived4 () {
+    public ConstantDerived4 () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class RightValueDerived4 extends RightValue {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("RightValueDerived4(\n");
+        buffer.append("ConstantDerived4(\n");
 
         buffer.append(tab);
-        buffer.append(") [RightValueDerived4]");
+        buffer.append(") [ConstantDerived4]");
         return buffer.toString();
     }
 }
