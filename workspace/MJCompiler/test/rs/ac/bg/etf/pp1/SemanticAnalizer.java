@@ -2,13 +2,12 @@ package rs.ac.bg.etf.pp1;
 
 import rs.ac.bg.etf.pp1.Extensions.ExtendedSymbolTable;
 import rs.ac.bg.etf.pp1.ast.*;
-import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
-import rs.etf.pp1.symboltable.concepts.Scope;
 import rs.etf.pp1.symboltable.concepts.Struct;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class SemanticAnalizer extends VisitorAdaptor {
 
@@ -29,7 +28,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
             Obj objectNode = ExtendedSymbolTable.find(className);
 
             if (objectNode.getKind() != Obj.Type) {
-                throw new RuntimeException(className + " is not a type name");
+                throw new CompilerException(type, className + " is not a type name");
             }
 
             return objectNode.getType();
@@ -40,6 +39,10 @@ public class SemanticAnalizer extends VisitorAdaptor {
 
     private boolean checkIfIsArray(OptionalArrayDeclaration optionalArrayDeclaration) {
         return optionalArrayDeclaration instanceof OptionalArrayDeclarationDerived1;
+    }
+
+    private boolean checkIfIsArray(OptionalArrayDefinition optionalArrayDefinition) {
+        return optionalArrayDefinition instanceof OptionalArrayDefinitionDerived1;
     }
 
     private Struct getReturnType(ReturnType returnType) {
@@ -73,6 +76,15 @@ public class SemanticAnalizer extends VisitorAdaptor {
         } else {
             throw new NotImplementedException();
         }
+    }
+
+    private Struct getIdentifierType(String identifier) {
+        Obj objectNode = ExtendedSymbolTable.find(identifier);
+        if (objectNode == ExtendedSymbolTable.noObj) {
+            return null;
+        }
+
+        return objectNode.getType();
     }
 
     // endregion
@@ -112,7 +124,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
         int constantValue = getConstantValue(constantDefinition.getConstant());
 
         if (checkIfNameExistsInCurrentScope(constantName)) {
-            throw new RuntimeException(constantName + " already exists in the current scope");
+            throw new CompilerException(constantDefinition, constantName + " already exists in the current scope");
         }
 
         constants.add(new ConstantStruct(constantName, constantValue));
@@ -147,7 +159,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
         Struct arrayType = new Struct(Struct.Array, variableType);
         variables.forEach(variable -> {
             if (checkIfNameExistsInCurrentScope(variable.getName())) {
-                throw new RuntimeException(variable.getName() + "already exists in the current scope");
+                throw new CompilerException(variableDeclaration, variable.getName() + "already exists in the current scope");
             }
 
             ExtendedSymbolTable.insert(Obj.Var, variable.getName(), variable.isArray() ? arrayType : variableType);
@@ -166,102 +178,160 @@ public class SemanticAnalizer extends VisitorAdaptor {
 
     // region Method declarations
 
-    private static class LocalVariableStruct {
-        private ArrayList<VariableStruct> variables;
-        private Struct type;
-
-        public LocalVariableStruct(ArrayList<VariableStruct> variables, Struct type) {
-            this.variables = variables;
-            this.type = type;
-        }
-
-        public ArrayList<VariableStruct> getVariables() {
-            return variables;
-        }
-
-        public Struct getType() {
-            return type;
-        }
-    }
-
-    private ArrayList<LocalVariableStruct> localVariables = new ArrayList<>();
-
-    private static class FormalParameterStruct {
-        private Struct type;
-        private String name;
-        private boolean isArray;
-
-        public FormalParameterStruct(Struct type, String name, boolean isArray) {
-            this.type = type;
-            this.name = name;
-            this.isArray = isArray;
-        }
-
-        public Struct getType() {
-            return type;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isArray() {
-            return isArray;
-        }
-    }
-
-    private ArrayList<FormalParameterStruct> formalParameters = new ArrayList<>();
-
-    @Override
-    public void visit(LocalVariableDeclarationDerived1 variableDeclaration) {
-        Struct variableType = getType(variableDeclaration.getType());
-        localVariables.add(new LocalVariableStruct(variables, variableType));
-        variables = new ArrayList<>();
-    }
+    private Obj outerScope;
+    private int numberOfFormalParameters = 0;
+    private boolean wasReturned = false;
 
     @Override
     public void visit(FormalParameterDerived1 formalParameter) {
-        Struct type = getType(formalParameter.getType());
+        Struct variableType = getType(formalParameter.getType());
+        Struct arrayType = new Struct(Struct.Array, variableType);
         String name = formalParameter.getI2();
         boolean isArray = checkIfIsArray(formalParameter.getOptionalArrayDeclaration());
-        formalParameters.add(new FormalParameterStruct(type, name, isArray));
+        ExtendedSymbolTable.insert(Obj.Var, name, isArray ? arrayType : variableType);
     }
 
     @Override
     public void visit(MethodDerived1 method) {
-        String methodName = method.getI2();
-
-        if (checkIfNameExistsInCurrentScope(methodName)) {
-            throw new RuntimeException(methodName + " exists in the current scope");
+        if (outerScope.getType() != ExtendedSymbolTable.noType && !wasReturned) {
+            throw new CompilerException(method, "Method " + outerScope.getName() + " never returns");
         }
 
-        Struct returnType = getReturnType(method.getReturnType());
+        outerScope.setLevel(numberOfFormalParameters);
+        ExtendedSymbolTable.chainLocalSymbols(outerScope);
+        ExtendedSymbolTable.closeScope();
+    }
 
-        Obj outerScope = ExtendedSymbolTable.insertMethod(methodName, returnType, formalParameters.size());
+    @Override
+    public void visit(MethodStartDerived1 methodStart) {
+        String methodName = methodStart.getI2();
+
+        if (checkIfNameExistsInCurrentScope(methodName)) {
+            throw new CompilerException(methodStart, methodName + " exists in the current scope");
+        }
+
+        Struct returnType = getReturnType(methodStart.getReturnType());
+
+        outerScope = ExtendedSymbolTable.insert(Obj.Meth, methodName, returnType);
+        numberOfFormalParameters = 0;
+        wasReturned = false;
 
         ExtendedSymbolTable.openScope();
-
-        formalParameters.forEach(formalParameter -> {
-            Struct type = formalParameter.isArray() ?
-                    new Struct(Struct.Array, formalParameter.getType()) : formalParameter.getType();
-            ExtendedSymbolTable.insert(Obj.Var, formalParameter.getName(), type);
-        });
-
-        localVariables.forEach(localVariableArr -> {
-            Struct type = localVariableArr.getType();
-            Struct arrType = new Struct(Struct.Array, type);
-            localVariableArr.variables.forEach(variable ->
-                    ExtendedSymbolTable.insert(Obj.Var, variable.getName(), variable.isArray() ? arrType : type));
-        });
-
-        ExtendedSymbolTable.chainLocalSymbols(outerScope);
-
-        ExtendedSymbolTable.closeScope();
-
-        localVariables.clear();
-        formalParameters.clear();
     }
 
     // endregion
 
+    // region Return statement
+
+    @Override
+    public void visit(ReturnDerived1 valueReturn) {
+        wasReturned = true;
+        // TODO: Check type
+    }
+
+    @Override
+    public void visit(ReturnDerived2 voidReturn) {
+        if (outerScope.getType() != ExtendedSymbolTable.noType) {
+            throw new CompilerException(voidReturn, "A value must be returned");
+        }
+    }
+
+    // endregion
+
+    // region Statements
+
+    private Stack<Struct> types = new Stack<>();
+
+    @Override
+    public void visit(ConstantDerived1 intConstant) {
+        types.push(ExtendedSymbolTable.intType);
+    }
+
+    @Override
+    public void visit(ConstantDerived2 charConstant) {
+        types.push(ExtendedSymbolTable.charType);
+    }
+
+    @Override
+    public void visit(ConstantDerived3 boolConstant) {
+        types.push(ExtendedSymbolTable.boolType);
+    }
+
+    @Override
+    public void visit(ConstantDerived4 nullConstant) {
+        types.push(ExtendedSymbolTable.nullType);
+    }
+
+    @Override
+    public void visit(LeftValueStartDerived1 identifier) {
+        Struct type = getIdentifierType(identifier.getI1());
+        if (type == null) {
+            throw new CompilerException(identifier, identifier.getI1() + " - undeclared identifier");
+        }
+
+        types.push(type);
+    }
+
+    @Override
+    public void visit(IndirectionDerived3 arrayIndirection) {
+        // Remove the number from the stack
+        Struct intType = types.pop();
+        if (!intType.equals(ExtendedSymbolTable.intType)) {
+            throw new CompilerException(arrayIndirection, "Array must be indexed with an int type");
+        }
+
+        Struct arrayType = types.pop();
+        if (arrayType.getKind() != Struct.Array) {
+            throw new CompilerException(arrayIndirection, "Only arrays can be indexed");
+        }
+
+        types.push(arrayType.getElemType());
+    }
+
+    @Override
+    public void visit(ExpressionDerived2 expression) {
+        Struct rightValue = types.pop();
+        Struct leftValue = types.pop();
+
+        if (!rightValue.assignableTo(leftValue)) {
+            throw new CompilerException(expression, "Assignment not possible");
+        }
+    }
+
+    private void visitBinaryOperation(SyntaxNode syntaxNode) {
+        Struct right = types.pop();
+        Struct left = types.peek();
+
+        if (!right.equals(left)) {
+            throw new CompilerException(syntaxNode, "Arithmetic operation not possible");
+        }
+    }
+
+    @Override
+    public void visit(OptionalTermsDerived1 optionalTerms) {
+        visitBinaryOperation(optionalTerms);
+    }
+
+    @Override
+    public void visit(OptionalFactorsDerived1 optionalFactors) {
+        visitBinaryOperation(optionalFactors);
+    }
+
+    @Override
+    public void visit(AllocationDerived1 allocation) {
+        Struct type = getType(allocation.getType());
+        if (checkIfIsArray(allocation.getOptionalArrayDefinition())) {
+            // Removes the int type of the parameter passed to the allocation
+            Struct intType = types.pop();
+            if (!intType.equals(ExtendedSymbolTable.intType)) {
+                throw new CompilerException(allocation, "Arrays must be allocated with an integer number of objects");
+            }
+
+            type = new Struct(Struct.Array, type);
+        }
+
+        types.push(type);
+    }
+
+    // endregion
 }

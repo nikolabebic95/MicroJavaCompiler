@@ -21,7 +21,7 @@ public class Compiler {
         Logger log = Logger.getLogger(Compiler.class);
 
         try {
-            File sourceCode = new File("MJCompiler/test/test302.mj");
+            File sourceCode = new File("MJCompiler/test/test301.mj");
             log.info("Compiling source file: " + sourceCode.getAbsolutePath());
 
             try (BufferedReader br = new BufferedReader(new FileReader(sourceCode))){
@@ -41,6 +41,9 @@ public class Compiler {
                 program.traverseBottomUp(semanticAnalizer);
                 ExtendedSymbolTable.dump();
             }
+        }
+        catch (RuntimeException e) {
+            System.err.println(e.getMessage());
         }
         catch (Exception e) {
             log.error(e);

@@ -1,22 +1,20 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/0/2018 22:49:31
+// 14/0/2018 2:25:50
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class MethodDerived1 extends Method {
 
-    private ReturnType ReturnType;
-    private String I2;
+    private MethodStart MethodStart;
     private FormalParametersList FormalParametersList;
     private LocalVariablesList LocalVariablesList;
     private Block Block;
 
-    public MethodDerived1 (ReturnType ReturnType, String I2, FormalParametersList FormalParametersList, LocalVariablesList LocalVariablesList, Block Block) {
-        this.ReturnType=ReturnType;
-        if(ReturnType!=null) ReturnType.setParent(this);
-        this.I2=I2;
+    public MethodDerived1 (MethodStart MethodStart, FormalParametersList FormalParametersList, LocalVariablesList LocalVariablesList, Block Block) {
+        this.MethodStart=MethodStart;
+        if(MethodStart!=null) MethodStart.setParent(this);
         this.FormalParametersList=FormalParametersList;
         if(FormalParametersList!=null) FormalParametersList.setParent(this);
         this.LocalVariablesList=LocalVariablesList;
@@ -25,20 +23,12 @@ public class MethodDerived1 extends Method {
         if(Block!=null) Block.setParent(this);
     }
 
-    public ReturnType getReturnType() {
-        return ReturnType;
+    public MethodStart getMethodStart() {
+        return MethodStart;
     }
 
-    public void setReturnType(ReturnType ReturnType) {
-        this.ReturnType=ReturnType;
-    }
-
-    public String getI2() {
-        return I2;
-    }
-
-    public void setI2(String I2) {
-        this.I2=I2;
+    public void setMethodStart(MethodStart MethodStart) {
+        this.MethodStart=MethodStart;
     }
 
     public FormalParametersList getFormalParametersList() {
@@ -70,7 +60,7 @@ public class MethodDerived1 extends Method {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(ReturnType!=null) ReturnType.accept(visitor);
+        if(MethodStart!=null) MethodStart.accept(visitor);
         if(FormalParametersList!=null) FormalParametersList.accept(visitor);
         if(LocalVariablesList!=null) LocalVariablesList.accept(visitor);
         if(Block!=null) Block.accept(visitor);
@@ -78,14 +68,14 @@ public class MethodDerived1 extends Method {
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(ReturnType!=null) ReturnType.traverseTopDown(visitor);
+        if(MethodStart!=null) MethodStart.traverseTopDown(visitor);
         if(FormalParametersList!=null) FormalParametersList.traverseTopDown(visitor);
         if(LocalVariablesList!=null) LocalVariablesList.traverseTopDown(visitor);
         if(Block!=null) Block.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(ReturnType!=null) ReturnType.traverseBottomUp(visitor);
+        if(MethodStart!=null) MethodStart.traverseBottomUp(visitor);
         if(FormalParametersList!=null) FormalParametersList.traverseBottomUp(visitor);
         if(LocalVariablesList!=null) LocalVariablesList.traverseBottomUp(visitor);
         if(Block!=null) Block.traverseBottomUp(visitor);
@@ -97,13 +87,10 @@ public class MethodDerived1 extends Method {
         buffer.append(tab);
         buffer.append("MethodDerived1(\n");
 
-        if(ReturnType!=null)
-            buffer.append(ReturnType.toString("  "+tab));
+        if(MethodStart!=null)
+            buffer.append(MethodStart.toString("  "+tab));
         else
             buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        buffer.append(" "+tab+I2);
         buffer.append("\n");
 
         if(FormalParametersList!=null)

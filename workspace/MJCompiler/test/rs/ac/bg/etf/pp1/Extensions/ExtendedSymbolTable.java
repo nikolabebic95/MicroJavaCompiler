@@ -70,10 +70,4 @@ public class ExtendedSymbolTable extends Tab {
         ret.setAdr(adr);
         return ret;
     }
-
-    public static Obj insertMethod(String name, Struct type, int numOfFormalParams) {
-        Obj ret = Tab.insert(Obj.Meth, name, type);
-        ret.setLevel(numOfFormalParams);
-        return ret;
-    }
 }

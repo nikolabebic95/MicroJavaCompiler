@@ -71,6 +71,7 @@ non terminal ClassName;
 non terminal Type;
 non terminal ReturnType;
 non terminal Method;
+non terminal MethodStart;
 non terminal BaseClassDeclaration;
 non terminal ClassDeclaration;
 non terminal ConstantDeclaration;
@@ -173,7 +174,9 @@ ReturnType ::= VOID
 			   Type
 			   ;
 
-Method ::= ReturnType IDENTIFIER LEFT_PARENTHESIS FormalParametersList RIGHT_PARENTHESIS LocalVariablesList LEFT_BRACE Block RIGHT_BRACE ;
+Method ::= MethodStart LEFT_PARENTHESIS FormalParametersList RIGHT_PARENTHESIS LocalVariablesList LEFT_BRACE Block RIGHT_BRACE ;
+
+MethodStart ::= ReturnType IDENTIFIER ;
 
 BaseClassDeclaration ::= EXTENDS ClassName
 						 |
@@ -186,8 +189,6 @@ ConstantDeclaration ::= CONST Type ConstantsList SEPARATOR ;
 
 VariableDeclaration ::= Type VariablesList SEPARATOR ;
 
-LocalVariableDeclaration ::= Type VariablesList SEPARATOR ;
-
 FormalParametersList ::= FormalParametersListNonEmpty
 						 |
 						 /* epsilon */
@@ -198,7 +199,7 @@ FormalParametersListNonEmpty ::= FormalParametersListNonEmpty COMMA FormalParame
 								 FormalParameter
 								 ;
 
-LocalVariablesList ::= LocalVariablesList LocalVariableDeclaration
+LocalVariablesList ::= LocalVariablesList VariableDeclaration
 					   |
 					   /* epsilon */
 					   ;
@@ -262,7 +263,10 @@ LoopExit ::= BREAK SEPARATOR
 			 CONTINUE SEPARATOR
 			 ;
 
-Return ::= RETURN RightValue SEPARATOR ;
+Return ::= RETURN RightValue SEPARATOR
+		   |
+		   RETURN SEPARATOR
+		   ;
 
 BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue RIGHT_PARENTHESIS SEPARATOR
 					|
@@ -311,7 +315,7 @@ LeftValueStart ::= IDENTIFIER
 				   FunctionCall
 				   ;
 
-OptionalIndirections ::= OptionalIndirections Indirection
+OptionalIndirections ::= Indirection OptionalIndirections
 						 |
 						 /* epsilon */
 						 ;

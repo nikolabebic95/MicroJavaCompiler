@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 14/0/2018 2:25:51
+// 14/0/2018 2:25:50
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class AddOperatorDerived1 extends AddOperator {
+public class ReturnDerived2 extends Return {
 
-    public AddOperatorDerived1 () {
+    public ReturnDerived2 () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class AddOperatorDerived1 extends AddOperator {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("AddOperatorDerived1(\n");
+        buffer.append("ReturnDerived2(\n");
 
         buffer.append(tab);
-        buffer.append(") [AddOperatorDerived1]");
+        buffer.append(") [ReturnDerived2]");
         return buffer.toString();
     }
 }

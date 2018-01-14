@@ -1,28 +1,20 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/0/2018 22:49:31
+// 14/0/2018 2:25:50
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class OptionalIndirectionsDerived1 extends OptionalIndirections {
 
-    private OptionalIndirections OptionalIndirections;
     private Indirection Indirection;
+    private OptionalIndirections OptionalIndirections;
 
-    public OptionalIndirectionsDerived1 (OptionalIndirections OptionalIndirections, Indirection Indirection) {
-        this.OptionalIndirections=OptionalIndirections;
-        if(OptionalIndirections!=null) OptionalIndirections.setParent(this);
+    public OptionalIndirectionsDerived1 (Indirection Indirection, OptionalIndirections OptionalIndirections) {
         this.Indirection=Indirection;
         if(Indirection!=null) Indirection.setParent(this);
-    }
-
-    public OptionalIndirections getOptionalIndirections() {
-        return OptionalIndirections;
-    }
-
-    public void setOptionalIndirections(OptionalIndirections OptionalIndirections) {
         this.OptionalIndirections=OptionalIndirections;
+        if(OptionalIndirections!=null) OptionalIndirections.setParent(this);
     }
 
     public Indirection getIndirection() {
@@ -33,24 +25,32 @@ public class OptionalIndirectionsDerived1 extends OptionalIndirections {
         this.Indirection=Indirection;
     }
 
+    public OptionalIndirections getOptionalIndirections() {
+        return OptionalIndirections;
+    }
+
+    public void setOptionalIndirections(OptionalIndirections OptionalIndirections) {
+        this.OptionalIndirections=OptionalIndirections;
+    }
+
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(OptionalIndirections!=null) OptionalIndirections.accept(visitor);
         if(Indirection!=null) Indirection.accept(visitor);
+        if(OptionalIndirections!=null) OptionalIndirections.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(OptionalIndirections!=null) OptionalIndirections.traverseTopDown(visitor);
         if(Indirection!=null) Indirection.traverseTopDown(visitor);
+        if(OptionalIndirections!=null) OptionalIndirections.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(OptionalIndirections!=null) OptionalIndirections.traverseBottomUp(visitor);
         if(Indirection!=null) Indirection.traverseBottomUp(visitor);
+        if(OptionalIndirections!=null) OptionalIndirections.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -59,14 +59,14 @@ public class OptionalIndirectionsDerived1 extends OptionalIndirections {
         buffer.append(tab);
         buffer.append("OptionalIndirectionsDerived1(\n");
 
-        if(OptionalIndirections!=null)
-            buffer.append(OptionalIndirections.toString("  "+tab));
+        if(Indirection!=null)
+            buffer.append(Indirection.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Indirection!=null)
-            buffer.append(Indirection.toString("  "+tab));
+        if(OptionalIndirections!=null)
+            buffer.append(OptionalIndirections.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

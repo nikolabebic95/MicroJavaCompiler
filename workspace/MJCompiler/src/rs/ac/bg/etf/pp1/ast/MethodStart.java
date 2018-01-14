@@ -5,7 +5,7 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class LocalVariableDeclaration implements SyntaxNode {
+public abstract class MethodStart implements SyntaxNode {
 
     private SyntaxNode parent;
 

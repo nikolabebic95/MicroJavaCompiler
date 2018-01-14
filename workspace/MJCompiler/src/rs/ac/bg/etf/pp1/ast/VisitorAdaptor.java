@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 13/0/2018 22:49:33
+// 14/0/2018 2:25:51
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -26,6 +26,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ClassName ClassName) { }
     public void visit(ConditionTerm ConditionTerm) { }
     public void visit(BaseClassDeclaration BaseClassDeclaration) { }
+    public void visit(MethodStart MethodStart) { }
     public void visit(OptionalIndirections OptionalIndirections) { }
     public void visit(FormalParametersListNonEmpty FormalParametersListNonEmpty) { }
     public void visit(Factor Factor) { }
@@ -141,6 +142,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ConstantDerived1 ConstantDerived1) { visit(); }
     public void visit(BuiltInFunctionDerived2 BuiltInFunctionDerived2) { visit(); }
     public void visit(BuiltInFunctionDerived1 BuiltInFunctionDerived1) { visit(); }
+    public void visit(ReturnDerived2 ReturnDerived2) { visit(); }
     public void visit(ReturnDerived1 ReturnDerived1) { visit(); }
     public void visit(LoopExitDerived2 LoopExitDerived2) { visit(); }
     public void visit(LoopExitDerived1 LoopExitDerived1) { visit(); }
@@ -174,12 +176,12 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(FormalParametersListNonEmptyDerived1 FormalParametersListNonEmptyDerived1) { visit(); }
     public void visit(FormalParametersListDerived2 FormalParametersListDerived2) { visit(); }
     public void visit(FormalParametersListDerived1 FormalParametersListDerived1) { visit(); }
-    public void visit(LocalVariableDeclarationDerived1 LocalVariableDeclarationDerived1) { visit(); }
     public void visit(VariableDeclarationDerived1 VariableDeclarationDerived1) { visit(); }
     public void visit(ConstantDeclarationDerived1 ConstantDeclarationDerived1) { visit(); }
     public void visit(ClassDeclarationDerived1 ClassDeclarationDerived1) { visit(); }
     public void visit(BaseClassDeclarationDerived2 BaseClassDeclarationDerived2) { visit(); }
     public void visit(BaseClassDeclarationDerived1 BaseClassDeclarationDerived1) { visit(); }
+    public void visit(MethodStartDerived1 MethodStartDerived1) { visit(); }
     public void visit(MethodDerived1 MethodDerived1) { visit(); }
     public void visit(ReturnTypeDerived2 ReturnTypeDerived2) { visit(); }
     public void visit(ReturnTypeDerived1 ReturnTypeDerived1) { visit(); }

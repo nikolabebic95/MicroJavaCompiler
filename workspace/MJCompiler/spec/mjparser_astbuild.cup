@@ -71,6 +71,7 @@ non terminal ClassName ClassName;
 non terminal Type Type;
 non terminal ReturnType ReturnType;
 non terminal Method Method;
+non terminal MethodStart MethodStart;
 non terminal BaseClassDeclaration BaseClassDeclaration;
 non terminal ClassDeclaration ClassDeclaration;
 non terminal ConstantDeclaration ConstantDeclaration;
@@ -173,7 +174,9 @@ ReturnType ::= VOID {: RESULT=new ReturnTypeDerived1(); :}
 			   Type:T1 {: RESULT=new ReturnTypeDerived2(T1); RESULT.setLine(T1left); :}
 			   ;
 
-Method ::= ReturnType:R1 IDENTIFIER:I2 LEFT_PARENTHESIS FormalParametersList:F3 RIGHT_PARENTHESIS LocalVariablesList:L4 LEFT_BRACE Block:B5 RIGHT_BRACE {: RESULT=new MethodDerived1(R1, I2, F3, L4, B5); RESULT.setLine(R1left); :} ;
+Method ::= MethodStart:M1 LEFT_PARENTHESIS FormalParametersList:F2 RIGHT_PARENTHESIS LocalVariablesList:L3 LEFT_BRACE Block:B4 RIGHT_BRACE {: RESULT=new MethodDerived1(M1, F2, L3, B4); RESULT.setLine(M1left); :} ;
+
+MethodStart ::= ReturnType:R1 IDENTIFIER:I2 {: RESULT=new MethodStartDerived1(R1, I2); RESULT.setLine(R1left); :} ;
 
 BaseClassDeclaration ::= EXTENDS ClassName:C1 {: RESULT=new BaseClassDeclarationDerived1(C1); RESULT.setLine(C1left); :}
 						 | {: RESULT=new BaseClassDeclarationDerived2(); :}
@@ -186,8 +189,6 @@ ConstantDeclaration ::= CONST Type:T1 ConstantsList:C2 SEPARATOR {: RESULT=new C
 
 VariableDeclaration ::= Type:T1 VariablesList:V2 SEPARATOR {: RESULT=new VariableDeclarationDerived1(T1, V2); RESULT.setLine(T1left); :} ;
 
-LocalVariableDeclaration ::= Type:T1 VariablesList:V2 SEPARATOR {: RESULT=new LocalVariableDeclarationDerived1(T1, V2); RESULT.setLine(T1left); :} ;
-
 FormalParametersList ::= FormalParametersListNonEmpty:F1 {: RESULT=new FormalParametersListDerived1(F1); RESULT.setLine(F1left); :}
 						 | {: RESULT=new FormalParametersListDerived2(); :}
 						 /* epsilon */
@@ -198,7 +199,7 @@ FormalParametersListNonEmpty ::= FormalParametersListNonEmpty:F1 COMMA FormalPar
 								 FormalParameter:F1 {: RESULT=new FormalParametersListNonEmptyDerived2(F1); RESULT.setLine(F1left); :}
 								 ;
 
-LocalVariablesList ::= LocalVariablesList:L1 LocalVariableDeclaration:L2 {: RESULT=new LocalVariablesListDerived1(L1, L2); RESULT.setLine(L1left); :}
+LocalVariablesList ::= LocalVariablesList:L1 VariableDeclaration:V2 {: RESULT=new LocalVariablesListDerived1(L1, V2); RESULT.setLine(L1left); :}
 					   | {: RESULT=new LocalVariablesListDerived2(); :}
 					   /* epsilon */
 					   ;
@@ -262,7 +263,10 @@ LoopExit ::= BREAK SEPARATOR {: RESULT=new LoopExitDerived1(); :}
 			 CONTINUE SEPARATOR {: RESULT=new LoopExitDerived2(); :}
 			 ;
 
-Return ::= RETURN RightValue:R1 SEPARATOR {: RESULT=new ReturnDerived1(R1); RESULT.setLine(R1left); :} ;
+Return ::= RETURN RightValue:R1 SEPARATOR {: RESULT=new ReturnDerived1(R1); RESULT.setLine(R1left); :}
+		   |
+		   RETURN SEPARATOR {: RESULT=new ReturnDerived2(); :}
+		   ;
 
 BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue:L1 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new BuiltInFunctionDerived1(L1); RESULT.setLine(L1left); :}
 					|
@@ -311,7 +315,7 @@ LeftValueStart ::= IDENTIFIER:I1 {: RESULT=new LeftValueStartDerived1(I1); RESUL
 				   FunctionCall:F1 {: RESULT=new LeftValueStartDerived2(F1); RESULT.setLine(F1left); :}
 				   ;
 
-OptionalIndirections ::= OptionalIndirections:O1 Indirection:I2 {: RESULT=new OptionalIndirectionsDerived1(O1, I2); RESULT.setLine(O1left); :}
+OptionalIndirections ::= Indirection:I1 OptionalIndirections:O2 {: RESULT=new OptionalIndirectionsDerived1(I1, O2); RESULT.setLine(I1left); :}
 						 | {: RESULT=new OptionalIndirectionsDerived2(); :}
 						 /* epsilon */
 						 ;
