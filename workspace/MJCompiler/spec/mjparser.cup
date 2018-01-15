@@ -74,6 +74,8 @@ non terminal Method;
 non terminal MethodStart;
 non terminal BaseClassDeclaration;
 non terminal ClassDeclaration;
+non terminal DummyClassSeparator;
+non terminal ClassStart;
 non terminal ConstantDeclaration;
 non terminal VariableDeclaration;
 non terminal LocalVariableDeclaration;
@@ -111,6 +113,7 @@ non terminal IncrementDecrement;
 non terminal ConditionTerm;
 non terminal OptionalConditionTerms;
 non terminal FunctionCall;
+non terminal FunctionCallStart;
 non terminal Indirection;
 non terminal Term;
 non terminal OptionalTerms;
@@ -183,7 +186,11 @@ BaseClassDeclaration ::= EXTENDS ClassName
 						 /* epsilon */
 						 ;
 
-ClassDeclaration ::= CLASS IDENTIFIER BaseClassDeclaration LEFT_BRACE LocalVariablesList OptionalMethodsList RIGHT_BRACE ;
+ClassDeclaration ::= ClassStart LEFT_BRACE LocalVariablesList DummyClassSeparator OptionalMethodsList RIGHT_BRACE ;
+
+DummyClassSeparator ::= /* epsilon */ ;
+
+ClassStart ::= CLASS IDENTIFIER BaseClassDeclaration ;
 
 ConstantDeclaration ::= CONST Type ConstantsList SEPARATOR ;
 
@@ -206,7 +213,7 @@ LocalVariablesList ::= LocalVariablesList VariableDeclaration
 
 Block ::= Block Statement
 		  |
-		  Statement
+		  /* epsilon */
 		  ;
 
 ConstantsList ::= ConstantsList COMMA ConstantDefinition
@@ -343,7 +350,9 @@ OptionalConditionTerms ::= OR Condition
 						   /* epsilon */
 						   ;
 
-FunctionCall ::= IDENTIFIER LEFT_PARENTHESIS ActualParametersList RIGHT_PARENTHESIS ;
+FunctionCall ::= FunctionCallStart LEFT_PARENTHESIS ActualParametersList RIGHT_PARENTHESIS ;
+
+FunctionCallStart ::= IDENTIFIER ;
 
 Indirection ::= POINT IDENTIFIER
 				|

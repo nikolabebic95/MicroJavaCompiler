@@ -74,6 +74,8 @@ non terminal Method Method;
 non terminal MethodStart MethodStart;
 non terminal BaseClassDeclaration BaseClassDeclaration;
 non terminal ClassDeclaration ClassDeclaration;
+non terminal DummyClassSeparator DummyClassSeparator;
+non terminal ClassStart ClassStart;
 non terminal ConstantDeclaration ConstantDeclaration;
 non terminal VariableDeclaration VariableDeclaration;
 non terminal LocalVariableDeclaration LocalVariableDeclaration;
@@ -111,6 +113,7 @@ non terminal IncrementDecrement IncrementDecrement;
 non terminal ConditionTerm ConditionTerm;
 non terminal OptionalConditionTerms OptionalConditionTerms;
 non terminal FunctionCall FunctionCall;
+non terminal FunctionCallStart FunctionCallStart;
 non terminal Indirection Indirection;
 non terminal Term Term;
 non terminal OptionalTerms OptionalTerms;
@@ -183,7 +186,11 @@ BaseClassDeclaration ::= EXTENDS ClassName:C1 {: RESULT=new BaseClassDeclaration
 						 /* epsilon */
 						 ;
 
-ClassDeclaration ::= CLASS IDENTIFIER:I1 BaseClassDeclaration:B2 LEFT_BRACE LocalVariablesList:L3 OptionalMethodsList:O4 RIGHT_BRACE {: RESULT=new ClassDeclarationDerived1(I1, B2, L3, O4); RESULT.setLine(I1left); :} ;
+ClassDeclaration ::= ClassStart:C1 LEFT_BRACE LocalVariablesList:L2 DummyClassSeparator:D3 OptionalMethodsList:O4 RIGHT_BRACE {: RESULT=new ClassDeclarationDerived1(C1, L2, D3, O4); RESULT.setLine(C1left); :} ;
+
+DummyClassSeparator ::= {: RESULT=new DummyClassSeparatorDerived1(); :} /* epsilon */ ;
+
+ClassStart ::= CLASS IDENTIFIER:I1 BaseClassDeclaration:B2 {: RESULT=new ClassStartDerived1(I1, B2); RESULT.setLine(I1left); :} ;
 
 ConstantDeclaration ::= CONST Type:T1 ConstantsList:C2 SEPARATOR {: RESULT=new ConstantDeclarationDerived1(T1, C2); RESULT.setLine(T1left); :} ;
 
@@ -205,8 +212,8 @@ LocalVariablesList ::= LocalVariablesList:L1 VariableDeclaration:V2 {: RESULT=ne
 					   ;
 
 Block ::= Block:B1 Statement:S2 {: RESULT=new BlockDerived1(B1, S2); RESULT.setLine(B1left); :}
-		  |
-		  Statement:S1 {: RESULT=new BlockDerived2(S1); RESULT.setLine(S1left); :}
+		  | {: RESULT=new BlockDerived2(); :}
+		  /* epsilon */
 		  ;
 
 ConstantsList ::= ConstantsList:C1 COMMA ConstantDefinition:C2 {: RESULT=new ConstantsListDerived1(C1, C2); RESULT.setLine(C1left); :}
@@ -343,7 +350,9 @@ OptionalConditionTerms ::= OR Condition:C1 {: RESULT=new OptionalConditionTermsD
 						   /* epsilon */
 						   ;
 
-FunctionCall ::= IDENTIFIER:I1 LEFT_PARENTHESIS ActualParametersList:A2 RIGHT_PARENTHESIS {: RESULT=new FunctionCallDerived1(I1, A2); RESULT.setLine(I1left); :} ;
+FunctionCall ::= FunctionCallStart:F1 LEFT_PARENTHESIS ActualParametersList:A2 RIGHT_PARENTHESIS {: RESULT=new FunctionCallDerived1(F1, A2); RESULT.setLine(F1left); :} ;
+
+FunctionCallStart ::= IDENTIFIER:I1 {: RESULT=new FunctionCallStartDerived1(I1); RESULT.setLine(I1left); :} ;
 
 Indirection ::= POINT IDENTIFIER:I1 {: RESULT=new IndirectionDerived1(I1); RESULT.setLine(I1left); :}
 				|

@@ -116,6 +116,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
         Struct constantType = getType(constantDeclaration.getType());
         constants.forEach(constant -> ExtendedSymbolTable.insert(Obj.Con, constant.getName(), constantType, constant.value));
         constants.clear();
+        types.clear();
     }
 
     @Override
@@ -153,6 +154,8 @@ public class SemanticAnalizer extends VisitorAdaptor {
     }
     private ArrayList<VariableStruct> variables = new ArrayList<>();
 
+    private boolean classField = false;
+
     @Override
     public void visit(VariableDeclarationDerived1 variableDeclaration) {
         Struct variableType = getType(variableDeclaration.getType());
@@ -162,7 +165,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
                 throw new CompilerException(variableDeclaration, variable.getName() + "already exists in the current scope");
             }
 
-            ExtendedSymbolTable.insert(Obj.Var, variable.getName(), variable.isArray() ? arrayType : variableType);
+            ExtendedSymbolTable.insert(classField ? Obj.Fld : Obj.Var, variable.getName(), variable.isArray() ? arrayType : variableType);
         });
         variables.clear();
     }
@@ -189,6 +192,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
         String name = formalParameter.getI2();
         boolean isArray = checkIfIsArray(formalParameter.getOptionalArrayDeclaration());
         ExtendedSymbolTable.insert(Obj.Var, name, isArray ? arrayType : variableType);
+        numberOfFormalParameters++;
     }
 
     @Override
@@ -221,12 +225,51 @@ public class SemanticAnalizer extends VisitorAdaptor {
 
     // endregion
 
+    // region Class declarations
+
+    private Struct classStruct;
+
+    @Override
+    public void visit(ClassStartDerived1 classStart) {
+        String className = classStart.getI1();
+
+        if (checkIfNameExistsInCurrentScope(className)) {
+            throw new CompilerException(classStart, className + " exists in the current scope");
+        }
+
+        classStruct = new Struct(Struct.Class);
+        ExtendedSymbolTable.insert(Obj.Type, className, classStruct);
+        ExtendedSymbolTable.openScope();
+        ExtendedSymbolTable.insert(Obj.Fld, "this", classStruct);
+        classField = true;
+    }
+
+    @Override
+    public void visit(DummyClassSeparatorDerived1 dummyClassSeparator) {
+        ExtendedSymbolTable.chainLocalSymbols(classStruct);
+        classField = false;
+    }
+
+    @Override
+    public void visit(ClassDeclarationDerived1 classDeclaration) {
+        ExtendedSymbolTable.closeScope();
+    }
+
+    // endregion
+
     // region Return statement
 
     @Override
     public void visit(ReturnDerived1 valueReturn) {
         wasReturned = true;
-        // TODO: Check type
+        if (outerScope.getType() == ExtendedSymbolTable.noType) {
+            throw new CompilerException(valueReturn, "Return not possible in void method");
+        }
+
+        Struct returnType = types.pop();
+        if (!returnType.assignableTo(outerScope.getType())) {
+            throw new CompilerException(valueReturn, returnType.toString() + " not assignible to " + outerScope.getType().toString());
+        }
     }
 
     @Override
@@ -241,6 +284,8 @@ public class SemanticAnalizer extends VisitorAdaptor {
     // region Statements
 
     private Stack<Struct> types = new Stack<>();
+
+    // region Constants
 
     @Override
     public void visit(ConstantDerived1 intConstant) {
@@ -262,6 +307,10 @@ public class SemanticAnalizer extends VisitorAdaptor {
         types.push(ExtendedSymbolTable.nullType);
     }
 
+    // endregion
+
+    // region Left values
+
     @Override
     public void visit(LeftValueStartDerived1 identifier) {
         Struct type = getIdentifierType(identifier.getI1());
@@ -270,6 +319,25 @@ public class SemanticAnalizer extends VisitorAdaptor {
         }
 
         types.push(type);
+    }
+
+    @Override
+    public void visit(IndirectionDerived1 classFieldIndirection) {
+        Struct classType = types.pop();
+        String fieldName = classFieldIndirection.getI1();
+        Obj field = classType.getMembers().searchKey(fieldName);
+
+        if (field == ExtendedSymbolTable.noObj) {
+            throw new CompilerException(classFieldIndirection,
+                    "Class " + classType.toString() + " does not have member " + fieldName);
+        }
+
+        types.push(field.getType());
+    }
+
+    @Override
+    public void visit(IndirectionDerived2 methodCallIndirection) {
+
     }
 
     @Override
@@ -286,6 +354,15 @@ public class SemanticAnalizer extends VisitorAdaptor {
         }
 
         types.push(arrayType.getElemType());
+    }
+
+    // endregion
+
+    // region Expressions
+
+    @Override
+    public void visit(ExpressionDerived1 expression) {
+        types.pop();
     }
 
     @Override
@@ -317,6 +394,10 @@ public class SemanticAnalizer extends VisitorAdaptor {
         visitBinaryOperation(optionalFactors);
     }
 
+    // endregion
+
+    // region Allocation
+
     @Override
     public void visit(AllocationDerived1 allocation) {
         Struct type = getType(allocation.getType());
@@ -332,6 +413,77 @@ public class SemanticAnalizer extends VisitorAdaptor {
 
         types.push(type);
     }
+
+    // endregion
+
+    // region Function calls
+
+    private Obj function;
+
+    @Override
+    public void visit(FunctionCallStartDerived1 functionCallStart) {
+        Struct classType = classStruct;
+        if (!types.empty()) {
+            classType = types.pop();
+        }
+
+
+        String methodName = functionCallStart.getI1();
+
+        function =  classType.getMembers().searchKey(methodName);
+        if (function == ExtendedSymbolTable.noObj) {
+            throw new CompilerException(functionCallStart,
+                    "Method " + methodName + " does not exist in class " + classType.toString());
+        }
+
+        if (function.getKind() != Obj.Meth) {
+            throw new CompilerException(functionCallStart, methodName + " is not a function");
+        }
+    }
+
+    @Override
+    public void visit(FunctionCallDerived1 functionCall) {
+        int numberOfFormalParameters = function.getLevel();
+
+        if (types.size() < numberOfFormalParameters) {
+            throw new CompilerException(functionCall, "Invalid number of actual parameters");
+        }
+
+        if (numberOfFormalParameters != 0) {
+            Object[] locals = function.getLocalSymbols().toArray();
+
+            for (int i = numberOfFormalParameters - 1; i >= 0; i--) {
+                Obj localSymbol = (Obj) locals[i];
+                Struct target = localSymbol.getType();
+                Struct actual = types.pop();
+                if (!actual.assignableTo(target)) {
+                    throw new CompilerException(functionCall,
+                            target.toString() + " not assignible to " + actual.toString());
+                }
+            }
+        }
+
+        types.push(function.getType());
+    }
+
+    // endregion
+
+    // region Build in functions
+
+    @Override
+    public void visit(BuiltInFunctionDerived1 readFunction) {
+        types.pop();
+    }
+
+    @Override
+    public void visit(BuiltInFunctionDerived2 printFunction) {
+        types.pop();
+        if (printFunction.getOptionalPrintParameter() instanceof OptionalPrintParameterDerived1) {
+            types.pop();
+        }
+    }
+
+    // endregion
 
     // endregion
 }

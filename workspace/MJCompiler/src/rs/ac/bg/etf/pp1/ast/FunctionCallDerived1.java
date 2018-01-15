@@ -1,27 +1,28 @@
 // generated with ast extension for cup
 // version 0.8
-// 14/0/2018 2:25:50
+// 15/0/2018 16:25:52
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class FunctionCallDerived1 extends FunctionCall {
 
-    private String I1;
+    private FunctionCallStart FunctionCallStart;
     private ActualParametersList ActualParametersList;
 
-    public FunctionCallDerived1 (String I1, ActualParametersList ActualParametersList) {
-        this.I1=I1;
+    public FunctionCallDerived1 (FunctionCallStart FunctionCallStart, ActualParametersList ActualParametersList) {
+        this.FunctionCallStart=FunctionCallStart;
+        if(FunctionCallStart!=null) FunctionCallStart.setParent(this);
         this.ActualParametersList=ActualParametersList;
         if(ActualParametersList!=null) ActualParametersList.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public FunctionCallStart getFunctionCallStart() {
+        return FunctionCallStart;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setFunctionCallStart(FunctionCallStart FunctionCallStart) {
+        this.FunctionCallStart=FunctionCallStart;
     }
 
     public ActualParametersList getActualParametersList() {
@@ -37,15 +38,18 @@ public class FunctionCallDerived1 extends FunctionCall {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(FunctionCallStart!=null) FunctionCallStart.accept(visitor);
         if(ActualParametersList!=null) ActualParametersList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(FunctionCallStart!=null) FunctionCallStart.traverseTopDown(visitor);
         if(ActualParametersList!=null) ActualParametersList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(FunctionCallStart!=null) FunctionCallStart.traverseBottomUp(visitor);
         if(ActualParametersList!=null) ActualParametersList.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -55,7 +59,10 @@ public class FunctionCallDerived1 extends FunctionCall {
         buffer.append(tab);
         buffer.append("FunctionCallDerived1(\n");
 
-        buffer.append(" "+tab+I1);
+        if(FunctionCallStart!=null)
+            buffer.append(FunctionCallStart.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         if(ActualParametersList!=null)

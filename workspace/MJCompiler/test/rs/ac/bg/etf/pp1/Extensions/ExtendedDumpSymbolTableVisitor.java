@@ -44,7 +44,8 @@ public class ExtendedDumpSymbolTableVisitor extends DumpSymbolTableVisitor {
             case Struct.Class:
                 output.append("Class [");
                 for (Obj obj : structToVisit.getMembers().symbols()) {
-                    obj.accept(this);
+                    if (!obj.getName().equals("this"))
+                        obj.accept(this);
                 }
                 output.append("]");
                 break;

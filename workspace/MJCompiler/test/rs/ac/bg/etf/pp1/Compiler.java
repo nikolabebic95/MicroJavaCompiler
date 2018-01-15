@@ -21,7 +21,7 @@ public class Compiler {
         Logger log = Logger.getLogger(Compiler.class);
 
         try {
-            File sourceCode = new File("MJCompiler/test/test301.mj");
+            File sourceCode = new File("MJCompiler/test/classes.mj");
             log.info("Compiling source file: " + sourceCode.getAbsolutePath());
 
             try (BufferedReader br = new BufferedReader(new FileReader(sourceCode))){

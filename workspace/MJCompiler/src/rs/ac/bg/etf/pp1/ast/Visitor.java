@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 14/0/2018 2:25:51
+// 15/0/2018 16:25:54
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -37,11 +37,13 @@ public interface Visitor {
     public void visit(ActualParametersListAtLeastOne ActualParametersListAtLeastOne);
     public void visit(OptionalConditionFactorTokens OptionalConditionFactorTokens);
     public void visit(IncrementDecrement IncrementDecrement);
+    public void visit(ClassStart ClassStart);
     public void visit(Return Return);
     public void visit(OptionalArrayDeclaration OptionalArrayDeclaration);
     public void visit(Method Method);
     public void visit(Term Term);
     public void visit(Conditional Conditional);
+    public void visit(DummyClassSeparator DummyClassSeparator);
     public void visit(MultiplyOperator MultiplyOperator);
     public void visit(Condition Condition);
     public void visit(OptionalFactors OptionalFactors);
@@ -50,6 +52,7 @@ public interface Visitor {
     public void visit(OptionalConditionTerms OptionalConditionTerms);
     public void visit(ConstantsList ConstantsList);
     public void visit(ClassDeclaration ClassDeclaration);
+    public void visit(FunctionCallStart FunctionCallStart);
     public void visit(LocalVariableDeclaration LocalVariableDeclaration);
     public void visit(BuiltInFunction BuiltInFunction);
     public void visit(ConstantDeclaration ConstantDeclaration);
@@ -66,8 +69,8 @@ public interface Visitor {
     public void visit(ConstantDefinition ConstantDefinition);
     public void visit(ConditionFactor ConditionFactor);
     public void visit(OptionalArrayDefinition OptionalArrayDefinition);
-    public void visit(Program Program);
     public void visit(LeftValue LeftValue);
+    public void visit(Program Program);
     public void visit(Indirection Indirection);
     public void visit(Loop Loop);
     public void visit(ActualParametersList ActualParametersList);
@@ -109,6 +112,7 @@ public interface Visitor {
     public void visit(IndirectionDerived3 IndirectionDerived3);
     public void visit(IndirectionDerived2 IndirectionDerived2);
     public void visit(IndirectionDerived1 IndirectionDerived1);
+    public void visit(FunctionCallStartDerived1 FunctionCallStartDerived1);
     public void visit(FunctionCallDerived1 FunctionCallDerived1);
     public void visit(OptionalConditionTermsDerived2 OptionalConditionTermsDerived2);
     public void visit(OptionalConditionTermsDerived1 OptionalConditionTermsDerived1);
@@ -178,6 +182,8 @@ public interface Visitor {
     public void visit(FormalParametersListDerived1 FormalParametersListDerived1);
     public void visit(VariableDeclarationDerived1 VariableDeclarationDerived1);
     public void visit(ConstantDeclarationDerived1 ConstantDeclarationDerived1);
+    public void visit(ClassStartDerived1 ClassStartDerived1);
+    public void visit(DummyClassSeparatorDerived1 DummyClassSeparatorDerived1);
     public void visit(ClassDeclarationDerived1 ClassDeclarationDerived1);
     public void visit(BaseClassDeclarationDerived2 BaseClassDeclarationDerived2);
     public void visit(BaseClassDeclarationDerived1 BaseClassDeclarationDerived1);

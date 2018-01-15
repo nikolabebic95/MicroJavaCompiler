@@ -1,0 +1,25 @@
+//Test 303
+
+program test_303
+
+const int cinilac = 4, delilac = 3;
+class Predmet
+{
+	int tezina;
+	char vrsta;
+
+	{
+        int dohvatiTezinu() { return tezina; }
+        void postaviTezinu() { this.tezina = 0; }
+        void ucitajTezinu() { read(tezina); }
+        int zapremina() { return 0; }
+        int Q() { return zapremina() * tezina; }
+        void postaviVrstu(char vrsta) { this.vrsta = vrsta; }
+	}
+}
+{
+	
+	void main() Predmet predmeti[]; int i; int t; int zapreminaS, zapreminaK, tezinaS, tezinaK;
+	{
+	}
+}

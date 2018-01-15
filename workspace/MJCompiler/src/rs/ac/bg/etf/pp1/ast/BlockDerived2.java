@@ -1,25 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 14/0/2018 2:25:50
+// 15/0/2018 16:25:51
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class BlockDerived2 extends Block {
 
-    private Statement Statement;
-
-    public BlockDerived2 (Statement Statement) {
-        this.Statement=Statement;
-        if(Statement!=null) Statement.setParent(this);
-    }
-
-    public Statement getStatement() {
-        return Statement;
-    }
-
-    public void setStatement(Statement Statement) {
-        this.Statement=Statement;
+    public BlockDerived2 () {
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +15,13 @@ public class BlockDerived2 extends Block {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -44,12 +29,6 @@ public class BlockDerived2 extends Block {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("BlockDerived2(\n");
-
-        if(Statement!=null)
-            buffer.append(Statement.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
 
         buffer.append(tab);
         buffer.append(") [BlockDerived2]");
