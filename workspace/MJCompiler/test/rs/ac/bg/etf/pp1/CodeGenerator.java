@@ -163,6 +163,11 @@ public class CodeGenerator extends VisitorAdaptor {
         isRightValue++;
     }
 
+    @Override
+    public void visit(PredefinedFunctionDerived3 lenFunction) {
+        Code.put(Code.arraylength);
+    }
+
     // endregion
 
     // region Binary operations
@@ -300,6 +305,23 @@ public class CodeGenerator extends VisitorAdaptor {
         int relativeAddress = calledFunction.getAdr() - Code.pc;
         Code.put(Code.call);
         Code.put2(relativeAddress);
+    }
+
+    // endregion
+
+    // region Allocation
+
+    @Override
+    public void visit(AllocationDerived1 allocation) {
+        // TODO: Do not assume int is the type
+
+        if (allocation.getOptionalArrayDefinition() instanceof OptionalArrayDefinitionDerived1) {
+            Code.put(Code.newarray);
+            Code.put(1); // assume words
+        } else {
+            Code.put(Code.new_);
+            Code.put(4); // assume 4 bytes
+        }
     }
 
     // endregion

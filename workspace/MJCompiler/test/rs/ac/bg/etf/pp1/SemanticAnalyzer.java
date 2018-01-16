@@ -580,6 +580,36 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         ExtendedSymbolTable.insert(printFunction, type);
     }
 
+    @Override
+    public void visit(PredefinedFunctionDerived1 chrFunction) {
+        Struct type = types.pop();
+        if (type != ExtendedSymbolTable.intType) {
+            throw new CompilerException(chrFunction, "chr argument must have int type");
+        }
+
+        types.push(ExtendedSymbolTable.charType);
+    }
+
+    @Override
+    public void visit(PredefinedFunctionDerived2 ordFunction) {
+        Struct type = types.pop();
+        if (type != ExtendedSymbolTable.charType) {
+            throw new CompilerException(ordFunction, "ord argument must have char type");
+        }
+
+        types.push(ExtendedSymbolTable.intType);
+    }
+
+    @Override
+    public void visit(PredefinedFunctionDerived3 lenFunction) {
+        Struct type = types.pop();
+        if (type.getKind() != Struct.Array) {
+            throw new CompilerException(lenFunction, "len argument must have array type");
+        }
+
+        types.push(ExtendedSymbolTable.intType);
+    }
+
     // endregion
 
     // region Increment/decrement

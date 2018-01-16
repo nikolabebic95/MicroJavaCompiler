@@ -1,25 +1,10 @@
 program MJProgram
 	int x; int y;
+	int niz[];
 {
-	
-	int k () int c; int d; {
-		c = 0;
-		d = 0;
-		return d+3;
-	}
-
 	void main() {
-		print(1);
-		y = 5;
-		x = y+3;
-		k();
-		print(2);
-		print(k());
-		print(x);
-		print(eol);
-		x = x * 2 + 1;
-		print(x);
-		read(x);
+		niz = new int[10];
+		x = len(niz);
 		print(x);
 	}
 }

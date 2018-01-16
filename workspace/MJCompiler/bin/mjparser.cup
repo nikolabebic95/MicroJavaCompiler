@@ -58,6 +58,7 @@ terminal Integer INT_VALUE;
 terminal Character CHAR_VALUE;
 terminal Boolean BOOL_VALUE;
 terminal String IDENTIFIER;
+terminal CHR, ORD, LEN;
 terminal ERROR;
 
 // Non terminals
@@ -99,6 +100,7 @@ non terminal LoopExit;
 non terminal Return;
 non terminal ReturnStart;
 non terminal BuiltInFunction;
+non terminal PredefinedFunction;
 non terminal PrintStart;
 non terminal Constant;
 non terminal LeftValue;
@@ -291,6 +293,13 @@ BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue RIGHT_PARENTHESIS SEPARATOR
 					PrintStart LEFT_PARENTHESIS RightValue OptionalPrintParameter RIGHT_PARENTHESIS SEPARATOR
 					;
 
+PredefinedFunction ::= CHR LEFT_PARENTHESIS RightValue RIGHT_PARENTHESIS
+					   |
+					   ORD LEFT_PARENTHESIS RightValue RIGHT_PARENTHESIS
+					   |
+					   LEN LEFT_PARENTHESIS RightValue RIGHT_PARENTHESIS
+					   ;
+
 PrintStart ::= PRINT ;
 
 Constant ::= INT_VALUE
@@ -309,6 +318,8 @@ RightValue ::= ArithmeticExpression
 			   LogicalExpression
 			   |
 			   Allocation
+			   |
+			   PredefinedFunction
 			   ;
 
 Condition ::= PureCondition

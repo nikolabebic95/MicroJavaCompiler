@@ -38,27 +38,6 @@ public class ExtendedSymbolTable extends Tab {
 
         // Add predefined eol constant
         universe.addToLocals(new Obj(Obj.Con, "eol", charType, '\n', 0));
-
-        // Add the ord predefined method
-        universe.addToLocals(ordObj = new Obj(Obj.Meth, "ord", intType, 0, 1));
-        openScope();
-        currentScope.addToLocals(new Obj(Obj.Var, "character", charType, 0, 1));
-        chrObj.setLocals(currentScope.getLocals());
-        closeScope();
-
-        // Add the chr predefined method
-        universe.addToLocals(chrObj = new Obj(Obj.Meth, "chr", charType, 0, 1));
-        openScope();
-        currentScope.addToLocals(new Obj(Obj.Var, "value", intType, 0, 1));
-        chrObj.setLocals(currentScope.getLocals());
-        closeScope();
-
-        // Add the len predefined method
-        universe.addToLocals(lenObj = new Obj(Obj.Meth, "len", intType, 0, 1));
-        openScope();
-        currentScope.addToLocals(new Obj(Obj.Var, "array", new Struct(Struct.Array, noType), 0, 1));
-        lenObj.setLocals(currentScope.getLocals());
-        closeScope();
     }
 
     public static void dump() {

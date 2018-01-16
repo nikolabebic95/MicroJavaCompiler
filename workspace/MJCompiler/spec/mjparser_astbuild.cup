@@ -58,6 +58,7 @@ terminal Integer INT_VALUE;
 terminal Character CHAR_VALUE;
 terminal Boolean BOOL_VALUE;
 terminal String IDENTIFIER;
+terminal CHR, ORD, LEN;
 terminal ERROR;
 
 // Non terminals
@@ -99,6 +100,7 @@ non terminal LoopExit LoopExit;
 non terminal Return Return;
 non terminal ReturnStart ReturnStart;
 non terminal BuiltInFunction BuiltInFunction;
+non terminal PredefinedFunction PredefinedFunction;
 non terminal PrintStart PrintStart;
 non terminal Constant Constant;
 non terminal LeftValue LeftValue;
@@ -291,6 +293,13 @@ BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue:L1 RIGHT_PARENTHESIS SEPARAT
 					PrintStart:P1 LEFT_PARENTHESIS RightValue:R2 OptionalPrintParameter:O3 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new BuiltInFunctionDerived2(P1, R2, O3); RESULT.setLine(P1left); :}
 					;
 
+PredefinedFunction ::= CHR LEFT_PARENTHESIS RightValue:R1 RIGHT_PARENTHESIS {: RESULT=new PredefinedFunctionDerived1(R1); RESULT.setLine(R1left); :}
+					   |
+					   ORD LEFT_PARENTHESIS RightValue:R1 RIGHT_PARENTHESIS {: RESULT=new PredefinedFunctionDerived2(R1); RESULT.setLine(R1left); :}
+					   |
+					   LEN LEFT_PARENTHESIS RightValue:R1 RIGHT_PARENTHESIS {: RESULT=new PredefinedFunctionDerived3(R1); RESULT.setLine(R1left); :}
+					   ;
+
 PrintStart ::= PRINT {: RESULT=new PrintStartDerived1(); :} ;
 
 Constant ::= INT_VALUE:I1 {: RESULT=new ConstantDerived1(I1); RESULT.setLine(I1left); :}
@@ -309,6 +318,8 @@ RightValue ::= ArithmeticExpression:A1 {: RESULT=new RightValueDerived1(A1); RES
 			   LogicalExpression:L1 {: RESULT=new RightValueDerived2(L1); RESULT.setLine(L1left); :}
 			   |
 			   Allocation:A1 {: RESULT=new RightValueDerived3(A1); RESULT.setLine(A1left); :}
+			   |
+			   PredefinedFunction:P1 {: RESULT=new RightValueDerived4(P1); RESULT.setLine(P1left); :}
 			   ;
 
 Condition ::= PureCondition:P1 {: RESULT=new ConditionDerived1(P1); RESULT.setLine(P1left); :}

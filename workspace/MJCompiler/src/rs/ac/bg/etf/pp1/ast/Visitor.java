@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 19:5:3
+// 16/0/2018 20:56:46
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -27,10 +27,11 @@ public interface Visitor {
     public void visit(DummyClassSeparator DummyClassSeparator);
     public void visit(FormalParametersList FormalParametersList);
     public void visit(MethodsList MethodsList);
-    public void visit(ClassDeclaration ClassDeclaration);
     public void visit(OptionalConditionFactorTokens OptionalConditionFactorTokens);
+    public void visit(ClassDeclaration ClassDeclaration);
     public void visit(Block Block);
     public void visit(ProgramStart ProgramStart);
+    public void visit(PredefinedFunction PredefinedFunction);
     public void visit(LogicalExpression LogicalExpression);
     public void visit(ConstantsList ConstantsList);
     public void visit(VariableDefinition VariableDefinition);
@@ -140,6 +141,7 @@ public interface Visitor {
     public void visit(ConditionDerived3 ConditionDerived3);
     public void visit(ConditionDerived2 ConditionDerived2);
     public void visit(ConditionDerived1 ConditionDerived1);
+    public void visit(RightValueDerived4 RightValueDerived4);
     public void visit(RightValueDerived3 RightValueDerived3);
     public void visit(RightValueDerived2 RightValueDerived2);
     public void visit(RightValueDerived1 RightValueDerived1);
@@ -149,6 +151,9 @@ public interface Visitor {
     public void visit(ConstantDerived2 ConstantDerived2);
     public void visit(ConstantDerived1 ConstantDerived1);
     public void visit(PrintStartDerived1 PrintStartDerived1);
+    public void visit(PredefinedFunctionDerived3 PredefinedFunctionDerived3);
+    public void visit(PredefinedFunctionDerived2 PredefinedFunctionDerived2);
+    public void visit(PredefinedFunctionDerived1 PredefinedFunctionDerived1);
     public void visit(BuiltInFunctionDerived2 BuiltInFunctionDerived2);
     public void visit(BuiltInFunctionDerived1 BuiltInFunctionDerived1);
     public void visit(ReturnStartDerived1 ReturnStartDerived1);
