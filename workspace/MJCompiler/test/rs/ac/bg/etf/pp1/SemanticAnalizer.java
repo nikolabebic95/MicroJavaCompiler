@@ -487,7 +487,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
     @Override
     public void visit(FunctionCallStartDerived1 functionCallStart) {
         ExtendedStruct classType = classStruct;
-        if (!types.empty()) {
+        if (functionCallStart.getParent().getParent() instanceof Indirection) {
             classType = (ExtendedStruct)types.pop();
         }
 
