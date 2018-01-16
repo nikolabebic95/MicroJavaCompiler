@@ -63,6 +63,7 @@ terminal ERROR;
 // Non terminals
 
 non terminal Program;
+non terminal ProgramStart;
 non terminal DeclarationsList;
 non terminal MethodsList;
 non terminal OptionalMethodsList;
@@ -91,11 +92,14 @@ non terminal ConstantDefinition;
 non terminal VariableDefinition;
 non terminal OptionalArrayDeclaration;
 non terminal Expression;
+non terminal AssignOperator;
 non terminal Conditional;
 non terminal Loop;
 non terminal LoopExit;
 non terminal Return;
+non terminal ReturnStart;
 non terminal BuiltInFunction;
+non terminal PrintStart;
 non terminal Constant;
 non terminal LeftValue;
 non terminal RightValue;
@@ -123,6 +127,7 @@ non terminal OptionalConditionFactors;
 non terminal ActualParametersList;
 non terminal ActualParametersListAtLeastOne;
 non terminal Factor;
+non terminal DummyFactorStart;
 non terminal OptionalFactors;
 non terminal AddOperator;
 non terminal ConditionFactorToken;
@@ -137,7 +142,9 @@ precedence left ELSE;
 
 // Productions:
 
-Program ::= PROGRAM IDENTIFIER DeclarationsList LEFT_BRACE MethodsList RIGHT_BRACE ;
+Program ::= ProgramStart DeclarationsList LEFT_BRACE MethodsList RIGHT_BRACE ;
+
+ProgramStart ::= PROGRAM IDENTIFIER ;
 
 DeclarationsList ::= DeclarationsList Declaration
 					 |
@@ -258,8 +265,10 @@ OptionalArrayDeclaration ::= LEFT_BRACKET RIGHT_BRACKET
 
 Expression ::= LeftValue SEPARATOR
 			   |
-			   LeftValue ASSIGN RightValue SEPARATOR
+			   LeftValue AssignOperator RightValue SEPARATOR
 			   ;
+
+AssignOperator ::= ASSIGN ;
 
 Conditional ::= IF LEFT_PARENTHESIS Condition RIGHT_PARENTHESIS Statement OptionalElse ;
 
@@ -270,15 +279,19 @@ LoopExit ::= BREAK SEPARATOR
 			 CONTINUE SEPARATOR
 			 ;
 
-Return ::= RETURN RightValue SEPARATOR
+Return ::= ReturnStart RightValue SEPARATOR
 		   |
-		   RETURN SEPARATOR
+		   ReturnStart SEPARATOR
 		   ;
+
+ReturnStart ::= RETURN ;
 
 BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue RIGHT_PARENTHESIS SEPARATOR
 					|
-					PRINT LEFT_PARENTHESIS RightValue OptionalPrintParameter RIGHT_PARENTHESIS SEPARATOR
+					PrintStart LEFT_PARENTHESIS RightValue OptionalPrintParameter RIGHT_PARENTHESIS SEPARATOR
 					;
+
+PrintStart ::= PRINT ;
 
 Constant ::= INT_VALUE
 			 |
@@ -387,12 +400,14 @@ ActualParametersList ::= ActualParametersListAtLeastOne
 
 ActualParametersListAtLeastOne ::= ActualParameter OptionalActualParameters ;
 
-Factor ::= LEFT_PARENTHESIS RightValue RIGHT_PARENTHESIS
+Factor ::= LEFT_PARENTHESIS DummyFactorStart RightValue RIGHT_PARENTHESIS
 		   |
 		   Constant
 		   |
 		   LeftValue
 		   ;
+
+DummyFactorStart ::= /* epsilon */ ;
 
 OptionalFactors ::= MultiplyOperator Term
 					|

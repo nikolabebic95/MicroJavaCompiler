@@ -1,13 +1,22 @@
 package rs.ac.bg.etf.pp1.extensions;
 
+import rs.ac.bg.etf.pp1.ast.SyntaxNode;
 import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Scope;
 import rs.etf.pp1.symboltable.concepts.Struct;
 
+import java.util.HashMap;
+
 public class ExtendedSymbolTable extends Tab {
 
     public static final Struct boolType = new ExtendedStruct(ExtendedStruct.Bool);
+
+    private static final HashMap<SyntaxNode, Obj> symbolTableHashMap = new HashMap<>();
+
+    private static final HashMap<SyntaxNode, Scope> scopesHashMap = new HashMap<>();
+
+    private static final HashMap<SyntaxNode, Struct> typesHashMap = new HashMap<>();
 
     public static void init() {
         // No other way to initialize the currentLevel field
@@ -65,6 +74,17 @@ public class ExtendedSymbolTable extends Tab {
         return ret == null ? noObj : ret;
     }
 
+    public static Obj find(String name, Scope scope) {
+        Obj resultObj = null;
+        for (Scope s = scope; s != null; s = s.getOuter()) {
+            if (s.getLocals() != null) {
+                resultObj = s.getLocals().searchKey(name);
+                if (resultObj != null) break;
+            }
+        }
+        return (resultObj != null) ? resultObj : noObj;
+    }
+
     public static Obj findInBaseClasses(String name, ExtendedStruct childClass) {
         ExtendedStruct currentClass = childClass;
         while (currentClass != null) {
@@ -83,5 +103,29 @@ public class ExtendedSymbolTable extends Tab {
         Obj ret = Tab.insert(kind, name, type);
         ret.setAdr(adr);
         return ret;
+    }
+
+    public static void insert(SyntaxNode syntaxNode, Obj obj) {
+        symbolTableHashMap.put(syntaxNode, obj);
+    }
+
+    public static Obj get(SyntaxNode syntaxNode) {
+        return symbolTableHashMap.get(syntaxNode);
+    }
+
+    public static void insert(SyntaxNode syntaxNode, Scope scope) {
+        scopesHashMap.put(syntaxNode, scope);
+    }
+
+    public static Scope getScope(SyntaxNode syntaxNode) {
+        return scopesHashMap.get(syntaxNode);
+    }
+
+    public static void insert(SyntaxNode syntaxNode, Struct type) {
+        typesHashMap.put(syntaxNode, type);
+    }
+
+    public static Struct getStruct(SyntaxNode syntaxNode) {
+        return typesHashMap.get(syntaxNode);
     }
 }

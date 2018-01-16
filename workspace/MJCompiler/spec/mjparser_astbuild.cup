@@ -63,6 +63,7 @@ terminal ERROR;
 // Non terminals
 
 non terminal Program Program;
+non terminal ProgramStart ProgramStart;
 non terminal DeclarationsList DeclarationsList;
 non terminal MethodsList MethodsList;
 non terminal OptionalMethodsList OptionalMethodsList;
@@ -91,11 +92,14 @@ non terminal ConstantDefinition ConstantDefinition;
 non terminal VariableDefinition VariableDefinition;
 non terminal OptionalArrayDeclaration OptionalArrayDeclaration;
 non terminal Expression Expression;
+non terminal AssignOperator AssignOperator;
 non terminal Conditional Conditional;
 non terminal Loop Loop;
 non terminal LoopExit LoopExit;
 non terminal Return Return;
+non terminal ReturnStart ReturnStart;
 non terminal BuiltInFunction BuiltInFunction;
+non terminal PrintStart PrintStart;
 non terminal Constant Constant;
 non terminal LeftValue LeftValue;
 non terminal RightValue RightValue;
@@ -123,6 +127,7 @@ non terminal OptionalConditionFactors OptionalConditionFactors;
 non terminal ActualParametersList ActualParametersList;
 non terminal ActualParametersListAtLeastOne ActualParametersListAtLeastOne;
 non terminal Factor Factor;
+non terminal DummyFactorStart DummyFactorStart;
 non terminal OptionalFactors OptionalFactors;
 non terminal AddOperator AddOperator;
 non terminal ConditionFactorToken ConditionFactorToken;
@@ -137,7 +142,9 @@ precedence left ELSE;
 
 // Productions:
 
-Program ::= PROGRAM IDENTIFIER:I1 DeclarationsList:D2 LEFT_BRACE MethodsList:M3 RIGHT_BRACE {: RESULT=new ProgramDerived1(I1, D2, M3); RESULT.setLine(I1left); :} ;
+Program ::= ProgramStart:P1 DeclarationsList:D2 LEFT_BRACE MethodsList:M3 RIGHT_BRACE {: RESULT=new ProgramDerived1(P1, D2, M3); RESULT.setLine(P1left); :} ;
+
+ProgramStart ::= PROGRAM IDENTIFIER:I1 {: RESULT=new ProgramStartDerived1(I1); RESULT.setLine(I1left); :} ;
 
 DeclarationsList ::= DeclarationsList:D1 Declaration:D2 {: RESULT=new DeclarationsListDerived1(D1, D2); RESULT.setLine(D1left); :}
 					 | {: RESULT=new DeclarationsListDerived2(); :}
@@ -258,8 +265,10 @@ OptionalArrayDeclaration ::= LEFT_BRACKET RIGHT_BRACKET {: RESULT=new OptionalAr
 
 Expression ::= LeftValue:L1 SEPARATOR {: RESULT=new ExpressionDerived1(L1); RESULT.setLine(L1left); :}
 			   |
-			   LeftValue:L1 ASSIGN RightValue:R2 SEPARATOR {: RESULT=new ExpressionDerived2(L1, R2); RESULT.setLine(L1left); :}
+			   LeftValue:L1 AssignOperator:A2 RightValue:R3 SEPARATOR {: RESULT=new ExpressionDerived2(L1, A2, R3); RESULT.setLine(L1left); :}
 			   ;
+
+AssignOperator ::= ASSIGN {: RESULT=new AssignOperatorDerived1(); :} ;
 
 Conditional ::= IF LEFT_PARENTHESIS Condition:C1 RIGHT_PARENTHESIS Statement:S2 OptionalElse:O3 {: RESULT=new ConditionalDerived1(C1, S2, O3); RESULT.setLine(C1left); :} ;
 
@@ -270,15 +279,19 @@ LoopExit ::= BREAK SEPARATOR {: RESULT=new LoopExitDerived1(); :}
 			 CONTINUE SEPARATOR {: RESULT=new LoopExitDerived2(); :}
 			 ;
 
-Return ::= RETURN RightValue:R1 SEPARATOR {: RESULT=new ReturnDerived1(R1); RESULT.setLine(R1left); :}
+Return ::= ReturnStart:R1 RightValue:R2 SEPARATOR {: RESULT=new ReturnDerived1(R1, R2); RESULT.setLine(R1left); :}
 		   |
-		   RETURN SEPARATOR {: RESULT=new ReturnDerived2(); :}
+		   ReturnStart:R1 SEPARATOR {: RESULT=new ReturnDerived2(R1); RESULT.setLine(R1left); :}
 		   ;
+
+ReturnStart ::= RETURN {: RESULT=new ReturnStartDerived1(); :} ;
 
 BuiltInFunction ::= READ LEFT_PARENTHESIS LeftValue:L1 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new BuiltInFunctionDerived1(L1); RESULT.setLine(L1left); :}
 					|
-					PRINT LEFT_PARENTHESIS RightValue:R1 OptionalPrintParameter:O2 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new BuiltInFunctionDerived2(R1, O2); RESULT.setLine(R1left); :}
+					PrintStart:P1 LEFT_PARENTHESIS RightValue:R2 OptionalPrintParameter:O3 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new BuiltInFunctionDerived2(P1, R2, O3); RESULT.setLine(P1left); :}
 					;
+
+PrintStart ::= PRINT {: RESULT=new PrintStartDerived1(); :} ;
 
 Constant ::= INT_VALUE:I1 {: RESULT=new ConstantDerived1(I1); RESULT.setLine(I1left); :}
 			 |
@@ -387,12 +400,14 @@ ActualParametersList ::= ActualParametersListAtLeastOne:A1 {: RESULT=new ActualP
 
 ActualParametersListAtLeastOne ::= ActualParameter:A1 OptionalActualParameters:O2 {: RESULT=new ActualParametersListAtLeastOneDerived1(A1, O2); RESULT.setLine(A1left); :} ;
 
-Factor ::= LEFT_PARENTHESIS RightValue:R1 RIGHT_PARENTHESIS {: RESULT=new FactorDerived1(R1); RESULT.setLine(R1left); :}
+Factor ::= LEFT_PARENTHESIS DummyFactorStart:D1 RightValue:R2 RIGHT_PARENTHESIS {: RESULT=new FactorDerived1(D1, R2); RESULT.setLine(D1left); :}
 		   |
 		   Constant:C1 {: RESULT=new FactorDerived2(C1); RESULT.setLine(C1left); :}
 		   |
 		   LeftValue:L1 {: RESULT=new FactorDerived3(L1); RESULT.setLine(L1left); :}
 		   ;
+
+DummyFactorStart ::= {: RESULT=new DummyFactorStartDerived1(); :} /* epsilon */ ;
 
 OptionalFactors ::= MultiplyOperator:M1 Term:T2 {: RESULT=new OptionalFactorsDerived1(M1, T2); RESULT.setLine(M1left); :}
 					| {: RESULT=new OptionalFactorsDerived2(); :}

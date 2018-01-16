@@ -119,6 +119,25 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // endregion
 
+    // region Program
+
+    private Obj programObj;
+
+    @Override
+    public void visit(ProgramStartDerived1 programStart) {
+        programObj = ExtendedSymbolTable.insert(Obj.Prog, programStart.getI1(), ExtendedSymbolTable.noType);
+        ExtendedSymbolTable.openScope();
+    }
+
+    @Override
+    public void visit(ProgramDerived1 program) {
+        ExtendedSymbolTable.chainLocalSymbols(programObj);
+        ExtendedSymbolTable.closeScope();
+        ExtendedSymbolTable.insert(program, programObj);
+    }
+
+    // endregion
+
     // region Constant declarations
 
     private static class ConstantStruct {
@@ -234,6 +253,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         outerScope.setLevel(numberOfFormalParameters);
         ExtendedSymbolTable.chainLocalSymbols(outerScope);
         ExtendedSymbolTable.closeScope();
+
+        ExtendedSymbolTable.insert(method, outerScope);
     }
 
     @Override
@@ -353,6 +374,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         }
 
         types.push(type);
+
+        ExtendedSymbolTable.insert(identifier, ExtendedSymbolTable.currentScope());
     }
 
     @Override
@@ -507,6 +530,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (function.getKind() != Obj.Meth) {
             throw new CompilerException(functionCallStart, methodName + " is not a function");
         }
+
+        ExtendedSymbolTable.insert(functionCallStart, function);
     }
 
     @Override
@@ -538,7 +563,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // endregion
 
-    // region Build in functions
+    // region Built in functions
 
     @Override
     public void visit(BuiltInFunctionDerived1 readFunction) {
@@ -547,10 +572,12 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(BuiltInFunctionDerived2 printFunction) {
-        types.pop();
+        Struct type = types.pop();
         if (printFunction.getOptionalPrintParameter() instanceof OptionalPrintParameterDerived1) {
-            types.pop();
+            type = types.pop();
         }
+
+        ExtendedSymbolTable.insert(printFunction, type);
     }
 
     // endregion

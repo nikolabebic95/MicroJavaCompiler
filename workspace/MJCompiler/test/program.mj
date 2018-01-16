@@ -2,15 +2,22 @@ program MJProgram
 	int x; int y;
 {
 	
-	int k () int c; {
+	int k () int c; int d; {
 		c = 0;
-		return c+3;
+		d = 0;
+		return d+3;
 	}
 
 	void main() {
 		print(1);
+		y = 5;
 		x = y+3;
 		k();
 		print(2);
+		print(k());
+		print(x);
+		print(eol);
+		x = x * 2 + 1;
+		print(x);
 	}
 }

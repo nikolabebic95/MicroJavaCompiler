@@ -6,6 +6,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import rs.ac.bg.etf.pp1.extensions.ExtendedSymbolTable;
 import rs.ac.bg.etf.pp1.ast.Program;
 import rs.ac.bg.etf.pp1.util.Log4JUtils;
+import rs.etf.pp1.mj.runtime.Code;
 
 import java.io.*;
 
@@ -21,7 +22,7 @@ public class Compiler {
         Logger log = Logger.getLogger(Compiler.class);
 
         try {
-            File sourceCode = new File("MJCompiler/test/test303.mj");
+            File sourceCode = new File("MJCompiler/test/program.mj");
             log.info("Compiling source file: " + sourceCode.getAbsolutePath());
 
             try (BufferedReader br = new BufferedReader(new FileReader(sourceCode))){
@@ -40,6 +41,11 @@ public class Compiler {
                 SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
                 program.traverseBottomUp(semanticAnalyzer);
                 ExtendedSymbolTable.dump();
+
+                // Code generation
+                CodeGenerator codeGenerator = new CodeGenerator();
+                program.traverseBottomUp(codeGenerator);
+                Code.write(new FileOutputStream("MJCompiler/test/program.obj"));
             }
         }
         catch (RuntimeException e) {

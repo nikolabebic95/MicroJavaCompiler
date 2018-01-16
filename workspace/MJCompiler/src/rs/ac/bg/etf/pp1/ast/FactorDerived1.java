@@ -1,17 +1,28 @@
 // generated with ast extension for cup
 // version 0.8
-// 15/0/2018 23:38:22
+// 16/0/2018 19:5:2
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class FactorDerived1 extends Factor {
 
+    private DummyFactorStart DummyFactorStart;
     private RightValue RightValue;
 
-    public FactorDerived1 (RightValue RightValue) {
+    public FactorDerived1 (DummyFactorStart DummyFactorStart, RightValue RightValue) {
+        this.DummyFactorStart=DummyFactorStart;
+        if(DummyFactorStart!=null) DummyFactorStart.setParent(this);
         this.RightValue=RightValue;
         if(RightValue!=null) RightValue.setParent(this);
+    }
+
+    public DummyFactorStart getDummyFactorStart() {
+        return DummyFactorStart;
+    }
+
+    public void setDummyFactorStart(DummyFactorStart DummyFactorStart) {
+        this.DummyFactorStart=DummyFactorStart;
     }
 
     public RightValue getRightValue() {
@@ -27,15 +38,18 @@ public class FactorDerived1 extends Factor {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(DummyFactorStart!=null) DummyFactorStart.accept(visitor);
         if(RightValue!=null) RightValue.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(DummyFactorStart!=null) DummyFactorStart.traverseTopDown(visitor);
         if(RightValue!=null) RightValue.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(DummyFactorStart!=null) DummyFactorStart.traverseBottomUp(visitor);
         if(RightValue!=null) RightValue.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -44,6 +58,12 @@ public class FactorDerived1 extends Factor {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("FactorDerived1(\n");
+
+        if(DummyFactorStart!=null)
+            buffer.append(DummyFactorStart.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
 
         if(RightValue!=null)
             buffer.append(RightValue.toString("  "+tab));
