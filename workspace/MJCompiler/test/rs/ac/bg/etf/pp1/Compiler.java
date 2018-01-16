@@ -37,8 +37,8 @@ public class Compiler {
 
                 // Semantic check
                 ExtendedSymbolTable.init();
-                SemanticAnalizer semanticAnalizer = new SemanticAnalizer();
-                program.traverseBottomUp(semanticAnalizer);
+                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+                program.traverseBottomUp(semanticAnalyzer);
                 ExtendedSymbolTable.dump();
             }
         }

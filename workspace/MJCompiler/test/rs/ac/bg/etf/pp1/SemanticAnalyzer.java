@@ -10,7 +10,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.ArrayList;
 import java.util.Stack;
 
-public class SemanticAnalizer extends VisitorAdaptor {
+public class SemanticAnalyzer extends VisitorAdaptor {
 
     // region Helpers
 
