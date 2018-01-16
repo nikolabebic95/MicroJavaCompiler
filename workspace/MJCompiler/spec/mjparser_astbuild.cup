@@ -95,6 +95,7 @@ non terminal OptionalArrayDeclaration OptionalArrayDeclaration;
 non terminal Expression Expression;
 non terminal AssignOperator AssignOperator;
 non terminal Conditional Conditional;
+non terminal ConditionalStart ConditionalStart;
 non terminal Loop Loop;
 non terminal LoopExit LoopExit;
 non terminal Return Return;
@@ -108,6 +109,7 @@ non terminal RightValue RightValue;
 non terminal Condition Condition;
 non terminal PureCondition PureCondition;
 non terminal OptionalElse OptionalElse;
+non terminal ElseStart ElseStart;
 non terminal OptionalPrintParameter OptionalPrintParameter;
 non terminal LeftValueStart LeftValueStart;
 non terminal OptionalIndirections OptionalIndirections;
@@ -273,7 +275,9 @@ Expression ::= LeftValue:L1 SEPARATOR {: RESULT=new ExpressionDerived1(L1); RESU
 
 AssignOperator ::= ASSIGN {: RESULT=new AssignOperatorDerived1(); :} ;
 
-Conditional ::= IF LEFT_PARENTHESIS Condition:C1 RIGHT_PARENTHESIS Statement:S2 OptionalElse:O3 {: RESULT=new ConditionalDerived1(C1, S2, O3); RESULT.setLine(C1left); :} ;
+Conditional ::= ConditionalStart:C1 LEFT_PARENTHESIS Condition:C2 RIGHT_PARENTHESIS Statement:S3 OptionalElse:O4 {: RESULT=new ConditionalDerived1(C1, C2, S3, O4); RESULT.setLine(C1left); :} ;
+
+ConditionalStart ::= IF {: RESULT=new ConditionalStartDerived1(); :} ;
 
 Loop ::= DO Statement:S1 WHILE LEFT_PARENTHESIS Condition:C2 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new LoopDerived1(S1, C2); RESULT.setLine(S1left); :} ;
 
@@ -334,10 +338,12 @@ Condition ::= PureCondition:P1 {: RESULT=new ConditionDerived1(P1); RESULT.setLi
 
 PureCondition ::= ConditionTerm:C1 OptionalConditionTerms:O2 {: RESULT=new PureConditionDerived1(C1, O2); RESULT.setLine(C1left); :} ;
 
-OptionalElse ::= ELSE Statement:S1 {: RESULT=new OptionalElseDerived1(S1); RESULT.setLine(S1left); :}
+OptionalElse ::= ElseStart:E1 Statement:S2 {: RESULT=new OptionalElseDerived1(E1, S2); RESULT.setLine(E1left); :}
 				 | {: RESULT=new OptionalElseDerived2(); :}
 				 /* epsilon */
 				 ;
+
+ElseStart ::= ELSE {: RESULT=new ElseStartDerived1(); :} ;
 
 OptionalPrintParameter ::= COMMA INT_VALUE:I1 {: RESULT=new OptionalPrintParameterDerived1(I1); RESULT.setLine(I1left); :}
 						   | {: RESULT=new OptionalPrintParameterDerived2(); :}

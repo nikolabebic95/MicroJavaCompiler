@@ -7,6 +7,7 @@ import rs.etf.pp1.symboltable.concepts.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
+import java.util.Stack;
 
 public class CodeGenerator extends VisitorAdaptor {
 
@@ -418,6 +419,47 @@ public class CodeGenerator extends VisitorAdaptor {
         putHelper();
 
         isIncDec = false;
+    }
+
+    // endregion
+
+    // region Conditions
+
+    private Stack<Integer> addresses = new Stack<>();
+
+    // region Conditionals
+
+    @Override
+    public void visit(ConditionalStartDerived1 conditionalStart) {
+
+    }
+
+    @Override
+    public void visit(ConditionalDerived1 conditional) {
+        int address = addresses.pop();
+        Code.fixup(address);
+    }
+
+    @Override
+    public void visit(OptionalElseDerived1 optionalElse) {
+
+    }
+
+    @Override
+    public void visit(ElseStartDerived1 elseStart) {
+
+    }
+
+    // endregion
+
+    @Override
+    public void visit(ConditionDerived2 identifierCondition) {
+        Scope scope = ExtendedSymbolTable.getScope(identifierCondition);
+        Obj objectNode = ExtendedSymbolTable.find(identifierCondition.getI1(), scope);
+        Code.load(objectNode);
+        Code.loadConst(1);
+        addresses.push(Code.pc + 1);
+        Code.putFalseJump(Code.eq, 0);
     }
 
     // endregion

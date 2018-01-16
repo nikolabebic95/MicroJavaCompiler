@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 22:14:39
+// 16/0/2018 23:23:44
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,6 +8,7 @@ package rs.ac.bg.etf.pp1.ast;
 public interface Visitor { 
 
     public void visit(ClassStart ClassStart);
+    public void visit(ConditionalStart ConditionalStart);
     public void visit(Return Return);
     public void visit(OptionalConditionFactors OptionalConditionFactors);
     public void visit(ActualParameter ActualParameter);
@@ -24,6 +25,7 @@ public interface Visitor {
     public void visit(OptionalActualParameters OptionalActualParameters);
     public void visit(LoopExit LoopExit);
     public void visit(IncrementDecrement IncrementDecrement);
+    public void visit(ElseStart ElseStart);
     public void visit(DummyClassSeparator DummyClassSeparator);
     public void visit(FormalParametersList FormalParametersList);
     public void visit(MethodsList MethodsList);
@@ -137,6 +139,7 @@ public interface Visitor {
     public void visit(LeftValueStartDerived1 LeftValueStartDerived1);
     public void visit(OptionalPrintParameterDerived2 OptionalPrintParameterDerived2);
     public void visit(OptionalPrintParameterDerived1 OptionalPrintParameterDerived1);
+    public void visit(ElseStartDerived1 ElseStartDerived1);
     public void visit(OptionalElseDerived2 OptionalElseDerived2);
     public void visit(OptionalElseDerived1 OptionalElseDerived1);
     public void visit(PureConditionDerived1 PureConditionDerived1);
@@ -165,6 +168,7 @@ public interface Visitor {
     public void visit(LoopExitDerived2 LoopExitDerived2);
     public void visit(LoopExitDerived1 LoopExitDerived1);
     public void visit(LoopDerived1 LoopDerived1);
+    public void visit(ConditionalStartDerived1 ConditionalStartDerived1);
     public void visit(ConditionalDerived1 ConditionalDerived1);
     public void visit(AssignOperatorDerived1 AssignOperatorDerived1);
     public void visit(ExpressionDerived2 ExpressionDerived2);

@@ -1,23 +1,34 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 22:14:37
+// 16/0/2018 23:23:43
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class ConditionalDerived1 extends Conditional {
 
+    private ConditionalStart ConditionalStart;
     private Condition Condition;
     private Statement Statement;
     private OptionalElse OptionalElse;
 
-    public ConditionalDerived1 (Condition Condition, Statement Statement, OptionalElse OptionalElse) {
+    public ConditionalDerived1 (ConditionalStart ConditionalStart, Condition Condition, Statement Statement, OptionalElse OptionalElse) {
+        this.ConditionalStart=ConditionalStart;
+        if(ConditionalStart!=null) ConditionalStart.setParent(this);
         this.Condition=Condition;
         if(Condition!=null) Condition.setParent(this);
         this.Statement=Statement;
         if(Statement!=null) Statement.setParent(this);
         this.OptionalElse=OptionalElse;
         if(OptionalElse!=null) OptionalElse.setParent(this);
+    }
+
+    public ConditionalStart getConditionalStart() {
+        return ConditionalStart;
+    }
+
+    public void setConditionalStart(ConditionalStart ConditionalStart) {
+        this.ConditionalStart=ConditionalStart;
     }
 
     public Condition getCondition() {
@@ -49,6 +60,7 @@ public class ConditionalDerived1 extends Conditional {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(ConditionalStart!=null) ConditionalStart.accept(visitor);
         if(Condition!=null) Condition.accept(visitor);
         if(Statement!=null) Statement.accept(visitor);
         if(OptionalElse!=null) OptionalElse.accept(visitor);
@@ -56,12 +68,14 @@ public class ConditionalDerived1 extends Conditional {
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(ConditionalStart!=null) ConditionalStart.traverseTopDown(visitor);
         if(Condition!=null) Condition.traverseTopDown(visitor);
         if(Statement!=null) Statement.traverseTopDown(visitor);
         if(OptionalElse!=null) OptionalElse.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(ConditionalStart!=null) ConditionalStart.traverseBottomUp(visitor);
         if(Condition!=null) Condition.traverseBottomUp(visitor);
         if(Statement!=null) Statement.traverseBottomUp(visitor);
         if(OptionalElse!=null) OptionalElse.traverseBottomUp(visitor);
@@ -72,6 +86,12 @@ public class ConditionalDerived1 extends Conditional {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("ConditionalDerived1(\n");
+
+        if(ConditionalStart!=null)
+            buffer.append(ConditionalStart.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
 
         if(Condition!=null)
             buffer.append(Condition.toString("  "+tab));

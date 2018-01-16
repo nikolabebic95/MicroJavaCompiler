@@ -45,9 +45,10 @@ int niz[];
 		niz[0] = 1;
 		niz[1] = 2;
 		niz[2] = sum(niz[1], niz[0])  + 1;
-		if(niz[2] == 4) print(3); 
-		else print(-3);
-		
+		if(niz[2] == 4) print(ord('A')); 
+		else print(ord('a'));
+
+		print(eol);		
 		i = 0;
 		do 
 		{

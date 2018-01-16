@@ -5,7 +5,7 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class MethodStart implements SyntaxNode {
+public abstract class ConditionalStart implements SyntaxNode {
 
     private SyntaxNode parent;
 

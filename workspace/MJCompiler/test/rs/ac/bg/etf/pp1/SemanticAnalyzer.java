@@ -435,6 +435,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (!type.equals(ExtendedSymbolTable.boolType)) {
             throw new CompilerException(identifierConfition, conditionName + " is not a bool type");
         }
+
+        ExtendedSymbolTable.insert(identifierConfition, ExtendedSymbolTable.currentScope());
     }
 
     @Override

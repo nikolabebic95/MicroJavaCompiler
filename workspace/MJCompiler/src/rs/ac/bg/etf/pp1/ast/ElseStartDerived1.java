@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 23:23:44
+// 16/0/2018 23:23:43
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class RelationalOperatorDerived5 extends RelationalOperator {
+public class ElseStartDerived1 extends ElseStart {
 
-    public RelationalOperatorDerived5 () {
+    public ElseStartDerived1 () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class RelationalOperatorDerived5 extends RelationalOperator {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("RelationalOperatorDerived5(\n");
+        buffer.append("ElseStartDerived1(\n");
 
         buffer.append(tab);
-        buffer.append(") [RelationalOperatorDerived5]");
+        buffer.append(") [ElseStartDerived1]");
         return buffer.toString();
     }
 }
