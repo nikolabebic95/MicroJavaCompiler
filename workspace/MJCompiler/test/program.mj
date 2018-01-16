@@ -19,5 +19,7 @@ program MJProgram
 		print(eol);
 		x = x * 2 + 1;
 		print(x);
+		read(x);
+		print(x);
 	}
 }

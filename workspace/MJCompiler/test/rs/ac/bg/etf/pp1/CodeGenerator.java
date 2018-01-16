@@ -132,7 +132,14 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(BuiltInFunctionDerived1 read) {
-        // TODO: Don't know what to do
+        Code.put(Code.read);
+
+        fixup(leftValueBytes, lastOpPc);
+        for (int i = 0; i < leftValueBytesSize; i++) {
+            Code.put(leftValueBytes[i]);
+        }
+
+        leftValueBytesSize = 0;
     }
 
     @Override
