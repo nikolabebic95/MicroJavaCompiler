@@ -5,11 +5,12 @@ program test301
 {
 	void main()	int x; int y;
 	{
-		b = true;
+		b = false;
 		if (b) {
 			print(3);
+		} else {
+			print(2);
 		}
-		print(2);
 	}
 }
 

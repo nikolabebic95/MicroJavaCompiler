@@ -442,12 +442,15 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(OptionalElseDerived1 optionalElse) {
-
+        
     }
 
     @Override
     public void visit(ElseStartDerived1 elseStart) {
-
+        int address = addresses.pop();
+        addresses.push(Code.pc + 1);
+        Code.putJump(0);
+        Code.fixup(address);
     }
 
     // endregion
