@@ -406,6 +406,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         }
 
         types.push(arrayType.getElemType());
+        ExtendedSymbolTable.insert(arrayIndirection, arrayType.getElemType());
     }
 
     // endregion
@@ -488,6 +489,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(AllocationDerived1 allocation) {
         Struct type = getType(allocation.getType());
+
+        ExtendedSymbolTable.insert(allocation, type);
+
         if (checkIfIsArray(allocation.getOptionalArrayDefinition())) {
             // Removes the int type of the parameter passed to the allocation
             Struct intType = types.pop();
@@ -616,7 +620,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(IncrementDecrementDerived1 increment) {
-        Struct type = types.pop();
+        Struct type = types.peek();
         if (!type.equals(ExtendedSymbolTable.intType) && !type.equals(ExtendedSymbolTable.charType)) {
             throw new CompilerException(increment, "Only int and char can be incremented");
         }
@@ -624,7 +628,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(IncrementDecrementDerived2 decrement) {
-        Struct type = types.pop();
+        Struct type = types.peek();
         if (!type.equals(ExtendedSymbolTable.intType) && !type.equals(ExtendedSymbolTable.charType)) {
             throw new CompilerException(decrement, "Only int and char can be incremented");
         }

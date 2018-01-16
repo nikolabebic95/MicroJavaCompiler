@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 22:14:37
+// 16/0/2018 22:14:38
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class LocalVariablesListDerived2 extends LocalVariablesList {
+public class ArrayIndirectionStartDerived1 extends ArrayIndirectionStart {
 
-    public LocalVariablesListDerived2 () {
+    public ArrayIndirectionStartDerived1 () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class LocalVariablesListDerived2 extends LocalVariablesList {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("LocalVariablesListDerived2(\n");
+        buffer.append("ArrayIndirectionStartDerived1(\n");
 
         buffer.append(tab);
-        buffer.append(") [LocalVariablesListDerived2]");
+        buffer.append(") [ArrayIndirectionStartDerived1]");
         return buffer.toString();
     }
 }

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 20:56:46
+// 16/0/2018 22:14:39
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -46,6 +46,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(BaseClassDeclaration BaseClassDeclaration) { }
     public void visit(PureArithmeticExpression PureArithmeticExpression) { }
     public void visit(OptionalIndirections OptionalIndirections) { }
+    public void visit(ArrayIndirectionStart ArrayIndirectionStart) { }
     public void visit(ConditionFactorToken ConditionFactorToken) { }
     public void visit(PrintStart PrintStart) { }
     public void visit(Constant Constant) { }
@@ -114,6 +115,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(OptionalTermsDerived2 OptionalTermsDerived2) { visit(); }
     public void visit(OptionalTermsDerived1 OptionalTermsDerived1) { visit(); }
     public void visit(TermDerived1 TermDerived1) { visit(); }
+    public void visit(ArrayIndirectionStartDerived1 ArrayIndirectionStartDerived1) { visit(); }
     public void visit(IndirectionDerived3 IndirectionDerived3) { visit(); }
     public void visit(IndirectionDerived2 IndirectionDerived2) { visit(); }
     public void visit(IndirectionDerived1 IndirectionDerived1) { visit(); }
@@ -141,6 +143,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ConditionDerived3 ConditionDerived3) { visit(); }
     public void visit(ConditionDerived2 ConditionDerived2) { visit(); }
     public void visit(ConditionDerived1 ConditionDerived1) { visit(); }
+    public void visit(RightValueDerived5 RightValueDerived5) { visit(); }
     public void visit(RightValueDerived4 RightValueDerived4) { visit(); }
     public void visit(RightValueDerived3 RightValueDerived3) { visit(); }
     public void visit(RightValueDerived2 RightValueDerived2) { visit(); }

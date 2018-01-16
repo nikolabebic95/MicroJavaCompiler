@@ -121,6 +121,7 @@ non terminal OptionalConditionTerms;
 non terminal FunctionCall;
 non terminal FunctionCallStart;
 non terminal Indirection;
+non terminal ArrayIndirectionStart;
 non terminal Term;
 non terminal OptionalTerms;
 non terminal OptionalArrayDefinition;
@@ -253,7 +254,7 @@ Statement ::= SEPARATOR
 			  |
 			  BuiltInFunction
 			  |
-			  IncrementDecrement
+			  IncrementDecrement SEPARATOR
 			  ;
 
 ConstantDefinition ::= IDENTIFIER ASSIGN Constant ;
@@ -320,6 +321,8 @@ RightValue ::= ArithmeticExpression
 			   Allocation
 			   |
 			   PredefinedFunction
+			   |
+			   IncrementDecrement
 			   ;
 
 Condition ::= PureCondition
@@ -382,8 +385,10 @@ Indirection ::= POINT IDENTIFIER
 				|
 				POINT FunctionCall
 				|
-				LEFT_BRACKET ArithmeticExpression RIGHT_BRACKET
+				LEFT_BRACKET ArrayIndirectionStart RightValue RIGHT_BRACKET
 				;
+			
+ArrayIndirectionStart ::= /* epsilon */ ;
 
 Term ::= Factor OptionalFactors ;
 

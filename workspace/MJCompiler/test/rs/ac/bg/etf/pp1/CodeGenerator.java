@@ -12,14 +12,34 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // region Helpers
 
-    private void fixup(byte[] buffer, int lastOpPc) {
-        if (buffer[lastOpPc] < 11) {
-            buffer[lastOpPc] += 5;
-        } else if (buffer[lastOpPc] == 11) {
-            buffer[lastOpPc] = 12;
-        } else if (buffer[lastOpPc] == 13) {
-            buffer[lastOpPc] = 14;
+    private void fixup(byte[] buffer) {
+        if (buffer[0] < 11) {
+            buffer[0] += 5;
+        } else if (buffer[0] == 11) {
+            buffer[0] = 12;
+        } else if (buffer[0] == 13) {
+            buffer[0] = 14;
+        } else if (buffer[0] == 34) {
+            buffer[0] = 35;
+        } else if (buffer[0] == 36) {
+            buffer[0] = 37;
         }
+    }
+
+    private void putCode() {
+        for (int i = 0; i < leftValueBytesSize; i++) {
+            Code.put(leftValueBytes[i]);
+        }
+
+        leftValueBytesSize = 0;
+    }
+
+    private void putHelper() {
+        for (int i = 0; i < helperIncDecSize; i++) {
+            Code.put(helperIncDecArray[i]);
+        }
+
+        helperIncDecSize = 0;
     }
 
     private int getNumOfVariables(Collection<Obj> symbols) {
@@ -134,12 +154,8 @@ public class CodeGenerator extends VisitorAdaptor {
     public void visit(BuiltInFunctionDerived1 read) {
         Code.put(Code.read);
 
-        fixup(leftValueBytes, lastOpPc);
-        for (int i = 0; i < leftValueBytesSize; i++) {
-            Code.put(leftValueBytes[i]);
-        }
-
-        leftValueBytesSize = 0;
+        fixup(leftValueBytes);
+        putCode();
     }
 
     @Override
@@ -242,14 +258,9 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(ExpressionDerived2 expression) {
-        fixup(leftValueBytes, lastOpPc);
-
         isRightValue--;
-        for (int i = 0; i < leftValueBytesSize; i++) {
-            Code.put(leftValueBytes[i]);
-        }
-
-        leftValueBytesSize = 0;
+        fixup(leftValueBytes);
+        putCode();
     }
 
     // endregion
@@ -258,12 +269,23 @@ public class CodeGenerator extends VisitorAdaptor {
 
     private byte[] leftValueBytes = new byte[8192];
     private int leftValueBytesSize = 0;
-    private int lastOpPc = 0;
 
     @Override
     public void visit(LeftValueStartDerived1 identifier) {
         Scope scope = ExtendedSymbolTable.getScope(identifier);
         Obj objectNode = ExtendedSymbolTable.find(identifier.getI1(), scope);
+
+        if (identifier.getParent().getParent() instanceof IncrementDecrement) {
+            isIncDec = true;
+            int pcBefore = Code.pc;
+            Code.load(objectNode);
+            int pcAfter = Code.pc;
+            System.arraycopy(Code.buf, pcBefore, helperIncDecArray, helperIncDecSize, pcAfter - pcBefore);
+            helperIncDecSize += pcAfter - pcBefore;
+            if (isRightValue == 0) {
+                return;
+            }
+        }
 
         if (isRightValue > 0) {
             Code.load(objectNode);
@@ -273,7 +295,6 @@ public class CodeGenerator extends VisitorAdaptor {
             int pcAfter = Code.pc;
             Code.pc = pcBefore;
             System.arraycopy(Code.buf, pcBefore, leftValueBytes, leftValueBytesSize, pcAfter - pcBefore);
-            lastOpPc = leftValueBytesSize;
             leftValueBytesSize += pcAfter - pcBefore;
         }
     }
@@ -284,6 +305,40 @@ public class CodeGenerator extends VisitorAdaptor {
         Obj function = ExtendedSymbolTable.get(fCall.getFunctionCallStart());
         if (isRightValue == 0 && function.getType() != ExtendedSymbolTable.noType) {
             Code.put(Code.pop);
+        }
+    }
+
+    @Override
+    public void visit(ArrayIndirectionStartDerived1 arrayIndirectionStart) {
+        if (isRightValue == 0) {
+            Struct type = ExtendedSymbolTable.getStruct(arrayIndirectionStart.getParent());
+
+            putCode();
+
+            if (type == ExtendedSymbolTable.charType) {
+                leftValueBytes[0] = Code.baload;
+            } else {
+                leftValueBytes[0] = Code.aload; // assume int
+            }
+
+            leftValueBytesSize = 1;
+        }
+
+        isRightValue++;
+    }
+
+    @Override
+    public void visit(IndirectionDerived3 arrayIndirection) {
+        isRightValue--;
+
+        Struct type = ExtendedSymbolTable.getStruct(arrayIndirection);
+
+        if (isRightValue > 0) {
+            if (type == ExtendedSymbolTable.charType) {
+                Code.put(Code.baload);
+            } else {
+                Code.put(Code.aload);
+            }
         }
     }
 
@@ -313,15 +368,47 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(AllocationDerived1 allocation) {
-        // TODO: Do not assume int is the type
-
         if (allocation.getOptionalArrayDefinition() instanceof OptionalArrayDefinitionDerived1) {
+            Struct type = ExtendedSymbolTable.getStruct(allocation);
             Code.put(Code.newarray);
-            Code.put(1); // assume words
+            if (type == ExtendedSymbolTable.charType) {
+                Code.put(0);
+            } else {
+                Code.put(1);
+            }
         } else {
+            // TODO: Allocate classes
             Code.put(Code.new_);
             Code.put(4); // assume 4 bytes
         }
+    }
+
+    // endregion
+
+    // region Increment/decrement
+
+    private byte[] helperIncDecArray = new byte[8192];
+    private int helperIncDecSize = 0;
+    private boolean isIncDec = false;
+
+    @Override
+    public void visit(IncrementDecrementDerived1 increment) {
+        Code.put(Code.const_1);
+        Code.put(Code.add);
+        fixup(helperIncDecArray);
+        putHelper();
+
+        isIncDec = false;
+    }
+
+    @Override
+    public void visit(IncrementDecrementDerived2 decrement) {
+        Code.put(Code.const_1);
+        Code.put(Code.sub);
+        fixup(helperIncDecArray);
+        putHelper();
+
+        isIncDec = false;
     }
 
     // endregion

@@ -1,25 +1,36 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 20:56:45
+// 16/0/2018 22:14:38
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class IndirectionDerived3 extends Indirection {
 
-    private ArithmeticExpression ArithmeticExpression;
+    private ArrayIndirectionStart ArrayIndirectionStart;
+    private RightValue RightValue;
 
-    public IndirectionDerived3 (ArithmeticExpression ArithmeticExpression) {
-        this.ArithmeticExpression=ArithmeticExpression;
-        if(ArithmeticExpression!=null) ArithmeticExpression.setParent(this);
+    public IndirectionDerived3 (ArrayIndirectionStart ArrayIndirectionStart, RightValue RightValue) {
+        this.ArrayIndirectionStart=ArrayIndirectionStart;
+        if(ArrayIndirectionStart!=null) ArrayIndirectionStart.setParent(this);
+        this.RightValue=RightValue;
+        if(RightValue!=null) RightValue.setParent(this);
     }
 
-    public ArithmeticExpression getArithmeticExpression() {
-        return ArithmeticExpression;
+    public ArrayIndirectionStart getArrayIndirectionStart() {
+        return ArrayIndirectionStart;
     }
 
-    public void setArithmeticExpression(ArithmeticExpression ArithmeticExpression) {
-        this.ArithmeticExpression=ArithmeticExpression;
+    public void setArrayIndirectionStart(ArrayIndirectionStart ArrayIndirectionStart) {
+        this.ArrayIndirectionStart=ArrayIndirectionStart;
+    }
+
+    public RightValue getRightValue() {
+        return RightValue;
+    }
+
+    public void setRightValue(RightValue RightValue) {
+        this.RightValue=RightValue;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +38,19 @@ public class IndirectionDerived3 extends Indirection {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(ArithmeticExpression!=null) ArithmeticExpression.accept(visitor);
+        if(ArrayIndirectionStart!=null) ArrayIndirectionStart.accept(visitor);
+        if(RightValue!=null) RightValue.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(ArithmeticExpression!=null) ArithmeticExpression.traverseTopDown(visitor);
+        if(ArrayIndirectionStart!=null) ArrayIndirectionStart.traverseTopDown(visitor);
+        if(RightValue!=null) RightValue.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(ArithmeticExpression!=null) ArithmeticExpression.traverseBottomUp(visitor);
+        if(ArrayIndirectionStart!=null) ArrayIndirectionStart.traverseBottomUp(visitor);
+        if(RightValue!=null) RightValue.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +59,14 @@ public class IndirectionDerived3 extends Indirection {
         buffer.append(tab);
         buffer.append("IndirectionDerived3(\n");
 
-        if(ArithmeticExpression!=null)
-            buffer.append(ArithmeticExpression.toString("  "+tab));
+        if(ArrayIndirectionStart!=null)
+            buffer.append(ArrayIndirectionStart.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
+
+        if(RightValue!=null)
+            buffer.append(RightValue.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

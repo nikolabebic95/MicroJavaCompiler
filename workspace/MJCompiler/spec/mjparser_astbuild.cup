@@ -121,6 +121,7 @@ non terminal OptionalConditionTerms OptionalConditionTerms;
 non terminal FunctionCall FunctionCall;
 non terminal FunctionCallStart FunctionCallStart;
 non terminal Indirection Indirection;
+non terminal ArrayIndirectionStart ArrayIndirectionStart;
 non terminal Term Term;
 non terminal OptionalTerms OptionalTerms;
 non terminal OptionalArrayDefinition OptionalArrayDefinition;
@@ -253,7 +254,7 @@ Statement ::= SEPARATOR {: RESULT=new StatementDerived1(); :}
 			  |
 			  BuiltInFunction:B1 {: RESULT=new StatementDerived8(B1); RESULT.setLine(B1left); :}
 			  |
-			  IncrementDecrement:I1 {: RESULT=new StatementDerived9(I1); RESULT.setLine(I1left); :}
+			  IncrementDecrement:I1 SEPARATOR {: RESULT=new StatementDerived9(I1); RESULT.setLine(I1left); :}
 			  ;
 
 ConstantDefinition ::= IDENTIFIER:I1 ASSIGN Constant:C2 {: RESULT=new ConstantDefinitionDerived1(I1, C2); RESULT.setLine(I1left); :} ;
@@ -320,6 +321,8 @@ RightValue ::= ArithmeticExpression:A1 {: RESULT=new RightValueDerived1(A1); RES
 			   Allocation:A1 {: RESULT=new RightValueDerived3(A1); RESULT.setLine(A1left); :}
 			   |
 			   PredefinedFunction:P1 {: RESULT=new RightValueDerived4(P1); RESULT.setLine(P1left); :}
+			   |
+			   IncrementDecrement:I1 {: RESULT=new RightValueDerived5(I1); RESULT.setLine(I1left); :}
 			   ;
 
 Condition ::= PureCondition:P1 {: RESULT=new ConditionDerived1(P1); RESULT.setLine(P1left); :}
@@ -382,8 +385,10 @@ Indirection ::= POINT IDENTIFIER:I1 {: RESULT=new IndirectionDerived1(I1); RESUL
 				|
 				POINT FunctionCall:F1 {: RESULT=new IndirectionDerived2(F1); RESULT.setLine(F1left); :}
 				|
-				LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {: RESULT=new IndirectionDerived3(A1); RESULT.setLine(A1left); :}
+				LEFT_BRACKET ArrayIndirectionStart:A1 RightValue:R2 RIGHT_BRACKET {: RESULT=new IndirectionDerived3(A1, R2); RESULT.setLine(A1left); :}
 				;
+			
+ArrayIndirectionStart ::= {: RESULT=new ArrayIndirectionStartDerived1(); :} /* epsilon */ ;
 
 Term ::= Factor:F1 OptionalFactors:O2 {: RESULT=new TermDerived1(F1, O2); RESULT.setLine(F1left); :} ;
 

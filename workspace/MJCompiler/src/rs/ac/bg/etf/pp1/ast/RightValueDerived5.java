@@ -1,15 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 16/0/2018 22:14:37
+// 16/0/2018 22:14:38
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class StatementDerived9 extends Statement {
+public class RightValueDerived5 extends RightValue {
 
     private IncrementDecrement IncrementDecrement;
 
-    public StatementDerived9 (IncrementDecrement IncrementDecrement) {
+    public RightValueDerived5 (IncrementDecrement IncrementDecrement) {
         this.IncrementDecrement=IncrementDecrement;
         if(IncrementDecrement!=null) IncrementDecrement.setParent(this);
     }
@@ -43,7 +43,7 @@ public class StatementDerived9 extends Statement {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("StatementDerived9(\n");
+        buffer.append("RightValueDerived5(\n");
 
         if(IncrementDecrement!=null)
             buffer.append(IncrementDecrement.toString("  "+tab));
@@ -52,7 +52,7 @@ public class StatementDerived9 extends Statement {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [StatementDerived9]");
+        buffer.append(") [RightValueDerived5]");
         return buffer.toString();
     }
 }
