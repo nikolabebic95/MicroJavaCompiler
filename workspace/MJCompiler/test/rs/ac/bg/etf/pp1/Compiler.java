@@ -3,7 +3,7 @@ package rs.ac.bg.etf.pp1;
 import java_cup.runtime.Symbol;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import rs.ac.bg.etf.pp1.Extensions.ExtendedSymbolTable;
+import rs.ac.bg.etf.pp1.extensions.ExtendedSymbolTable;
 import rs.ac.bg.etf.pp1.ast.Program;
 import rs.ac.bg.etf.pp1.util.Log4JUtils;
 

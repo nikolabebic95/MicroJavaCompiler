@@ -1,7 +1,7 @@
 package rs.ac.bg.etf.pp1;
 
-import rs.ac.bg.etf.pp1.Extensions.ExtendedStruct;
-import rs.ac.bg.etf.pp1.Extensions.ExtendedSymbolTable;
+import rs.ac.bg.etf.pp1.extensions.ExtendedStruct;
+import rs.ac.bg.etf.pp1.extensions.ExtendedSymbolTable;
 import rs.ac.bg.etf.pp1.ast.*;
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;

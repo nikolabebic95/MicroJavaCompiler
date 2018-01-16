@@ -1,4 +1,4 @@
-package rs.ac.bg.etf.pp1.Extensions;
+package rs.ac.bg.etf.pp1.extensions;
 
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
