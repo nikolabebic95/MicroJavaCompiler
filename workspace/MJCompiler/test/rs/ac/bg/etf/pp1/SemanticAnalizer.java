@@ -1,5 +1,6 @@
 package rs.ac.bg.etf.pp1;
 
+import rs.ac.bg.etf.pp1.Extensions.ExtendedStruct;
 import rs.ac.bg.etf.pp1.Extensions.ExtendedSymbolTable;
 import rs.ac.bg.etf.pp1.ast.*;
 import rs.etf.pp1.symboltable.concepts.Obj;
@@ -12,6 +13,15 @@ import java.util.Stack;
 public class SemanticAnalizer extends VisitorAdaptor {
 
     // region Helpers
+
+    private void visitBinaryOperation(SyntaxNode syntaxNode) {
+        Struct right = types.pop();
+        Struct left = types.peek();
+
+        if (!right.equals(left)) {
+            throw new CompilerException(syntaxNode, "Binary peration not possible");
+        }
+    }
 
     private Struct getType(Type type) {
         if (type instanceof TypeDerived1) {
@@ -81,10 +91,30 @@ public class SemanticAnalizer extends VisitorAdaptor {
     private Struct getIdentifierType(String identifier) {
         Obj objectNode = ExtendedSymbolTable.find(identifier);
         if (objectNode == ExtendedSymbolTable.noObj) {
-            return null;
+            if (classStruct != null) {
+                objectNode = ExtendedSymbolTable.findInBaseClasses(identifier, classStruct);
+            }
         }
 
         return objectNode.getType();
+    }
+
+    private ExtendedStruct getBaseClass(BaseClassDeclaration baseClassDeclaration) {
+        if (baseClassDeclaration instanceof BaseClassDeclarationDerived2) {
+            return null;
+        }
+
+        ClassNameDerived1 name = (ClassNameDerived1)((BaseClassDeclarationDerived1)baseClassDeclaration).getClassName();
+        String className = name.getI1();
+
+
+        Obj objectNode = ExtendedSymbolTable.find(className);
+        Struct ret = objectNode.getType();
+        if (ret.getKind() != Struct.Class || !(ret instanceof ExtendedStruct)) {
+            throw new CompilerException(baseClassDeclaration, className + " is not a class");
+        }
+
+        return (ExtendedStruct)ret;
     }
 
     // endregion
@@ -227,7 +257,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
 
     // region Class declarations
 
-    private Struct classStruct;
+    private ExtendedStruct classStruct;
 
     @Override
     public void visit(ClassStartDerived1 classStart) {
@@ -237,7 +267,10 @@ public class SemanticAnalizer extends VisitorAdaptor {
             throw new CompilerException(classStart, className + " exists in the current scope");
         }
 
-        classStruct = new Struct(Struct.Class);
+        ExtendedStruct baseClass = getBaseClass(classStart.getBaseClassDeclaration());
+
+        classStruct = new ExtendedStruct(Struct.Class);
+        classStruct.setParent(baseClass);
         ExtendedSymbolTable.insert(Obj.Type, className, classStruct);
         ExtendedSymbolTable.openScope();
         ExtendedSymbolTable.insert(Obj.Fld, "this", classStruct);
@@ -253,6 +286,7 @@ public class SemanticAnalizer extends VisitorAdaptor {
     @Override
     public void visit(ClassDeclarationDerived1 classDeclaration) {
         ExtendedSymbolTable.closeScope();
+        classStruct = null;
     }
 
     // endregion
@@ -323,9 +357,9 @@ public class SemanticAnalizer extends VisitorAdaptor {
 
     @Override
     public void visit(IndirectionDerived1 classFieldIndirection) {
-        Struct classType = types.pop();
+        ExtendedStruct classType = (ExtendedStruct)types.pop();
         String fieldName = classFieldIndirection.getI1();
-        Obj field = classType.getMembers().searchKey(fieldName);
+        Obj field = ExtendedSymbolTable.findInBaseClasses(fieldName, classType);
 
         if (field == ExtendedSymbolTable.noObj) {
             throw new CompilerException(classFieldIndirection,
@@ -333,11 +367,6 @@ public class SemanticAnalizer extends VisitorAdaptor {
         }
 
         types.push(field.getType());
-    }
-
-    @Override
-    public void visit(IndirectionDerived2 methodCallIndirection) {
-
     }
 
     @Override
@@ -354,6 +383,46 @@ public class SemanticAnalizer extends VisitorAdaptor {
         }
 
         types.push(arrayType.getElemType());
+    }
+
+    // endregion
+
+    // region Conditions
+
+    @Override
+    public void visit(ConditionDerived1 pureCondition) {
+        Struct type = types.pop();
+        if (!type.equals(ExtendedSymbolTable.boolType)) {
+            throw new CompilerException(pureCondition, "Condition must have a bool type");
+        }
+    }
+
+    @Override
+    public void visit(ConditionDerived2 identifierConfition) {
+        String conditionName = identifierConfition.getI1();
+
+        Obj objectNode = ExtendedSymbolTable.find(conditionName);
+        if (objectNode == ExtendedSymbolTable.noObj && classStruct != null) {
+            objectNode = ExtendedSymbolTable.findInBaseClasses(conditionName, classStruct);
+        }
+
+        Struct type = objectNode.getType();
+
+        if (!type.equals(ExtendedSymbolTable.boolType)) {
+            throw new CompilerException(identifierConfition, conditionName + " is not a bool type");
+        }
+    }
+
+    @Override
+    public void visit(OptionalConditionFactorsDerived1 optionalConditionFactors) {
+        visitBinaryOperation(optionalConditionFactors);
+    }
+
+    @Override
+    public void visit(ConditionFactorDerived1 conditionFactor) {
+        visitBinaryOperation(conditionFactor);
+        types.pop();
+        types.push(ExtendedSymbolTable.boolType);
     }
 
     // endregion
@@ -375,14 +444,9 @@ public class SemanticAnalizer extends VisitorAdaptor {
         }
     }
 
-    private void visitBinaryOperation(SyntaxNode syntaxNode) {
-        Struct right = types.pop();
-        Struct left = types.peek();
+    // endregion
 
-        if (!right.equals(left)) {
-            throw new CompilerException(syntaxNode, "Arithmetic operation not possible");
-        }
-    }
+    // region Arithmetic expressions
 
     @Override
     public void visit(OptionalTermsDerived1 optionalTerms) {
@@ -422,18 +486,22 @@ public class SemanticAnalizer extends VisitorAdaptor {
 
     @Override
     public void visit(FunctionCallStartDerived1 functionCallStart) {
-        Struct classType = classStruct;
+        ExtendedStruct classType = classStruct;
         if (!types.empty()) {
-            classType = types.pop();
+            classType = (ExtendedStruct)types.pop();
         }
-
 
         String methodName = functionCallStart.getI1();
 
-        function =  classType.getMembers().searchKey(methodName);
+        if (classType != null) {
+            function = ExtendedSymbolTable.findInBaseClasses(methodName, classType);
+        } else {
+            function = ExtendedSymbolTable.find(methodName);
+        }
+
         if (function == ExtendedSymbolTable.noObj) {
             throw new CompilerException(functionCallStart,
-                    "Method " + methodName + " does not exist in class " + classType.toString());
+                    "Method " + methodName + " does not exist");
         }
 
         if (function.getKind() != Obj.Meth) {
@@ -463,7 +531,9 @@ public class SemanticAnalizer extends VisitorAdaptor {
             }
         }
 
-        types.push(function.getType());
+        //if (function.getType() != ExtendedSymbolTable.noType) {
+            types.push(function.getType());
+        //}
     }
 
     // endregion
@@ -480,6 +550,26 @@ public class SemanticAnalizer extends VisitorAdaptor {
         types.pop();
         if (printFunction.getOptionalPrintParameter() instanceof OptionalPrintParameterDerived1) {
             types.pop();
+        }
+    }
+
+    // endregion
+
+    // region Increment/decrement
+
+    @Override
+    public void visit(IncrementDecrementDerived1 increment) {
+        Struct type = types.pop();
+        if (!type.equals(ExtendedSymbolTable.intType) && !type.equals(ExtendedSymbolTable.charType)) {
+            throw new CompilerException(increment, "Only int and char can be incremented");
+        }
+    }
+
+    @Override
+    public void visit(IncrementDecrementDerived2 decrement) {
+        Struct type = types.pop();
+        if (!type.equals(ExtendedSymbolTable.intType) && !type.equals(ExtendedSymbolTable.charType)) {
+            throw new CompilerException(decrement, "Only int and char can be incremented");
         }
     }
 

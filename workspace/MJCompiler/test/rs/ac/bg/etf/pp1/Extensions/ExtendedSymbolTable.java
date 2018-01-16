@@ -65,6 +65,20 @@ public class ExtendedSymbolTable extends Tab {
         return ret == null ? noObj : ret;
     }
 
+    public static Obj findInBaseClasses(String name, ExtendedStruct childClass) {
+        ExtendedStruct currentClass = childClass;
+        while (currentClass != null) {
+            Obj ret = currentClass.getMembers().searchKey(name);
+            if (ret != null) {
+                return ret;
+            }
+
+            currentClass = currentClass.getParent();
+        }
+
+        return noObj;
+    }
+
     public static Obj insert(int kind, String name, Struct type, int adr) {
         Obj ret = Tab.insert(kind, name, type);
         ret.setAdr(adr);

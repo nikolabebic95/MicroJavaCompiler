@@ -373,7 +373,7 @@ OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression RIGHT_BRACKET
 							/* epsilon */
 							;
 
-ConditionFactor ::= ConditionFactorToken RelationalOperator ConditionFactorToken OptionalConditionFactorTokens ;
+ConditionFactor ::= ConditionFactorToken RelationalOperator ConditionFactorToken ;
 
 OptionalConditionFactors ::= AND ConditionTerm 
 							 |
@@ -405,11 +405,6 @@ AddOperator ::= ADD
 				;
 
 ConditionFactorToken ::= ArithmeticExpression ;
-
-OptionalConditionFactorTokens ::= RelationalOperator ConditionFactor 
-							  	  |
-								  /* epsilon */
-								  ;
 
 ActualParameter ::= RightValue ;
 

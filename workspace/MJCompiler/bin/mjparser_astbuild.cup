@@ -373,7 +373,7 @@ OptionalArrayDefinition ::= LEFT_BRACKET ArithmeticExpression:A1 RIGHT_BRACKET {
 							/* epsilon */
 							;
 
-ConditionFactor ::= ConditionFactorToken:C1 RelationalOperator:R2 ConditionFactorToken:C3 OptionalConditionFactorTokens:O4 {: RESULT=new ConditionFactorDerived1(C1, R2, C3, O4); RESULT.setLine(C1left); :} ;
+ConditionFactor ::= ConditionFactorToken:C1 RelationalOperator:R2 ConditionFactorToken:C3 {: RESULT=new ConditionFactorDerived1(C1, R2, C3); RESULT.setLine(C1left); :} ;
 
 OptionalConditionFactors ::= AND ConditionTerm:C1 {: RESULT=new OptionalConditionFactorsDerived1(C1); RESULT.setLine(C1left); :} 
 							 | {: RESULT=new OptionalConditionFactorsDerived2(); :}
@@ -405,11 +405,6 @@ AddOperator ::= ADD {: RESULT=new AddOperatorDerived1(); :}
 				;
 
 ConditionFactorToken ::= ArithmeticExpression:A1 {: RESULT=new ConditionFactorTokenDerived1(A1); RESULT.setLine(A1left); :} ;
-
-OptionalConditionFactorTokens ::= RelationalOperator:R1 ConditionFactor:C2 {: RESULT=new OptionalConditionFactorTokensDerived1(R1, C2); RESULT.setLine(R1left); :} 
-							  	  | {: RESULT=new OptionalConditionFactorTokensDerived2(); :}
-								  /* epsilon */
-								  ;
 
 ActualParameter ::= RightValue:R1 {: RESULT=new ActualParameterDerived1(R1); RESULT.setLine(R1left); :} ;
 
