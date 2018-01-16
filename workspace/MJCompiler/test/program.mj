@@ -1,12 +1,12 @@
 // Test301
 
 program test301
-	bool b;
+	int i;
 {
 	void main()	int x; int y;
 	{
-		b = false;
-		if (b) {
+		i = 5;
+		if (i <= 5) {
 			print(3);
 		} else {
 			print(2);

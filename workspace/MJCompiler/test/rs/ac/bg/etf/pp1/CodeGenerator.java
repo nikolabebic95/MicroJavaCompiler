@@ -13,6 +13,24 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // region Helpers
 
+    private int getJumpOpCode(RelationalOperator operator) {
+        if (operator instanceof RelationalOperatorDerived1) {
+            return Code.eq;
+        } else if (operator instanceof RelationalOperatorDerived2) {
+            return Code.ne;
+        } else if (operator instanceof RelationalOperatorDerived3) {
+            return Code.gt;
+        } else if (operator instanceof RelationalOperatorDerived4) {
+            return Code.ge;
+        } else if (operator instanceof RelationalOperatorDerived5) {
+            return Code.lt;
+        } else if (operator instanceof RelationalOperatorDerived6) {
+            return Code.le;
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
     private void fixup(byte[] buffer) {
         if (buffer[0] < 11) {
             buffer[0] += 5;
@@ -431,18 +449,13 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(ConditionalStartDerived1 conditionalStart) {
-
+        isRightValue++;
     }
 
     @Override
     public void visit(ConditionalDerived1 conditional) {
         int address = addresses.pop();
         Code.fixup(address);
-    }
-
-    @Override
-    public void visit(OptionalElseDerived1 optionalElse) {
-        
     }
 
     @Override
@@ -456,6 +469,11 @@ public class CodeGenerator extends VisitorAdaptor {
     // endregion
 
     @Override
+    public void visit(ConditionDerived1 pureCondition) {
+        isRightValue--;
+    }
+
+    @Override
     public void visit(ConditionDerived2 identifierCondition) {
         Scope scope = ExtendedSymbolTable.getScope(identifierCondition);
         Obj objectNode = ExtendedSymbolTable.find(identifierCondition.getI1(), scope);
@@ -463,6 +481,12 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.loadConst(1);
         addresses.push(Code.pc + 1);
         Code.putFalseJump(Code.eq, 0);
+    }
+
+    @Override
+    public void visit(ConditionFactorDerived1 conditionFactor) {
+        addresses.push(Code.pc + 1);
+        Code.putFalseJump(getJumpOpCode(conditionFactor.getRelationalOperator()), 0);
     }
 
     // endregion
