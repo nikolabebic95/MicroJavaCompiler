@@ -224,6 +224,15 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // endregion
 
+    // region Unary minus
+
+    @Override
+    public void visit(ArithmeticExpressionDerived2 unaryMinus) {
+        Code.put(Code.neg);
+    }
+
+    // endregion
+
     // region Return from method
 
     @Override
