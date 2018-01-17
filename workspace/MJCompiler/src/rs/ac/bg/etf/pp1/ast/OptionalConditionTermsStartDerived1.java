@@ -1,24 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 17/0/2018 1:1:29
+// 17/0/2018 1:1:30
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ClassNameDerived1 extends ClassName {
+public class OptionalConditionTermsStartDerived1 extends OptionalConditionTermsStart {
 
-    private String I1;
-
-    public ClassNameDerived1 (String I1) {
-        this.I1=I1;
-    }
-
-    public String getI1() {
-        return I1;
-    }
-
-    public void setI1(String I1) {
-        this.I1=I1;
+    public OptionalConditionTermsStartDerived1 () {
     }
 
     public void accept(Visitor visitor) {
@@ -39,13 +28,10 @@ public class ClassNameDerived1 extends ClassName {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ClassNameDerived1(\n");
-
-        buffer.append(" "+tab+I1);
-        buffer.append("\n");
+        buffer.append("OptionalConditionTermsStartDerived1(\n");
 
         buffer.append(tab);
-        buffer.append(") [ClassNameDerived1]");
+        buffer.append(") [OptionalConditionTermsStartDerived1]");
         return buffer.toString();
     }
 }

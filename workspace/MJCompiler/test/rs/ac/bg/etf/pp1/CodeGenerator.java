@@ -444,6 +444,8 @@ public class CodeGenerator extends VisitorAdaptor {
     // region Conditions
 
     private Stack<Integer> addresses = new Stack<>();
+    private Stack<Integer> numsOfConditions = new Stack<>();
+    private boolean isFirstCondition = true;
 
     // region Conditionals
 
@@ -454,16 +456,26 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(ConditionalDerived1 conditional) {
-        int address = addresses.pop();
-        Code.fixup(address);
+        int num = numsOfConditions.pop();
+        for (int i = 0; i < num; i++) {
+            int address = addresses.pop();
+            Code.fixup(address);
+        }
     }
 
     @Override
     public void visit(ElseStartDerived1 elseStart) {
-        int address = addresses.pop();
-        addresses.push(Code.pc + 1);
+        int rememberedAddress = Code.pc + 1;
         Code.putJump(0);
-        Code.fixup(address);
+
+        int num = numsOfConditions.pop();
+        for (int i = 0; i < num; i++) {
+            int address = addresses.pop();
+            Code.fixup(address);
+        }
+
+        addresses.push(rememberedAddress);
+        numsOfConditions.push(1);
     }
 
     // endregion
@@ -471,6 +483,7 @@ public class CodeGenerator extends VisitorAdaptor {
     @Override
     public void visit(ConditionDerived1 pureCondition) {
         isRightValue--;
+        isFirstCondition = true;
     }
 
     @Override
@@ -481,12 +494,38 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.loadConst(1);
         addresses.push(Code.pc + 1);
         Code.putFalseJump(Code.eq, 0);
+
+        if (isFirstCondition) {
+            numsOfConditions.push(1);
+            isFirstCondition = false;
+        } else {
+            int nums = numsOfConditions.pop();
+            numsOfConditions.push(nums + 1);
+        }
     }
 
     @Override
     public void visit(ConditionFactorDerived1 conditionFactor) {
         addresses.push(Code.pc + 1);
         Code.putFalseJump(getJumpOpCode(conditionFactor.getRelationalOperator()), 0);
+        if (isFirstCondition) {
+            numsOfConditions.push(1);
+            isFirstCondition = false;
+        } else {
+            int nums = numsOfConditions.pop();
+            numsOfConditions.push(nums + 1);
+        }
+    }
+
+    @Override
+    public void visit(OptionalConditionTermsStartDerived1 optionalConditionTermsStart) {
+        int num = numsOfConditions.pop();
+        for (int i = 0; i < num; i++) {
+            int address = addresses.pop();
+            Code.fixup(address);
+        }
+
+        isFirstCondition = true;
     }
 
     // endregion

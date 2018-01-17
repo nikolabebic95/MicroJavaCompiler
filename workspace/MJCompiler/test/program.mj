@@ -6,7 +6,7 @@ program test301
 	void main()	int x; int y;
 	{
 		i = 5;
-		if (i <= 5) {
+		if (i <= 5 && 2 == 3 || 5 == 5) {
 			print(3);
 		} else {
 			print(2);

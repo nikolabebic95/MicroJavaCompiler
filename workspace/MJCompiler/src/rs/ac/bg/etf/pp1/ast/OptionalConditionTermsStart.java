@@ -5,7 +5,7 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class FormalParameter implements SyntaxNode {
+public abstract class OptionalConditionTermsStart implements SyntaxNode {
 
     private SyntaxNode parent;
 

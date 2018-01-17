@@ -120,6 +120,7 @@ non terminal Allocation;
 non terminal IncrementDecrement;
 non terminal ConditionTerm;
 non terminal OptionalConditionTerms;
+non terminal OptionalConditionTermsStart;
 non terminal FunctionCall;
 non terminal FunctionCallStart;
 non terminal Indirection;
@@ -378,10 +379,12 @@ IncrementDecrement ::= LeftValue INCREMENT
 
 ConditionTerm ::= ConditionFactor OptionalConditionFactors ;
 
-OptionalConditionTerms ::= OR Condition
+OptionalConditionTerms ::= OptionalConditionTermsStart Condition
 						   |
 						   /* epsilon */
 						   ;
+
+OptionalConditionTermsStart ::= OR ;
 
 FunctionCall ::= FunctionCallStart LEFT_PARENTHESIS ActualParametersList RIGHT_PARENTHESIS ;
 

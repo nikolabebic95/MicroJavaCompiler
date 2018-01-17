@@ -120,6 +120,7 @@ non terminal Allocation Allocation;
 non terminal IncrementDecrement IncrementDecrement;
 non terminal ConditionTerm ConditionTerm;
 non terminal OptionalConditionTerms OptionalConditionTerms;
+non terminal OptionalConditionTermsStart OptionalConditionTermsStart;
 non terminal FunctionCall FunctionCall;
 non terminal FunctionCallStart FunctionCallStart;
 non terminal Indirection Indirection;
@@ -378,10 +379,12 @@ IncrementDecrement ::= LeftValue:L1 INCREMENT {: RESULT=new IncrementDecrementDe
 
 ConditionTerm ::= ConditionFactor:C1 OptionalConditionFactors:O2 {: RESULT=new ConditionTermDerived1(C1, O2); RESULT.setLine(C1left); :} ;
 
-OptionalConditionTerms ::= OR Condition:C1 {: RESULT=new OptionalConditionTermsDerived1(C1); RESULT.setLine(C1left); :}
+OptionalConditionTerms ::= OptionalConditionTermsStart:O1 Condition:C2 {: RESULT=new OptionalConditionTermsDerived1(O1, C2); RESULT.setLine(O1left); :}
 						   | {: RESULT=new OptionalConditionTermsDerived2(); :}
 						   /* epsilon */
 						   ;
+
+OptionalConditionTermsStart ::= OR {: RESULT=new OptionalConditionTermsStartDerived1(); :} ;
 
 FunctionCall ::= FunctionCallStart:F1 LEFT_PARENTHESIS ActualParametersList:A2 RIGHT_PARENTHESIS {: RESULT=new FunctionCallDerived1(F1, A2); RESULT.setLine(F1left); :} ;
 
