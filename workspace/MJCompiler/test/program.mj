@@ -3,21 +3,33 @@
 program test302
 
 class C {
-	int x;
 	{
-		int getX() {
-			return 1;
+		void f() {
+			print(1);
+		}
+
+		void g() {
+			print(2);
 		}
 	}
 }
 
-C c; 
-int a;
+class D extends C {
+	{
+		void g() {
+			print(3);
+		}
+	}
+}
+
+C c;
+C d;
 {
 	void main() {
 		c = new C;
-		a = c.getX();
-		print(a);
+		d = new D;
+		c.g();
+		d.g();
 	}
 }
 

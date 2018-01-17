@@ -5,6 +5,7 @@ import rs.etf.pp1.mj.runtime.Code;
 import rs.etf.pp1.symboltable.concepts.Obj;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public final class VirtualMethodHelper {
     private VirtualMethodHelper() {}
@@ -44,11 +45,22 @@ public final class VirtualMethodHelper {
     }
 
     public static void putClass(ExtendedStruct classStruct) {
-        classStruct.getMembers().symbols().forEach(objectNode -> {
-            if (objectNode.getKind() == Obj.Meth) {
-                addFunctionEntry(objectNode.getName(), objectNode.getAdr());
-            }
-        });
+        HashSet<String> alreadyAdded = new HashSet<>();
+
+        ExtendedStruct curr = classStruct;
+
+        while (curr != null) {
+            curr.getMembers().symbols().forEach(objectNode -> {
+                if (objectNode.getKind() == Obj.Meth) {
+                    if (!alreadyAdded.contains(objectNode.getName())) {
+                        addFunctionEntry(objectNode.getName(), objectNode.getAdr());
+                        alreadyAdded.add(objectNode.getName());
+                    }
+                }
+            });
+
+            curr = curr.getParent();
+        }
 
         addTableTerminator();
     }

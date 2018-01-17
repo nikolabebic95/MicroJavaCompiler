@@ -41,17 +41,19 @@ public class ExtendedStruct extends Struct {
 
     @Override
     public boolean assignableTo(Struct dest) {
-        if (!super.assignableTo(dest)) {
-            ExtendedStruct curr = parent;
+        if (getKind() == Struct.Class) {
+            ExtendedStruct curr = this;
             while (curr != null) {
                 if (curr.equals(dest)) {
                     return true;
                 }
+
+                curr = curr.getParent();
             }
 
             return false;
+        } else {
+            return super.assignableTo(dest);
         }
-
-        return true;
     }
 }
