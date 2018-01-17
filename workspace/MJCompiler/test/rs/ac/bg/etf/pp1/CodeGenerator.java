@@ -6,6 +6,7 @@ import rs.etf.pp1.mj.runtime.*;
 import rs.etf.pp1.symboltable.concepts.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Stack;
 
@@ -84,8 +85,8 @@ public class CodeGenerator extends VisitorAdaptor {
     // region Program
 
     @Override
-    public void visit(ProgramDerived1 program) {
-        Obj programObj = ExtendedSymbolTable.get(program);
+    public void visit(ProgramStartDerived1 program) {
+        Obj programObj = ExtendedSymbolTable.get(program.getParent());
         Code.dataSize = getNumOfVariables(programObj.getLocalSymbols());
     }
 
@@ -99,6 +100,7 @@ public class CodeGenerator extends VisitorAdaptor {
 
         if (methodStart.getI2().equals("main")) {
             Code.mainPc = Code.pc;
+            VirtualMethodHelper.getMethodTable().forEach(Code::put);
         }
 
         Obj methodObj = ExtendedSymbolTable.get(methodStart.getParent());
@@ -151,16 +153,25 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // region Classes
 
+    boolean insideClass = false;
+
     @Override
     public void visit(ClassStartDerived1 classStart) {
         // TODO: Finish
         constantDefinition = false;
+        insideClass = true;
     }
 
     @Override
     public void visit(ClassDeclarationDerived1 classDeclaration) {
         // TODO: Finish
         constantDefinition = true;
+        insideClass = false;
+
+        ExtendedStruct classStruct = ExtendedSymbolTable.getClassStruct(classDeclaration);
+
+        classStruct.setVirtualTablePointer(Code.dataSize);
+        VirtualMethodHelper.putClass(classStruct);
     }
 
     // endregion
@@ -356,6 +367,24 @@ public class CodeGenerator extends VisitorAdaptor {
     }
 
     @Override
+    public void visit(IndirectionDerived1 fieldIndirection) {
+        if (isRightValue > 0) {
+            ExtendedStruct classStruct = ExtendedSymbolTable.getClassStruct(fieldIndirection);
+            Obj field = ExtendedSymbolTable.findInBaseClasses(fieldIndirection.getI1(), classStruct);
+            Code.put(Code.getfield);
+            Code.put2(field.getAdr());
+        } else {
+            ExtendedStruct classStruct = ExtendedSymbolTable.getClassStruct(fieldIndirection);
+            Obj field = ExtendedSymbolTable.findInBaseClasses(fieldIndirection.getI1(), classStruct);
+
+            putCode();
+            leftValueBytes[leftValueBytesSize++] = Code.getfield;
+            leftValueBytes[leftValueBytesSize++] = (byte)(field.getAdr() >> 8);
+            leftValueBytes[leftValueBytesSize++] = (byte)field.getAdr();
+        }
+    }
+
+    @Override
     public void visit(IndirectionDerived3 arrayIndirection) {
         isRightValue--;
 
@@ -375,19 +404,42 @@ public class CodeGenerator extends VisitorAdaptor {
     // region Function calls
 
     private Obj calledFunction;
+    private Stack<ExtendedStruct> functionClasses = new Stack<>();
 
     @Override
     public void visit(FunctionCallStartDerived1 functionCallStart) {
         isRightValue++;
         calledFunction = ExtendedSymbolTable.get(functionCallStart);
+        functionClasses.push(ExtendedSymbolTable.getClassStruct(functionCallStart));
     }
 
     @Override
     public void visit(FunctionCallDerived1 functionCall) {
         isRightValue--;
         int relativeAddress = calledFunction.getAdr() - Code.pc;
-        Code.put(Code.call);
-        Code.put2(relativeAddress);
+
+        ExtendedStruct classStruct = functionClasses.pop();
+
+        if (classStruct == null) {
+            Code.put(Code.call);
+            Code.put2(relativeAddress);
+        } else {
+            if (functionCall.getParent() instanceof Indirection && isRightValue == 0) {
+                putCode();
+            }
+
+            Code.put(Code.dup);
+            Code.put(Code.getfield);
+            Code.put2(0);
+            Code.put(Code.invokevirtual);
+            FunctionCallStartDerived1 fCallStart = (FunctionCallStartDerived1)functionCall.getFunctionCallStart();
+            String name = fCallStart.getI1();
+            for (int i = 0; i < name.length(); i++) {
+                Code.put4(name.charAt(i));
+            }
+
+            Code.put4(-1);
+        }
     }
 
     // endregion
@@ -405,9 +457,13 @@ public class CodeGenerator extends VisitorAdaptor {
                 Code.put(1);
             }
         } else {
-            // TODO: Allocate classes
+            ExtendedStruct type = (ExtendedStruct) ExtendedSymbolTable.getStruct(allocation);
             Code.put(Code.new_);
-            Code.put(4); // assume 4 bytes
+            Code.put2(type.getNumberOfFields() * 2);
+            Code.put(Code.dup);
+            Code.loadConst(type.getVirtualTablePointer());
+            Code.put(Code.putfield);
+            Code.put2(0);
         }
     }
 

@@ -9,6 +9,8 @@ public class ExtendedStruct extends Struct {
 
     private ExtendedStruct parent;
 
+    private int virtualTablePointer;
+
     public ExtendedStruct(int kind) {
         super(kind);
     }
@@ -27,6 +29,14 @@ public class ExtendedStruct extends Struct {
 
     public void setParent(ExtendedStruct parent) {
         this.parent = parent;
+    }
+
+    public int getVirtualTablePointer() {
+        return virtualTablePointer;
+    }
+
+    public void setVirtualTablePointer(int virtualTablePointer) {
+        this.virtualTablePointer = virtualTablePointer;
     }
 
     @Override

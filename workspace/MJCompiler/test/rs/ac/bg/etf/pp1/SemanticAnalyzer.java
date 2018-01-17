@@ -307,6 +307,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(ClassDeclarationDerived1 classDeclaration) {
         ExtendedSymbolTable.closeScope();
+        ExtendedSymbolTable.insertClass(classDeclaration, classStruct);
         classStruct = null;
     }
 
@@ -388,6 +389,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             throw new CompilerException(classFieldIndirection,
                     "Class " + classType.toString() + " does not have member " + fieldName);
         }
+
+        ExtendedSymbolTable.insertClass(classFieldIndirection, classType);
 
         types.push(field.getType());
     }
@@ -524,6 +527,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
         if (classType != null) {
             function = ExtendedSymbolTable.findInBaseClasses(methodName, classType);
+            ExtendedSymbolTable.insertClass(functionCallStart, classType);
         } else {
             function = ExtendedSymbolTable.find(methodName);
         }

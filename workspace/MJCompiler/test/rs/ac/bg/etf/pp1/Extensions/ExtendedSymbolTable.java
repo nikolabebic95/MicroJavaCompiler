@@ -18,6 +18,8 @@ public class ExtendedSymbolTable extends Tab {
 
     private static final HashMap<SyntaxNode, Struct> typesHashMap = new HashMap<>();
 
+    private static final HashMap<SyntaxNode, ExtendedStruct> classesHashMap = new HashMap<>();
+
     public static void init() {
         // No other way to initialize the currentLevel field
         Tab.init();
@@ -106,5 +108,13 @@ public class ExtendedSymbolTable extends Tab {
 
     public static Struct getStruct(SyntaxNode syntaxNode) {
         return typesHashMap.get(syntaxNode);
+    }
+
+    public static void insertClass(SyntaxNode syntaxNode, ExtendedStruct classStruct) {
+        classesHashMap.put(syntaxNode, classStruct);
+    }
+
+    public static ExtendedStruct getClassStruct(SyntaxNode syntaxNode) {
+        return classesHashMap.get(syntaxNode);
     }
 }
