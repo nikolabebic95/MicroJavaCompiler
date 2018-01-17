@@ -214,7 +214,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
                 throw new CompilerException(variableDeclaration, variable.getName() + "already exists in the current scope");
             }
 
-            ExtendedSymbolTable.insert(classField ? Obj.Fld : Obj.Var, variable.getName(), variable.isArray() ? arrayType : variableType);
+            Obj obj = ExtendedSymbolTable.insert(classField ? Obj.Fld : Obj.Var, variable.getName(), variable.isArray() ? arrayType : variableType);
+            ExtendedSymbolTable.insertField(obj, classStruct);
         });
         variables.clear();
     }

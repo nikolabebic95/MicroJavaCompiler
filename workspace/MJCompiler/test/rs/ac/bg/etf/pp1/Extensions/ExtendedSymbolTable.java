@@ -7,6 +7,7 @@ import rs.etf.pp1.symboltable.concepts.Scope;
 import rs.etf.pp1.symboltable.concepts.Struct;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ExtendedSymbolTable extends Tab {
 
@@ -19,6 +20,8 @@ public class ExtendedSymbolTable extends Tab {
     private static final HashMap<SyntaxNode, Struct> typesHashMap = new HashMap<>();
 
     private static final HashMap<SyntaxNode, ExtendedStruct> classesHashMap = new HashMap<>();
+
+    private static final HashMap<Obj, ExtendedStruct> fieldsMap = new HashMap<>();
 
     public static void init() {
         // No other way to initialize the currentLevel field
@@ -80,6 +83,20 @@ public class ExtendedSymbolTable extends Tab {
         return noObj;
     }
 
+    public static ExtendedStruct findBaseClass(String fieldName, ExtendedStruct childClass) {
+        ExtendedStruct currentClass = childClass;
+        while (currentClass != null) {
+            Obj ret = currentClass.getMembers().searchKey(fieldName);
+            if (ret != null) {
+                return currentClass;
+            }
+
+            currentClass = currentClass.getParent();
+        }
+
+        return null;
+    }
+
     public static Obj insert(int kind, String name, Struct type, int adr) {
         Obj ret = Tab.insert(kind, name, type);
         ret.setAdr(adr);
@@ -116,5 +133,13 @@ public class ExtendedSymbolTable extends Tab {
 
     public static ExtendedStruct getClassStruct(SyntaxNode syntaxNode) {
         return classesHashMap.get(syntaxNode);
+    }
+
+    public static void insertField(Obj obj, ExtendedStruct extendedStruct) {
+        fieldsMap.put(obj, extendedStruct);
+    }
+
+    public static ExtendedStruct getFieldClass(Obj obj) {
+        return fieldsMap.get(obj);
     }
 }

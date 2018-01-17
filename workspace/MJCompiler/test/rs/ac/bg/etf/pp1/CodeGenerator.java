@@ -6,13 +6,166 @@ import rs.etf.pp1.mj.runtime.*;
 import rs.etf.pp1.symboltable.concepts.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Stack;
 
 public class CodeGenerator extends VisitorAdaptor {
 
     // region Helpers
+
+    private boolean isUsed(IncrementDecrement incrementDecrement) {
+        return !(incrementDecrement.getParent() instanceof Statement);
+    }
+
+    private void fixupLastRead() {
+        int i = incDecWriteAddress;
+        if (Code.buf[i] < 6) {
+            Code.buf[i] += 5;
+        } else if (Code.buf[i] == Code.getstatic) {
+            Code.buf[i] = Code.putstatic;
+        } else if (Code.buf[i] == Code.getfield) {
+            Code.buf[i] = Code.putfield;
+        } else if (Code.buf[i] == Code.aload) {
+            Code.buf[i] = Code.astore;
+        } else if (Code.buf[i] == Code.baload) {
+            Code.buf[i] = Code.bastore;
+        }
+    }
+
+    private boolean notUsedResult(FunctionCallDerived1 functionCall) {
+        SyntaxNode syntaxNode = functionCall;
+        while (syntaxNode != null) {
+            if (syntaxNode instanceof Expression) {
+                return true;
+            } else if (syntaxNode instanceof RightValue) {
+                return false;
+            }
+
+            syntaxNode = syntaxNode.getParent();
+        }
+
+        return true;
+    }
+
+    private void writeFromCurrentScope(Obj objectNode) {
+        switch (objectNode.getKind()) {
+            case Obj.Con:
+                Code.loadConst(objectNode.getAdr());
+                break;
+            case Obj.Var:
+                int adr = objectNode.getAdr();
+                if (insideClass) adr++; // Because of "this" hidden pointer
+
+                if (objectNode.getLevel() == 0) {
+                    Code.put(Code.getstatic);
+                    Code.put2(objectNode.getAdr());
+                }
+                else if (adr > 3) {
+                    Code.put(Code.load);
+                    Code.put(adr);
+                } else {
+                    Code.put(Code.load_n + adr);
+                }
+                break;
+        }
+    }
+
+    private void writeField(Obj objectNode, ExtendedStruct currentClass) {
+        int adr = objectNode.getAdr() + countBaseClassFields(currentClass);
+        Code.put(Code.getfield);
+        Code.put2(adr);
+    }
+
+    private boolean write(LeftValueStartDerived1 identifier) {
+        String name = identifier.getI1();
+        if (name.equals("this")) {
+            Code.put(Code.load_n);
+            return false;
+        }
+
+        Scope currentScope = ExtendedSymbolTable.getScope(identifier);
+        Obj objectNode = currentScope.findSymbol(name);
+
+        // Identifier exists in current scope
+        if (objectNode != null) {
+            writeFromCurrentScope(objectNode);
+            return false;
+        }
+
+        objectNode = ExtendedSymbolTable.find(name, currentScope);
+
+        if (objectNode != ExtendedSymbolTable.noObj) {
+            // Treat fields with special care because of the base classes
+            if (objectNode.getKind() != Obj.Fld) {
+                writeFromCurrentScope(objectNode);
+                return false;
+            } else {
+                Code.put(Code.load_n); // Load "this" pointer
+                writeField(objectNode, classStruct);
+                return true;
+            }
+        }
+
+        objectNode = ExtendedSymbolTable.findInBaseClasses(name, classStruct);
+        ExtendedStruct baseClass = ExtendedSymbolTable.findBaseClass(name, classStruct);
+        Code.put(Code.load_n); // Load "this" pointer
+        writeField(objectNode, baseClass);
+        return true;
+    }
+
+    private int countBaseClassFields(ExtendedStruct currentClass) {
+        int ret = 0;
+        ExtendedStruct parent = currentClass.getParent();
+        while (parent != null) {
+            ret += parent.getNumberOfFields() - 1;
+            parent = parent.getParent();
+        }
+
+        return ret;
+    }
+
+    private boolean isTrueLeftValue(SyntaxNode syntaxNode) {
+        while (syntaxNode != null) {
+            if (syntaxNode instanceof ExpressionDerived2 ||
+                    syntaxNode instanceof BuiltInFunctionDerived1) {
+                return true;
+            }
+
+            if (syntaxNode instanceof Indirection ||
+                    syntaxNode instanceof OptionalIndirections ||
+                    syntaxNode instanceof LeftValue ||
+                    syntaxNode instanceof LeftValueStart) {
+                syntaxNode = syntaxNode.getParent();
+                continue;
+            }
+
+            return false;
+        }
+
+        return false;
+    }
+
+    private boolean isFunctionStartValue(LeftValueStartDerived1 leftValueStart) {
+        LeftValueDerived1 leftValue = (LeftValueDerived1) leftValueStart.getParent();
+        OptionalIndirections optionalIndirections = leftValue.getOptionalIndirections();
+        if (optionalIndirections instanceof OptionalIndirectionsDerived2) {
+            return false;
+        }
+
+        OptionalIndirectionsDerived1 real = (OptionalIndirectionsDerived1) optionalIndirections;
+        if (real.getIndirection() instanceof IndirectionDerived2) {
+            return true;
+        }
+
+        optionalIndirections = real.getOptionalIndirections();
+        if (optionalIndirections instanceof OptionalIndirectionsDerived2) {
+            return false;
+        }
+
+        real = (OptionalIndirectionsDerived1) optionalIndirections;
+        return real.getIndirection() instanceof IndirectionDerived2;
+
+    }
 
     private int getJumpOpCode(RelationalOperator operator) {
         if (operator instanceof RelationalOperatorDerived1) {
@@ -43,6 +196,8 @@ public class CodeGenerator extends VisitorAdaptor {
             buffer[0] = 35;
         } else if (buffer[0] == 36) {
             buffer[0] = 37;
+        } else {
+            throw new NotImplementedException();
         }
     }
 
@@ -52,14 +207,6 @@ public class CodeGenerator extends VisitorAdaptor {
         }
 
         leftValueBytesSize = 0;
-    }
-
-    private void putHelper() {
-        for (int i = 0; i < helperIncDecSize; i++) {
-            Code.put(helperIncDecArray[i]);
-        }
-
-        helperIncDecSize = 0;
     }
 
     private int getNumOfVariables(Collection<Obj> symbols) {
@@ -100,14 +247,19 @@ public class CodeGenerator extends VisitorAdaptor {
 
         if (methodStart.getI2().equals("main")) {
             Code.mainPc = Code.pc;
-            VirtualMethodHelper.getMethodTable().forEach(Code::put);
         }
 
         Obj methodObj = ExtendedSymbolTable.get(methodStart.getParent());
         methodObj.setAdr(Code.pc);
         Code.put(Code.enter);
-        Code.put(methodObj.getLevel());
-        Code.put(getNumOfVariables(methodObj.getLocalSymbols()));
+        int numOfFormalArguments = methodObj.getLevel() + (insideClass ? 1 : 0);
+        Code.put(numOfFormalArguments);
+        int numOfVars = getNumOfVariables(methodObj.getLocalSymbols()) + (insideClass ? 1 : 0);
+        Code.put(numOfVars);
+
+        if (methodStart.getI2().equals("main")) {
+            VirtualMethodHelper.getMethodTable().forEach(Code::put);
+        }
     }
 
     @Override
@@ -153,25 +305,25 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // region Classes
 
-    boolean insideClass = false;
+    private boolean insideClass = false;
+    private ExtendedStruct classStruct;
 
     @Override
     public void visit(ClassStartDerived1 classStart) {
-        // TODO: Finish
         constantDefinition = false;
         insideClass = true;
+        classStruct = ExtendedSymbolTable.getClassStruct(classStart.getParent());
     }
 
     @Override
     public void visit(ClassDeclarationDerived1 classDeclaration) {
-        // TODO: Finish
         constantDefinition = true;
         insideClass = false;
 
-        ExtendedStruct classStruct = ExtendedSymbolTable.getClassStruct(classDeclaration);
-
         classStruct.setVirtualTablePointer(Code.dataSize);
         VirtualMethodHelper.putClass(classStruct);
+
+        classStruct = null;
     }
 
     // endregion
@@ -190,7 +342,6 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(BuiltInFunctionDerived2 print) {
-        isRightValue--;
         Struct type = ExtendedSymbolTable.getStruct(print);
         if (type == ExtendedSymbolTable.charType) {
             Code.put(Code.bprint);
@@ -206,7 +357,6 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(PrintStartDerived1 printStart) {
-        isRightValue++;
     }
 
     @Override
@@ -244,12 +394,10 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(DummyFactorStartDerived1 dummyFactorStart) {
-        isRightValue++;
     }
 
     @Override
     public void visit(FactorDerived1 factor) {
-        isRightValue--;
     }
 
     // endregion
@@ -267,19 +415,16 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(ReturnStartDerived1 returnStart) {
-        isRightValue++;
     }
 
     @Override
     public void visit(ReturnDerived1 returnValue) {
-        isRightValue--;
         Code.put(Code.exit);
         Code.put(Code.return_);
     }
 
     @Override
     public void visit(ReturnDerived2 returnVoid) {
-        isRightValue--;
         Code.put(Code.exit);
         Code.put(Code.return_);
     }
@@ -288,18 +433,22 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // region Assignments
 
-    private int isRightValue = 0;
+    private byte[] savedBytes = new byte[8192];
+    private int savedBytesCounter = 0;
 
     @Override
     public void visit(AssignOperatorDerived1 assignOperator) {
-        isRightValue++;
+        System.arraycopy(leftValueBytes, 0, savedBytes, 0, leftValueBytesSize);
+        savedBytesCounter = leftValueBytesSize;
+        leftValueBytesSize = 0;
     }
 
     @Override
     public void visit(ExpressionDerived2 expression) {
-        isRightValue--;
-        fixup(leftValueBytes);
-        putCode();
+        fixup(savedBytes);
+        for (int i = 0; i < savedBytesCounter; i++) {
+            Code.put(savedBytes[i]);
+        }
     }
 
     // endregion
@@ -309,92 +458,127 @@ public class CodeGenerator extends VisitorAdaptor {
     private byte[] leftValueBytes = new byte[8192];
     private int leftValueBytesSize = 0;
 
+    private int incDecStartPc;
+
+    private int leftValueStartPc;
+
     @Override
     public void visit(LeftValueStartDerived1 identifier) {
-        Scope scope = ExtendedSymbolTable.getScope(identifier);
-        Obj objectNode = ExtendedSymbolTable.find(identifier.getI1(), scope);
-
         if (identifier.getParent().getParent() instanceof IncrementDecrement) {
-            isIncDec = true;
-            int pcBefore = Code.pc;
-            Code.load(objectNode);
-            int pcAfter = Code.pc;
-            System.arraycopy(Code.buf, pcBefore, helperIncDecArray, helperIncDecSize, pcAfter - pcBefore);
-            helperIncDecSize += pcAfter - pcBefore;
-            if (isRightValue == 0) {
-                return;
-            }
+            incDecStartPc = Code.pc;
+            incDecWriteAddress = Code.pc;
         }
 
-        if (isRightValue > 0) {
-            Code.load(objectNode);
-        } else {
-            int pcBefore = Code.pc;
-            Code.load(objectNode);
-            int pcAfter = Code.pc;
-            Code.pc = pcBefore;
-            System.arraycopy(Code.buf, pcBefore, leftValueBytes, leftValueBytesSize, pcAfter - pcBefore);
-            leftValueBytesSize += pcAfter - pcBefore;
+        int startPc = 0;
+
+        if (isTrueLeftValue(identifier)) {
+            startPc = Code.pc;
+        }
+
+        if (isFunctionStartValue(identifier)) {
+            leftValueStartPc = Code.pc;
+        }
+
+        boolean wasField = write(identifier);
+
+        if (wasField) {
+            startPc++;
+        }
+
+        if (isTrueLeftValue(identifier)) {
+            int endPc = Code.pc;
+            System.arraycopy(Code.buf, startPc, leftValueBytes, 0, endPc - startPc);
+            leftValueBytesSize = endPc - startPc;
+            Code.pc = startPc;
         }
     }
 
     @Override
     public void visit(LeftValueStartDerived2 functionCall) {
-        FunctionCallDerived1 fCall = (FunctionCallDerived1) functionCall.getFunctionCall();
-        Obj function = ExtendedSymbolTable.get(fCall.getFunctionCallStart());
-        if (isRightValue == 0 && function.getType() != ExtendedSymbolTable.noType) {
-            Code.put(Code.pop);
-        }
+
     }
 
     @Override
     public void visit(ArrayIndirectionStartDerived1 arrayIndirectionStart) {
-        if (isRightValue == 0) {
+        if (isTrueLeftValue(arrayIndirectionStart.getParent())) {
             Struct type = ExtendedSymbolTable.getStruct(arrayIndirectionStart.getParent());
 
-            putCode();
+            int startPc = 0;
 
-            if (type == ExtendedSymbolTable.charType) {
-                leftValueBytes[0] = Code.baload;
-            } else {
-                leftValueBytes[0] = Code.aload; // assume int
+            if (isTrueLeftValue(arrayIndirectionStart.getParent())) {
+                putCode();
+                startPc = Code.pc;
             }
 
-            leftValueBytesSize = 1;
-        }
+            incDecWriteAddress = Code.pc;
 
-        isRightValue++;
+            if (type == ExtendedSymbolTable.charType) {
+                Code.put(Code.baload);
+            } else {
+                Code.put(Code.aload);
+            }
+
+            if (isTrueLeftValue(arrayIndirectionStart.getParent())) {
+                int endPc = Code.pc;
+                System.arraycopy(Code.buf, startPc, leftValueBytes, 0, endPc - startPc);
+                leftValueBytesSize = endPc - startPc;
+                Code.pc = startPc;
+            }
+        }
     }
 
     @Override
     public void visit(IndirectionDerived1 fieldIndirection) {
-        if (isRightValue > 0) {
-            ExtendedStruct classStruct = ExtendedSymbolTable.getClassStruct(fieldIndirection);
-            Obj field = ExtendedSymbolTable.findInBaseClasses(fieldIndirection.getI1(), classStruct);
-            Code.put(Code.getfield);
-            Code.put2(field.getAdr());
-        } else {
-            ExtendedStruct classStruct = ExtendedSymbolTable.getClassStruct(fieldIndirection);
-            Obj field = ExtendedSymbolTable.findInBaseClasses(fieldIndirection.getI1(), classStruct);
+        String fieldName = fieldIndirection.getI1();
 
+        ExtendedStruct thisClass = ExtendedSymbolTable.getClassStruct(fieldIndirection);
+        Obj field = ExtendedSymbolTable.findInBaseClasses(fieldName, thisClass);
+        ExtendedStruct baseClass = ExtendedSymbolTable.findBaseClass(fieldName, thisClass);
+
+        int startPc = 0;
+
+        if (isTrueLeftValue(fieldIndirection)) {
             putCode();
-            leftValueBytes[leftValueBytesSize++] = Code.getfield;
-            leftValueBytes[leftValueBytesSize++] = (byte)(field.getAdr() >> 8);
-            leftValueBytes[leftValueBytesSize++] = (byte)field.getAdr();
+            startPc = Code.pc;
+        }
+
+        incDecWriteAddress = startPc;
+
+        writeField(field, baseClass);
+
+        if (isTrueLeftValue(fieldIndirection)) {
+            int endPc = Code.pc;
+            System.arraycopy(Code.buf, startPc, leftValueBytes, 0, endPc - startPc);
+            leftValueBytesSize = endPc - startPc;
+            Code.pc = startPc;
         }
     }
 
     @Override
     public void visit(IndirectionDerived3 arrayIndirection) {
-        isRightValue--;
+        if (!isTrueLeftValue(arrayIndirection)) {
+            Struct type = ExtendedSymbolTable.getStruct(arrayIndirection);
 
-        Struct type = ExtendedSymbolTable.getStruct(arrayIndirection);
+            int startPc = 0;
 
-        if (isRightValue > 0) {
+            if (isTrueLeftValue(arrayIndirection)) {
+                putCode();
+                startPc = Code.pc;
+            }
+
+            incDecWriteAddress = Code.pc;
+
             if (type == ExtendedSymbolTable.charType) {
                 Code.put(Code.baload);
             } else {
                 Code.put(Code.aload);
+            }
+
+            if (isTrueLeftValue(arrayIndirection)) {
+                int endPc = Code.pc;
+                System.arraycopy(Code.buf, startPc, leftValueBytes, 0, endPc - startPc);
+                leftValueBytesSize = endPc - startPc;
+                Code.pc = startPc;
             }
         }
     }
@@ -403,32 +587,32 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // region Function calls
 
-    private Obj calledFunction;
-    private Stack<ExtendedStruct> functionClasses = new Stack<>();
+    private int endLeftValuePc;
 
     @Override
     public void visit(FunctionCallStartDerived1 functionCallStart) {
-        isRightValue++;
-        calledFunction = ExtendedSymbolTable.get(functionCallStart);
-        functionClasses.push(ExtendedSymbolTable.getClassStruct(functionCallStart));
+        endLeftValuePc = Code.pc;
+
+        if (functionCallStart.getParent().getParent() instanceof Indirection ) {
+            putCode();
+        } else {
+            ExtendedStruct classType = ExtendedSymbolTable.getClassStruct(functionCallStart);
+
+            if (classType != null) {
+                Code.put(Code.load_n);
+            }
+        }
     }
 
     @Override
     public void visit(FunctionCallDerived1 functionCall) {
-        isRightValue--;
-        int relativeAddress = calledFunction.getAdr() - Code.pc;
+        if (functionCall.getParent() instanceof Indirection) {
+            Obj functionObjectNode = ExtendedSymbolTable.get(functionCall.getFunctionCallStart());
 
-        ExtendedStruct classStruct = functionClasses.pop();
-
-        if (classStruct == null) {
-            Code.put(Code.call);
-            Code.put2(relativeAddress);
-        } else {
-            if (functionCall.getParent() instanceof Indirection && isRightValue == 0) {
-                putCode();
+            for (int i = leftValueStartPc; i < endLeftValuePc; i++) {
+                Code.put(Code.buf[i]);
             }
 
-            Code.put(Code.dup);
             Code.put(Code.getfield);
             Code.put2(0);
             Code.put(Code.invokevirtual);
@@ -439,6 +623,43 @@ public class CodeGenerator extends VisitorAdaptor {
             }
 
             Code.put4(-1);
+
+            if (functionObjectNode.getType() != ExtendedSymbolTable.noType && notUsedResult(functionCall)) {
+                Code.put(Code.pop);
+            } else {
+                putCode();
+            }
+        } else {
+            ExtendedStruct classType = ExtendedSymbolTable.getClassStruct(functionCall.getFunctionCallStart());
+            Obj functionObjectNode = ExtendedSymbolTable.get(functionCall.getFunctionCallStart());
+
+            if (classType == null) {
+                int relativeAddress = functionObjectNode.getAdr() - Code.pc;
+                Code.put(Code.call);
+                Code.put2(relativeAddress);
+
+                if (functionObjectNode.getType() != ExtendedSymbolTable.noType && notUsedResult(functionCall)) {
+                    Code.put(Code.pop);
+                }
+            } else {
+                Code.put(Code.load_n); // load "this" pointer
+                Code.put(Code.getfield);
+                Code.put2(0);
+                Code.put(Code.invokevirtual);
+                FunctionCallStartDerived1 fCallStart = (FunctionCallStartDerived1)functionCall.getFunctionCallStart();
+                String name = fCallStart.getI1();
+                for (int i = 0; i < name.length(); i++) {
+                    Code.put4(name.charAt(i));
+                }
+
+                Code.put4(-1);
+
+                if (functionObjectNode.getType() != ExtendedSymbolTable.noType && notUsedResult(functionCall)) {
+                    Code.put(Code.pop);
+                } else {
+                    putCode();
+                }
+            }
         }
     }
 
@@ -458,8 +679,16 @@ public class CodeGenerator extends VisitorAdaptor {
             }
         } else {
             ExtendedStruct type = (ExtendedStruct) ExtendedSymbolTable.getStruct(allocation);
+
+           int numOfFields = 1;
+            ExtendedStruct curr = type;
+            while (curr != null) {
+                numOfFields += (curr.getNumberOfFields() - 1);
+                curr = curr.getParent();
+            }
+
             Code.put(Code.new_);
-            Code.put2(type.getNumberOfFields() * 2);
+            Code.put2(numOfFields * 4);
             Code.put(Code.dup);
             Code.loadConst(type.getVirtualTablePointer());
             Code.put(Code.putfield);
@@ -471,28 +700,46 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // region Increment/decrement
 
-    private byte[] helperIncDecArray = new byte[8192];
-    private int helperIncDecSize = 0;
-    private boolean isIncDec = false;
+    private int incDecWriteAddress;
 
     @Override
     public void visit(IncrementDecrementDerived1 increment) {
+        int endAddr = Code.pc;
+        if (isUsed(increment)) {
+            for (int i = incDecStartPc; i < endAddr; i++) {
+                Code.put(Code.buf[i]);
+            }
+        }
+
         Code.put(Code.const_1);
         Code.put(Code.add);
-        fixup(helperIncDecArray);
-        putHelper();
+        for (int i = incDecStartPc; i < endAddr; i++) {
+            Code.put(Code.buf[i]);
+        }
 
-        isIncDec = false;
+        incDecWriteAddress += endAddr - incDecStartPc + 2;
+
+        fixupLastRead();
     }
 
     @Override
     public void visit(IncrementDecrementDerived2 decrement) {
+        int endAddr = Code.pc;
+        if (isUsed(decrement)) {
+            for (int i = incDecStartPc; i < endAddr; i++) {
+                Code.put(Code.buf[i]);
+            }
+        }
+
         Code.put(Code.const_1);
         Code.put(Code.sub);
-        fixup(helperIncDecArray);
-        putHelper();
+        for (int i = incDecStartPc; i < endAddr; i++) {
+            Code.put(Code.buf[i]);
+        }
 
-        isIncDec = false;
+        incDecWriteAddress += endAddr - incDecStartPc + 2;
+
+        fixupLastRead();
     }
 
     // endregion
@@ -507,7 +754,6 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(ConditionalStartDerived1 conditionalStart) {
-        isRightValue++;
     }
 
     @Override
@@ -540,7 +786,6 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(ConditionDerived1 pureCondition) {
-        isRightValue--;
         isFirstCondition = true;
     }
 
@@ -554,8 +799,6 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.putFalseJump(Code.eq, 0);
 
         numsOfConditions.push(1);
-
-        isRightValue--;
     }
 
     @Override
@@ -577,8 +820,6 @@ public class CodeGenerator extends VisitorAdaptor {
             int nums = numsOfConditions.pop();
             numsOfConditions.push(nums + 1);
         }
-
-        isRightValue--;
     }
 
     @Override
@@ -623,6 +864,10 @@ public class CodeGenerator extends VisitorAdaptor {
     private Stack<Integer> breakNums = new Stack<>();
     private boolean isFirstBreak = true;
 
+    private Stack<Integer> continueAddresses = new Stack<>();
+    private Stack<Integer> continueNums = new Stack<>();
+    private boolean isFirstContinue = true;
+
     @Override
     public void visit(LoopStartDerived1 loopStart) {
         loopAddresses.push(Code.pc);
@@ -655,7 +900,16 @@ public class CodeGenerator extends VisitorAdaptor {
     @Override
     public void visit(LoopConditionStartDerived1 loopConditionStart) {
         isLoop = true;
-        isRightValue++;
+
+        if (!continueNums.empty()) {
+            int num = continueNums.pop();
+            for (int i = 0; i < num; i++) {
+                int address = continueAddresses.pop();
+                Code.fixup(address);
+            }
+        }
+
+        isFirstContinue = true;
     }
 
     @Override
@@ -674,7 +928,16 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(LoopExitDerived2 continueLoop) {
-        Code.putJump(loopAddresses.peek());
+        continueAddresses.push(Code.pc + 1);
+        Code.putJump(0);
+
+        if (isFirstContinue) {
+            continueNums.push(1);
+            isFirstContinue = false;
+        } else {
+            int nums = continueNums.pop();
+            continueNums.push(nums + 1);
+        }
     }
 
     // endregion
