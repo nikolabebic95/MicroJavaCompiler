@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 17/0/2018 1:1:31
+// 17/0/2018 2:13:15
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -33,9 +33,12 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ClassDeclaration ClassDeclaration) { }
     public void visit(Block Block) { }
     public void visit(ProgramStart ProgramStart) { }
+    public void visit(ConditionalDummy ConditionalDummy) { }
     public void visit(PredefinedFunction PredefinedFunction) { }
     public void visit(LogicalExpression LogicalExpression) { }
     public void visit(ConstantsList ConstantsList) { }
+    public void visit(LoopConditionStart LoopConditionStart) { }
+    public void visit(LoopStart LoopStart) { }
     public void visit(VariableDefinition VariableDefinition) { }
     public void visit(DeclarationsList DeclarationsList) { }
     public void visit(LocalVariableDeclaration LocalVariableDeclaration) { }
@@ -169,8 +172,11 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ReturnDerived1 ReturnDerived1) { visit(); }
     public void visit(LoopExitDerived2 LoopExitDerived2) { visit(); }
     public void visit(LoopExitDerived1 LoopExitDerived1) { visit(); }
+    public void visit(LoopConditionStartDerived1 LoopConditionStartDerived1) { visit(); }
+    public void visit(LoopStartDerived1 LoopStartDerived1) { visit(); }
     public void visit(LoopDerived1 LoopDerived1) { visit(); }
     public void visit(ConditionalStartDerived1 ConditionalStartDerived1) { visit(); }
+    public void visit(ConditionalDummyDerived1 ConditionalDummyDerived1) { visit(); }
     public void visit(ConditionalDerived1 ConditionalDerived1) { visit(); }
     public void visit(AssignOperatorDerived1 AssignOperatorDerived1) { visit(); }
     public void visit(ExpressionDerived2 ExpressionDerived2) { visit(); }

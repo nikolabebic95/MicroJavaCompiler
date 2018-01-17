@@ -95,8 +95,11 @@ non terminal OptionalArrayDeclaration OptionalArrayDeclaration;
 non terminal Expression Expression;
 non terminal AssignOperator AssignOperator;
 non terminal Conditional Conditional;
+non terminal ConditionalDummy ConditionalDummy;
 non terminal ConditionalStart ConditionalStart;
 non terminal Loop Loop;
+non terminal LoopStart LoopStart;
+non terminal LoopConditionStart LoopConditionStart;
 non terminal LoopExit LoopExit;
 non terminal Return Return;
 non terminal ReturnStart ReturnStart;
@@ -276,11 +279,17 @@ Expression ::= LeftValue:L1 SEPARATOR {: RESULT=new ExpressionDerived1(L1); RESU
 
 AssignOperator ::= ASSIGN {: RESULT=new AssignOperatorDerived1(); :} ;
 
-Conditional ::= ConditionalStart:C1 LEFT_PARENTHESIS Condition:C2 RIGHT_PARENTHESIS Statement:S3 OptionalElse:O4 {: RESULT=new ConditionalDerived1(C1, C2, S3, O4); RESULT.setLine(C1left); :} ;
+Conditional ::= ConditionalStart:C1 LEFT_PARENTHESIS Condition:C2 ConditionalDummy:C3 RIGHT_PARENTHESIS Statement:S4 OptionalElse:O5 {: RESULT=new ConditionalDerived1(C1, C2, C3, S4, O5); RESULT.setLine(C1left); :} ;
+
+ConditionalDummy ::= {: RESULT=new ConditionalDummyDerived1(); :} /* epsilon */ ;
 
 ConditionalStart ::= IF {: RESULT=new ConditionalStartDerived1(); :} ;
 
-Loop ::= DO Statement:S1 WHILE LEFT_PARENTHESIS Condition:C2 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new LoopDerived1(S1, C2); RESULT.setLine(S1left); :} ;
+Loop ::= LoopStart:L1 Statement:S2 LoopConditionStart:L3 LEFT_PARENTHESIS Condition:C4 RIGHT_PARENTHESIS SEPARATOR {: RESULT=new LoopDerived1(L1, S2, L3, C4); RESULT.setLine(L1left); :} ;
+
+LoopStart ::= DO {: RESULT=new LoopStartDerived1(); :} ;
+
+LoopConditionStart ::= WHILE {: RESULT=new LoopConditionStartDerived1(); :} ;
 
 LoopExit ::= BREAK SEPARATOR {: RESULT=new LoopExitDerived1(); :}
 			 |

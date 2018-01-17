@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 17/0/2018 1:1:30
+// 17/0/2018 2:13:13
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,14 +9,17 @@ public class ConditionalDerived1 extends Conditional {
 
     private ConditionalStart ConditionalStart;
     private Condition Condition;
+    private ConditionalDummy ConditionalDummy;
     private Statement Statement;
     private OptionalElse OptionalElse;
 
-    public ConditionalDerived1 (ConditionalStart ConditionalStart, Condition Condition, Statement Statement, OptionalElse OptionalElse) {
+    public ConditionalDerived1 (ConditionalStart ConditionalStart, Condition Condition, ConditionalDummy ConditionalDummy, Statement Statement, OptionalElse OptionalElse) {
         this.ConditionalStart=ConditionalStart;
         if(ConditionalStart!=null) ConditionalStart.setParent(this);
         this.Condition=Condition;
         if(Condition!=null) Condition.setParent(this);
+        this.ConditionalDummy=ConditionalDummy;
+        if(ConditionalDummy!=null) ConditionalDummy.setParent(this);
         this.Statement=Statement;
         if(Statement!=null) Statement.setParent(this);
         this.OptionalElse=OptionalElse;
@@ -37,6 +40,14 @@ public class ConditionalDerived1 extends Conditional {
 
     public void setCondition(Condition Condition) {
         this.Condition=Condition;
+    }
+
+    public ConditionalDummy getConditionalDummy() {
+        return ConditionalDummy;
+    }
+
+    public void setConditionalDummy(ConditionalDummy ConditionalDummy) {
+        this.ConditionalDummy=ConditionalDummy;
     }
 
     public Statement getStatement() {
@@ -62,6 +73,7 @@ public class ConditionalDerived1 extends Conditional {
     public void childrenAccept(Visitor visitor) {
         if(ConditionalStart!=null) ConditionalStart.accept(visitor);
         if(Condition!=null) Condition.accept(visitor);
+        if(ConditionalDummy!=null) ConditionalDummy.accept(visitor);
         if(Statement!=null) Statement.accept(visitor);
         if(OptionalElse!=null) OptionalElse.accept(visitor);
     }
@@ -70,6 +82,7 @@ public class ConditionalDerived1 extends Conditional {
         accept(visitor);
         if(ConditionalStart!=null) ConditionalStart.traverseTopDown(visitor);
         if(Condition!=null) Condition.traverseTopDown(visitor);
+        if(ConditionalDummy!=null) ConditionalDummy.traverseTopDown(visitor);
         if(Statement!=null) Statement.traverseTopDown(visitor);
         if(OptionalElse!=null) OptionalElse.traverseTopDown(visitor);
     }
@@ -77,6 +90,7 @@ public class ConditionalDerived1 extends Conditional {
     public void traverseBottomUp(Visitor visitor) {
         if(ConditionalStart!=null) ConditionalStart.traverseBottomUp(visitor);
         if(Condition!=null) Condition.traverseBottomUp(visitor);
+        if(ConditionalDummy!=null) ConditionalDummy.traverseBottomUp(visitor);
         if(Statement!=null) Statement.traverseBottomUp(visitor);
         if(OptionalElse!=null) OptionalElse.traverseBottomUp(visitor);
         accept(visitor);
@@ -95,6 +109,12 @@ public class ConditionalDerived1 extends Conditional {
 
         if(Condition!=null)
             buffer.append(Condition.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
+
+        if(ConditionalDummy!=null)
+            buffer.append(ConditionalDummy.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

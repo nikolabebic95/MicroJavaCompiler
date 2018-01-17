@@ -95,8 +95,11 @@ non terminal OptionalArrayDeclaration;
 non terminal Expression;
 non terminal AssignOperator;
 non terminal Conditional;
+non terminal ConditionalDummy;
 non terminal ConditionalStart;
 non terminal Loop;
+non terminal LoopStart;
+non terminal LoopConditionStart;
 non terminal LoopExit;
 non terminal Return;
 non terminal ReturnStart;
@@ -276,11 +279,17 @@ Expression ::= LeftValue SEPARATOR
 
 AssignOperator ::= ASSIGN ;
 
-Conditional ::= ConditionalStart LEFT_PARENTHESIS Condition RIGHT_PARENTHESIS Statement OptionalElse ;
+Conditional ::= ConditionalStart LEFT_PARENTHESIS Condition ConditionalDummy RIGHT_PARENTHESIS Statement OptionalElse ;
+
+ConditionalDummy ::= /* epsilon */ ;
 
 ConditionalStart ::= IF ;
 
-Loop ::= DO Statement WHILE LEFT_PARENTHESIS Condition RIGHT_PARENTHESIS SEPARATOR ;
+Loop ::= LoopStart Statement LoopConditionStart LEFT_PARENTHESIS Condition RIGHT_PARENTHESIS SEPARATOR ;
+
+LoopStart ::= DO ;
+
+LoopConditionStart ::= WHILE ;
 
 LoopExit ::= BREAK SEPARATOR
 			 |

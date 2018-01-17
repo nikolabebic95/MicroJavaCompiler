@@ -480,6 +480,8 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // endregion
 
+    // region Derived conditions
+
     @Override
     public void visit(ConditionDerived1 pureCondition) {
         isRightValue--;
@@ -495,6 +497,23 @@ public class CodeGenerator extends VisitorAdaptor {
         addresses.push(Code.pc + 1);
         Code.putFalseJump(Code.eq, 0);
 
+        numsOfConditions.push(1);
+
+        isRightValue--;
+    }
+
+    @Override
+    public void visit(ConditionDerived3 boolCondition) {
+        Code.put(Code.const_1);
+        if (boolCondition.getB1()) {
+            Code.put(Code.const_1);
+        } else {
+            Code.put(Code.const_2);
+        }
+
+        addresses.push(Code.pc + 1);
+        Code.putFalseJump(Code.eq, 0);
+
         if (isFirstCondition) {
             numsOfConditions.push(1);
             isFirstCondition = false;
@@ -502,6 +521,8 @@ public class CodeGenerator extends VisitorAdaptor {
             int nums = numsOfConditions.pop();
             numsOfConditions.push(nums + 1);
         }
+
+        isRightValue--;
     }
 
     @Override
@@ -519,6 +540,11 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(OptionalConditionTermsStartDerived1 optionalConditionTermsStart) {
+        if (isLoop) {
+            int loopAddress = loopAddresses.peek();
+            Code.putJump(loopAddress);
+        }
+
         int num = numsOfConditions.pop();
         for (int i = 0; i < num; i++) {
             int address = addresses.pop();
@@ -526,6 +552,73 @@ public class CodeGenerator extends VisitorAdaptor {
         }
 
         isFirstCondition = true;
+    }
+
+    // endregion
+
+    // endregion
+
+    // region Loops
+
+    private Stack<Integer> loopAddresses = new Stack<>();
+    private boolean isLoop = false;
+
+    private Stack<Integer> breakAddresses = new Stack<>();
+    private Stack<Integer> breakNums = new Stack<>();
+    private boolean isFirstBreak = true;
+
+    @Override
+    public void visit(LoopStartDerived1 loopStart) {
+        loopAddresses.push(Code.pc);
+    }
+
+    @Override
+    public void visit(LoopDerived1 loop) {
+        int loopAddress = loopAddresses.pop();
+        Code.putJump(loopAddress);
+
+        int num = numsOfConditions.pop();
+        for (int i = 0; i < num; i++) {
+            int address = addresses.pop();
+            Code.fixup(address);
+        }
+
+        if (!breakNums.empty()) {
+            num = breakNums.pop();
+            for (int i = 0; i < num; i++) {
+                int address = breakAddresses.pop();
+                Code.fixup(address);
+            }
+        }
+
+        isFirstCondition = true;
+        isFirstBreak = true;
+        isLoop = false;
+    }
+
+    @Override
+    public void visit(LoopConditionStartDerived1 loopConditionStart) {
+        isLoop = true;
+        isRightValue++;
+    }
+
+    @Override
+    public void visit(LoopExitDerived1 breakLoop) {
+        breakAddresses.push(Code.pc + 1);
+        Code.putJump(0);
+
+        if (isFirstBreak) {
+            breakNums.push(1);
+            isFirstBreak = false;
+        } else {
+            int nums = breakNums.pop();
+            breakNums.push(nums + 1);
+        }
+    }
+
+    @Override
+    public void visit(LoopExitDerived2 continueLoop) {
+        Code.putJump(loopAddresses.peek());
     }
 
     // endregion
