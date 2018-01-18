@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 17/0/2018 18:3:12
+// 18/0/2018 2:29:29
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -177,8 +177,10 @@ public interface Visitor {
     public void visit(LoopDerived1 LoopDerived1);
     public void visit(ConditionalStartDerived1 ConditionalStartDerived1);
     public void visit(ConditionalDummyDerived1 ConditionalDummyDerived1);
+    public void visit(ConditionalDerived2 ConditionalDerived2);
     public void visit(ConditionalDerived1 ConditionalDerived1);
     public void visit(AssignOperatorDerived1 AssignOperatorDerived1);
+    public void visit(ExpressionDerived3 ExpressionDerived3);
     public void visit(ExpressionDerived2 ExpressionDerived2);
     public void visit(ExpressionDerived1 ExpressionDerived1);
     public void visit(OptionalArrayDeclarationDerived2 OptionalArrayDeclarationDerived2);
@@ -195,6 +197,7 @@ public interface Visitor {
     public void visit(StatementDerived2 StatementDerived2);
     public void visit(StatementDerived1 StatementDerived1);
     public void visit(FormalParameterDerived1 FormalParameterDerived1);
+    public void visit(VariablesListDerived3 VariablesListDerived3);
     public void visit(VariablesListDerived2 VariablesListDerived2);
     public void visit(VariablesListDerived1 VariablesListDerived1);
     public void visit(ConstantsListDerived2 ConstantsListDerived2);
@@ -203,18 +206,22 @@ public interface Visitor {
     public void visit(BlockDerived1 BlockDerived1);
     public void visit(LocalVariablesListDerived2 LocalVariablesListDerived2);
     public void visit(LocalVariablesListDerived1 LocalVariablesListDerived1);
+    public void visit(FormalParametersListNonEmptyDerived3 FormalParametersListNonEmptyDerived3);
     public void visit(FormalParametersListNonEmptyDerived2 FormalParametersListNonEmptyDerived2);
     public void visit(FormalParametersListNonEmptyDerived1 FormalParametersListNonEmptyDerived1);
     public void visit(FormalParametersListDerived2 FormalParametersListDerived2);
     public void visit(FormalParametersListDerived1 FormalParametersListDerived1);
+    public void visit(VariableDeclarationDerived2 VariableDeclarationDerived2);
     public void visit(VariableDeclarationDerived1 VariableDeclarationDerived1);
     public void visit(ConstantDeclarationDerived1 ConstantDeclarationDerived1);
     public void visit(ClassStartDerived1 ClassStartDerived1);
     public void visit(DummyClassSeparatorDerived1 DummyClassSeparatorDerived1);
     public void visit(ClassDeclarationDerived1 ClassDeclarationDerived1);
+    public void visit(BaseClassDeclarationDerived3 BaseClassDeclarationDerived3);
     public void visit(BaseClassDeclarationDerived2 BaseClassDeclarationDerived2);
     public void visit(BaseClassDeclarationDerived1 BaseClassDeclarationDerived1);
     public void visit(MethodStartDerived1 MethodStartDerived1);
+    public void visit(MethodDerived2 MethodDerived2);
     public void visit(MethodDerived1 MethodDerived1);
     public void visit(ReturnTypeDerived2 ReturnTypeDerived2);
     public void visit(ReturnTypeDerived1 ReturnTypeDerived1);

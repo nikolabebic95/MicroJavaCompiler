@@ -37,8 +37,6 @@ public class MJParserTest {
             MJParser p = new MJParser(lexer);
             Symbol s = p.parse();  //pocetak parsiranja
 
-            log.info("Print calls = " + p.printCallCount);
-
             Program program = (Program)s.value;
             System.out.println(program);
         }

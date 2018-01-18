@@ -6,7 +6,7 @@ import rs.ac.bg.etf.pp1.ast.*;
 
 parser code {:
 
-	int printCallCount = 0;
+	boolean allCorrect = true;
 
 	Logger log = Logger.getLogger(getClass());
 
@@ -21,9 +21,10 @@ parser code {:
     }
 
     public void report_error(String message, Object info) {
+		allCorrect = false;
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append(((Symbol)info).value).append(" at line ").append(((Symbol)info).left);
+            msg.append("'").append(((Symbol)info).value).append("' at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
 
@@ -193,13 +194,18 @@ ReturnType ::= VOID
 			   Type
 			   ;
 
-Method ::= MethodStart LEFT_PARENTHESIS FormalParametersList RIGHT_PARENTHESIS LocalVariablesList LEFT_BRACE Block RIGHT_BRACE ;
+Method ::= MethodStart LEFT_PARENTHESIS FormalParametersList RIGHT_PARENTHESIS LocalVariablesList LEFT_BRACE Block RIGHT_BRACE 
+		   |
+		   MethodStart LEFT_PARENTHESIS error RIGHT_PARENTHESIS LocalVariablesList LEFT_BRACE Block RIGHT_BRACE
+		   ;
 
 MethodStart ::= ReturnType IDENTIFIER ;
 
 BaseClassDeclaration ::= EXTENDS ClassName
 						 |
 						 /* epsilon */
+						 |
+						 EXTENDS error
 						 ;
 
 ClassDeclaration ::= ClassStart LEFT_BRACE LocalVariablesList DummyClassSeparator OptionalMethodsList RIGHT_BRACE ;
@@ -210,7 +216,10 @@ ClassStart ::= CLASS IDENTIFIER BaseClassDeclaration ;
 
 ConstantDeclaration ::= CONST Type ConstantsList SEPARATOR ;
 
-VariableDeclaration ::= Type VariablesList SEPARATOR ;
+VariableDeclaration ::= Type VariablesList SEPARATOR 
+						|
+						error SEPARATOR
+						;
 
 FormalParametersList ::= FormalParametersListNonEmpty
 						 |
@@ -220,6 +229,8 @@ FormalParametersList ::= FormalParametersListNonEmpty
 FormalParametersListNonEmpty ::= FormalParametersListNonEmpty COMMA FormalParameter
 								 |
 								 FormalParameter
+								 |
+								 error COMMA FormalParameter
 								 ;
 
 LocalVariablesList ::= LocalVariablesList VariableDeclaration
@@ -240,6 +251,8 @@ ConstantsList ::= ConstantsList COMMA ConstantDefinition
 VariablesList ::= VariablesList COMMA VariableDefinition
 				  |
 				  VariableDefinition
+				  |
+				  error COMMA VariableDefinition
 				  ;
 
 FormalParameter ::= Type IDENTIFIER OptionalArrayDeclaration ;
@@ -275,11 +288,16 @@ OptionalArrayDeclaration ::= LEFT_BRACKET RIGHT_BRACKET
 Expression ::= LeftValue SEPARATOR
 			   |
 			   LeftValue AssignOperator RightValue SEPARATOR
+			   |
+			   error SEPARATOR
 			   ;
 
 AssignOperator ::= ASSIGN ;
 
-Conditional ::= ConditionalStart LEFT_PARENTHESIS Condition ConditionalDummy RIGHT_PARENTHESIS Statement OptionalElse ;
+Conditional ::= ConditionalStart LEFT_PARENTHESIS Condition ConditionalDummy RIGHT_PARENTHESIS Statement OptionalElse
+				|
+				ConditionalStart LEFT_PARENTHESIS error ConditionalDummy RIGHT_PARENTHESIS Statement OptionalElse
+				;
 
 ConditionalDummy ::= /* epsilon */ ;
 

@@ -26,13 +26,16 @@ class Sfera extends Predmet
 		int zapremina()
 		int z;
 		{
-			z = cinilac;
+			z = --;
+			z = 1;
+			z = 1;
+			z = 1;
 			return z *(r/delilac);
 		}
 	}
 }
 
-class Kvadar extends Predmet
+class Kvadar extends 1
 {
 	int a, b, c;
 	{
@@ -47,17 +50,22 @@ class Kvadar extends Predmet
 	}
 }
 
-int zapreminaK, zapreminaS;
+int zapreminaK, 789, zapreminaS;
+123 zap, za;
 int tezinaK, tezinaS;
 {
 
-	void ispis( Predmet p)
+	void ispis( Predmet p, kuracmoj, int i, char c)
 	{
 		print(p.vrsta); 
 		print(p.tezina);
 		print(eol); 
 	}
 		
+	void func(abc) {
+		print(1);
+	}
+	
 	void main() Predmet predmeti[]; int i; Sfera s1, s2, s3; Kvadar k1, k2, k3; int t;
 	{
 		
@@ -100,7 +108,7 @@ int tezinaK, tezinaS;
 		do
 		{
 			i++;
-			if(i % 2 == 0) continue; 
+			if(i % == 0) continue; 
 			zapreminaS = zapreminaS + predmeti[i - 1].zapremina();
 			tezinaS = tezinaS + predmeti[i - 1].Q();
 			ispis(predmeti[i - 1]);

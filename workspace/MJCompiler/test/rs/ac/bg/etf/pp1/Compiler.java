@@ -32,6 +32,16 @@ public class Compiler {
                 MJParser p = new MJParser(lexer);
                 Symbol s = p.parse();
 
+                if (!(s.value instanceof Program)) {
+                    log.error("Errors found - Stopping compiler");
+                    return;
+                }
+
+                if (!p.allCorrect) {
+                    log.error("Errors found - Stopping compiler");
+                    return;
+                }
+
                 // Output parser results
                 Program program = (Program) s.value;
                 System.out.println(program);
@@ -47,11 +57,7 @@ public class Compiler {
                 program.traverseBottomUp(codeGenerator);
                 Code.write(new FileOutputStream("MJCompiler/test/program.obj"));
             }
-        }
-        catch (RuntimeException e) {
-            System.err.println(e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(e);
         }
     }

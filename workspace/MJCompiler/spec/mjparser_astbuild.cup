@@ -6,7 +6,7 @@ import rs.ac.bg.etf.pp1.ast.*;
 
 parser code {:
 
-	int printCallCount = 0;
+	boolean allCorrect = true;
 
 	Logger log = Logger.getLogger(getClass());
 
@@ -21,9 +21,10 @@ parser code {:
     }
 
     public void report_error(String message, Object info) {
+		allCorrect = false;
     	StringBuilder msg = new StringBuilder(message);
     	if (info instanceof Symbol)
-            msg.append(((Symbol)info).value).append(" at line ").append(((Symbol)info).left);
+            msg.append("'").append(((Symbol)info).value).append("' at line ").append(((Symbol)info).left);
         log.error(msg.toString());
     }
 
@@ -193,13 +194,18 @@ ReturnType ::= VOID {: RESULT=new ReturnTypeDerived1(); :}
 			   Type:T1 {: RESULT=new ReturnTypeDerived2(T1); RESULT.setLine(T1left); :}
 			   ;
 
-Method ::= MethodStart:M1 LEFT_PARENTHESIS FormalParametersList:F2 RIGHT_PARENTHESIS LocalVariablesList:L3 LEFT_BRACE Block:B4 RIGHT_BRACE {: RESULT=new MethodDerived1(M1, F2, L3, B4); RESULT.setLine(M1left); :} ;
+Method ::= MethodStart:M1 LEFT_PARENTHESIS FormalParametersList:F2 RIGHT_PARENTHESIS LocalVariablesList:L3 LEFT_BRACE Block:B4 RIGHT_BRACE {: RESULT=new MethodDerived1(M1, F2, L3, B4); RESULT.setLine(M1left); :} 
+		   |
+		   MethodStart:M1 LEFT_PARENTHESIS error RIGHT_PARENTHESIS LocalVariablesList:L2 LEFT_BRACE Block:B3 RIGHT_BRACE {: RESULT=new MethodDerived2(M1, L2, B3); RESULT.setLine(M1left); :}
+		   ;
 
 MethodStart ::= ReturnType:R1 IDENTIFIER:I2 {: RESULT=new MethodStartDerived1(R1, I2); RESULT.setLine(R1left); :} ;
 
 BaseClassDeclaration ::= EXTENDS ClassName:C1 {: RESULT=new BaseClassDeclarationDerived1(C1); RESULT.setLine(C1left); :}
 						 | {: RESULT=new BaseClassDeclarationDerived2(); :}
 						 /* epsilon */
+						 |
+						 EXTENDS error {: RESULT=new BaseClassDeclarationDerived3(); :}
 						 ;
 
 ClassDeclaration ::= ClassStart:C1 LEFT_BRACE LocalVariablesList:L2 DummyClassSeparator:D3 OptionalMethodsList:O4 RIGHT_BRACE {: RESULT=new ClassDeclarationDerived1(C1, L2, D3, O4); RESULT.setLine(C1left); :} ;
@@ -210,7 +216,10 @@ ClassStart ::= CLASS IDENTIFIER:I1 BaseClassDeclaration:B2 {: RESULT=new ClassSt
 
 ConstantDeclaration ::= CONST Type:T1 ConstantsList:C2 SEPARATOR {: RESULT=new ConstantDeclarationDerived1(T1, C2); RESULT.setLine(T1left); :} ;
 
-VariableDeclaration ::= Type:T1 VariablesList:V2 SEPARATOR {: RESULT=new VariableDeclarationDerived1(T1, V2); RESULT.setLine(T1left); :} ;
+VariableDeclaration ::= Type:T1 VariablesList:V2 SEPARATOR {: RESULT=new VariableDeclarationDerived1(T1, V2); RESULT.setLine(T1left); :} 
+						|
+						error SEPARATOR {: RESULT=new VariableDeclarationDerived2(); :}
+						;
 
 FormalParametersList ::= FormalParametersListNonEmpty:F1 {: RESULT=new FormalParametersListDerived1(F1); RESULT.setLine(F1left); :}
 						 | {: RESULT=new FormalParametersListDerived2(); :}
@@ -220,6 +229,8 @@ FormalParametersList ::= FormalParametersListNonEmpty:F1 {: RESULT=new FormalPar
 FormalParametersListNonEmpty ::= FormalParametersListNonEmpty:F1 COMMA FormalParameter:F2 {: RESULT=new FormalParametersListNonEmptyDerived1(F1, F2); RESULT.setLine(F1left); :}
 								 |
 								 FormalParameter:F1 {: RESULT=new FormalParametersListNonEmptyDerived2(F1); RESULT.setLine(F1left); :}
+								 |
+								 error COMMA FormalParameter:F1 {: RESULT=new FormalParametersListNonEmptyDerived3(F1); RESULT.setLine(F1left); :}
 								 ;
 
 LocalVariablesList ::= LocalVariablesList:L1 VariableDeclaration:V2 {: RESULT=new LocalVariablesListDerived1(L1, V2); RESULT.setLine(L1left); :}
@@ -240,6 +251,8 @@ ConstantsList ::= ConstantsList:C1 COMMA ConstantDefinition:C2 {: RESULT=new Con
 VariablesList ::= VariablesList:V1 COMMA VariableDefinition:V2 {: RESULT=new VariablesListDerived1(V1, V2); RESULT.setLine(V1left); :}
 				  |
 				  VariableDefinition:V1 {: RESULT=new VariablesListDerived2(V1); RESULT.setLine(V1left); :}
+				  |
+				  error COMMA VariableDefinition:V1 {: RESULT=new VariablesListDerived3(V1); RESULT.setLine(V1left); :}
 				  ;
 
 FormalParameter ::= Type:T1 IDENTIFIER:I2 OptionalArrayDeclaration:O3 {: RESULT=new FormalParameterDerived1(T1, I2, O3); RESULT.setLine(T1left); :} ;
@@ -275,11 +288,16 @@ OptionalArrayDeclaration ::= LEFT_BRACKET RIGHT_BRACKET {: RESULT=new OptionalAr
 Expression ::= LeftValue:L1 SEPARATOR {: RESULT=new ExpressionDerived1(L1); RESULT.setLine(L1left); :}
 			   |
 			   LeftValue:L1 AssignOperator:A2 RightValue:R3 SEPARATOR {: RESULT=new ExpressionDerived2(L1, A2, R3); RESULT.setLine(L1left); :}
+			   |
+			   error SEPARATOR {: RESULT=new ExpressionDerived3(); :}
 			   ;
 
 AssignOperator ::= ASSIGN {: RESULT=new AssignOperatorDerived1(); :} ;
 
-Conditional ::= ConditionalStart:C1 LEFT_PARENTHESIS Condition:C2 ConditionalDummy:C3 RIGHT_PARENTHESIS Statement:S4 OptionalElse:O5 {: RESULT=new ConditionalDerived1(C1, C2, C3, S4, O5); RESULT.setLine(C1left); :} ;
+Conditional ::= ConditionalStart:C1 LEFT_PARENTHESIS Condition:C2 ConditionalDummy:C3 RIGHT_PARENTHESIS Statement:S4 OptionalElse:O5 {: RESULT=new ConditionalDerived1(C1, C2, C3, S4, O5); RESULT.setLine(C1left); :}
+				|
+				ConditionalStart:C1 LEFT_PARENTHESIS error ConditionalDummy:C2 RIGHT_PARENTHESIS Statement:S3 OptionalElse:O4 {: RESULT=new ConditionalDerived2(C1, C2, S3, O4); RESULT.setLine(C1left); :}
+				;
 
 ConditionalDummy ::= {: RESULT=new ConditionalDummyDerived1(); :} /* epsilon */ ;
 
