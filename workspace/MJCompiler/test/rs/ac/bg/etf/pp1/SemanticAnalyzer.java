@@ -144,12 +144,12 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         private String name;
         private int value;
 
-        public ConstantStruct(String name, int value) {
+        ConstantStruct(String name, int value) {
             this.name = name;
             this.value = value;
         }
 
-        public String getName() {
+        String getName() {
             return name;
         }
 
@@ -188,16 +188,16 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         String name;
         boolean array;
 
-        public VariableStruct(String name, boolean array) {
+        VariableStruct(String name, boolean array) {
             this.name = name;
             this.array = array;
         }
 
-        public String getName() {
+        String getName() {
             return name;
         }
 
-        public boolean isArray() {
+        boolean isArray() {
             return array;
         }
     }

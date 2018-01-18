@@ -19,10 +19,15 @@ public class Compiler {
 
     public static void main(String[] args) {
 
+        if (args.length < 2) {
+            System.err.println("Not enough params (2 needed)");
+            return;
+        }
+
         Logger log = Logger.getLogger(Compiler.class);
 
         try {
-            File sourceCode = new File("MJCompiler/test/program.mj");
+            File sourceCode = new File(args[0]);
             log.info("Compiling source file: " + sourceCode.getAbsolutePath());
 
             try (BufferedReader br = new BufferedReader(new FileReader(sourceCode))){
@@ -55,10 +60,10 @@ public class Compiler {
                 // Code generation
                 CodeGenerator codeGenerator = new CodeGenerator();
                 program.traverseBottomUp(codeGenerator);
-                Code.write(new FileOutputStream("MJCompiler/test/program.obj"));
+                Code.write(new FileOutputStream(args[1]));
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.getMessage());
         }
     }
 }

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 18/0/2018 2:29:29
+// 18/0/2018 3:6:23
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -29,7 +29,6 @@ public interface Visitor {
     public void visit(DummyClassSeparator DummyClassSeparator);
     public void visit(FormalParametersList FormalParametersList);
     public void visit(MethodsList MethodsList);
-    public void visit(OptionalConditionFactorTokens OptionalConditionFactorTokens);
     public void visit(ClassDeclaration ClassDeclaration);
     public void visit(Block Block);
     public void visit(ProgramStart ProgramStart);
@@ -41,7 +40,6 @@ public interface Visitor {
     public void visit(LoopStart LoopStart);
     public void visit(VariableDefinition VariableDefinition);
     public void visit(DeclarationsList DeclarationsList);
-    public void visit(LocalVariableDeclaration LocalVariableDeclaration);
     public void visit(MultiplyOperator MultiplyOperator);
     public void visit(OptionalPrintParameter OptionalPrintParameter);
     public void visit(Program Program);

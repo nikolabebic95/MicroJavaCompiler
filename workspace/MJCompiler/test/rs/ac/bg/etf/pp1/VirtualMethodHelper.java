@@ -68,8 +68,4 @@ public final class VirtualMethodHelper {
     public static ArrayList<Byte> getMethodTable() {
         return methodTable;
     }
-
-    public static void resetMethodTable() {
-        methodTable = new ArrayList<>();
-    }
 }
